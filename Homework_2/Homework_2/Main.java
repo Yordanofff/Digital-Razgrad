@@ -4,11 +4,9 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
-//        System.out.println("Принтиране на задачите:");
-//        System.out.println("\n\n\n----> Задача 1:");
-//        FirstTask();
-        System.out.println("\n\n\n----> Задача 2:");
-        SecondTask();
+        Task1();
+        Task2();
+        Task3();
 
 
     }
@@ -45,7 +43,7 @@ public class Main {
         }
     }
 
-    public static void FirstTask() {
+    public static void Task1() {
         // За даден стадион имаме следните характеристики:
         //▪ Наименование на стадиона
         //▪ Капацитет в бр. седящи места (в променливата capacity) ▪ Дали има осветление (в променливата hasLights)
@@ -73,19 +71,45 @@ public class Main {
         }
     }
 
-    public static void SecondTask() {
+    public static void Task2() {
         //Да се напише програма, която позволява на потребителя да въведе цяло число N и
         // след това отпечатва цяла част и остатък при деление на N с 3.
         int N;
         int resultPart1;
         int resultPart2;
+
         N = readInt("Въведете число: ");
 
         resultPart1 = N / 3;
         resultPart2 = N % 3;
 
         System.out.println("При делене на 3 има " + resultPart1 + " цели части и остатък от " + resultPart2 + ".");
- 
+    }
+    public static void Task3() {
+        // За даден автомобил са дадени следните характеристики:
+        // ▪ Възраст в години (age)
+        // ▪ Цена в хил.лв. (price)
+        //Един автомобил е от висок клас, ако е по-стар от 5 години и струва над 20 хил.лв. или е
+        // на 5 или по-малко години и струва над 40 хил.лв.
+        //Прочетете двете стойности от конзолата.
+        //Напишете израз, който определя дали автомобил с дадени характеристики е от висок клас.
+        //Принтирайте резултатът от израза (true или false).
+        int age;
+        int price;
+        boolean highClass;
+
+        age = readInt("На колко години е автомобилът? ");
+        price = readInt("Колко пари струва (хил. лв)? ");
+
+        // Set the bool to true or false
+        highClass = (age > 5 && price > 20000) || (age <= 5 && price > 40000);
+
+        if (highClass) {
+            System.out.println("Автомобилът е висок клас.");
+        } else {
+            System.out.println("Автомобилът е нисък клас.");
+        }
+
     }
 }
 
