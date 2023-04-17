@@ -4,12 +4,13 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
+        // Uncomment the task that you would like to run and test.
+
 //        Task1();
 //        Task2();
 //        Task3();
 //        Task4();
-        Task5();
-
+//        Task5();
 
     }
 
@@ -18,7 +19,6 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine();
     }
-    //    @org.jetbrains.annotations.NotNull
     public static @NotNull Integer readInt(String question) {
         System.out.print(question);
         Scanner scanner = new Scanner(System.in);
@@ -129,7 +129,6 @@ public class Main {
             System.out.println("Абсолютната стойност на \"" + N + "\" е: " + Math.abs(N));
         }
     }
-
     public static void Task5() {
         //Напишете булев израз, който да проверява дали едно цяло число въведено от потребител
         // се дели на 3 и на 7 без остатък.
