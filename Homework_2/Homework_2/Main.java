@@ -7,7 +7,8 @@ public class Main {
 //        Task1();
 //        Task2();
 //        Task3();
-        Task4();
+//        Task4();
+        Task5();
 
 
     }
@@ -127,6 +128,31 @@ public class Main {
         } else {
             System.out.println("Абсолютната стойност на \"" + N + "\" е: " + Math.abs(N));
         }
+    }
+
+    public static void Task5() {
+        //Напишете булев израз, който да проверява дали едно цяло число въведено от потребител
+        // се дели на 3 и на 7 без остатък.
+
+        int N = readInt("Въведете число: ");
+        String toPrint = "Числото \"" + N + "\" се дели без остатък на ";
+
+        boolean isDivisibleBy3 = N % 3 == 0;
+        boolean isDivisibleBy7 = N % 7 == 0;
+
+
+        if (isDivisibleBy3 && isDivisibleBy7) {
+            toPrint += "3 и на 7.";
+        } else if (isDivisibleBy3) {
+            toPrint += "3, но не и на 7.";
+        } else if (isDivisibleBy7){
+            toPrint += "7, но не и на 3.";
+        } else {
+            toPrint = "Числото \"" + N + "\" не се дели без остатък нито на 3, нито на 7.";
+        }
+        System.out.println(toPrint);
+
+
     }
 }
 
