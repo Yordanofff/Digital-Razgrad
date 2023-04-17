@@ -4,9 +4,11 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
-        System.out.println("Принтиране на задачите:");
-        System.out.println("\n\n\n----> Задача 1:");
-        FirstTask();
+//        System.out.println("Принтиране на задачите:");
+//        System.out.println("\n\n\n----> Задача 1:");
+//        FirstTask();
+        System.out.println("\n\n\n----> Задача 2:");
+        SecondTask();
 
 
     }
@@ -69,6 +71,21 @@ public class Main {
         } else {
             System.out.println("Осветление: Не");
         }
+    }
+
+    public static void SecondTask() {
+        //Да се напише програма, която позволява на потребителя да въведе цяло число N и
+        // след това отпечатва цяла част и остатък при деление на N с 3.
+        int N;
+        int resultPart1;
+        int resultPart2;
+        N = readInt("Въведете число: ");
+
+        resultPart1 = N / 3;
+        resultPart2 = N % 3;
+
+        System.out.println("При делене на 3 има " + resultPart1 + " цели части и остатък от " + resultPart2 + ".");
+ 
     }
 }
 
