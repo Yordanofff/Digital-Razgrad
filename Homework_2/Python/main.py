@@ -1,8 +1,3 @@
-# This is a sample Python script.
-
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
 def get_yn_stadium_lights() -> bool:
     ans = input("Има ли осветление[y/n]? ")
     if ans.lower() == 'y':
@@ -14,7 +9,7 @@ def get_yn_stadium_lights() -> bool:
         return get_yn_stadium_lights()
 
 
-def Task1():
+def task_1():
     """
      За даден стадион имаме следните характеристики:
     ▪ Наименование на стадиона
@@ -39,7 +34,9 @@ def Task1():
         print("Осветление: Да")
     else:
         print("Осветление: Не")
-def Task2():
+
+
+def task_2():
     """
     Да се напише програма, която позволява на потребителя да въведе цяло число N и
     след това отпечатва цяла част и остатък при деление на N с 3.
@@ -49,7 +46,8 @@ def Task2():
     result_part_2 = N % 3
     print(f"При делене на 3 има {result_part_1} цели части и остатък от {result_part_2}.")
 
-def Task3():
+
+def task_3():
     """
      За даден автомобил са дадени следните характеристики:
      ▪ Възраст в години (age)
@@ -70,8 +68,46 @@ def Task3():
         print("Автомобилът е нисък клас.")
 
 
+def task_4():
+    """
+     Напишете израз, който намира и извежда в конзолата абсолютната стойност на дадено цяло число.
+     Абсолютната стойност на едно число Х е разстоянието му до 0.
+     Пример:
+     ако x = 5, то абсолютната стойност е 5 ако х = -23, то абсолютната стойност е 23
+     Прочетете числото от конзолата.
+    """
+    N = float(input("Въведете число: "))
+    if N % 1 == 0:
+        print(f'Абсолютната стойност на "{int(N)}" е: {abs(int(N))}')
+    else:
+        print(f'Абсолютната стойност на "{N}" е: {abs(N)}')
+
+
+def task_5():
+    """
+    Напишете булев израз, който да проверява дали едно цяло число въведено от потребител
+    се дели на 3 и на 7 без остатък.
+    """
+    N = int(input("Въведете число: "))
+    to_print = f"Числото {N} се дели без остатък на "
+
+    is_divisible_by_3 = N % 3 == 0
+    is_divisible_by_7 = N % 7 == 0
+
+    if is_divisible_by_3 and is_divisible_by_7:
+        to_print += "3 и на 7."
+    elif is_divisible_by_3:
+        to_print += "3, но не и на 7."
+    elif is_divisible_by_7:
+        to_print += "7, но не и на 3."
+    else:
+        to_print = f"Числото {N} не се дели без остатък нито на 3, нито на 7."
+
+    print(to_print)
 
 if __name__ == '__main__':
-    # Task1()
-    # Task2()
-    Task3()
+    # task_1()
+    # task_2()
+    # task_3()
+    # task_4()
+    task_5()
