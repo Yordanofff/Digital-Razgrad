@@ -14,21 +14,26 @@ public class Main {
 
     }
 
+
+
     public static @NotNull String readString(String question) {
         System.out.print(question);
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine();
     }
+
     public static @NotNull Integer readInt(String question) {
         System.out.print(question);
         Scanner scanner = new Scanner(System.in);
         return scanner.nextInt();
     }
+
     public static @NotNull Float readFloat(String question) {
         System.out.print(question);
         Scanner scanner = new Scanner(System.in);
         return scanner.nextFloat();
     }
+
     public static boolean checkYN() {
         //само за 1-ва задача
         String hasLightsYN;
@@ -71,6 +76,7 @@ public class Main {
             System.out.println("Осветление: Не");
         }
     }
+
     public static void Task2() {
         //Да се напише програма, която позволява на потребителя да въведе цяло число N и
         // след това отпечатва цяла част и остатък при деление на N с 3.
@@ -85,6 +91,7 @@ public class Main {
 
         System.out.println("При делене на 3 има " + resultPart1 + " цели части и остатък от " + resultPart2 + ".");
     }
+
     public static void Task3() {
         // За даден автомобил са дадени следните характеристики:
         // ▪ Възраст в години (age)
@@ -111,6 +118,7 @@ public class Main {
         }
 
     }
+
     public static void Task4() {
         // Напишете израз, който намира и извежда в конзолата абсолютната стойност на дадено цяло число.
         // Абсолютната стойност на едно число Х е разстоянието му до 0.
@@ -129,6 +137,7 @@ public class Main {
             System.out.println("Абсолютната стойност на \"" + N + "\" е: " + Math.abs(N));
         }
     }
+
     public static void Task5() {
         //Напишете булев израз, който да проверява дали едно цяло число въведено от потребител
         // се дели на 3 и на 7 без остатък.
