@@ -4,13 +4,14 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
-        // Uncomment the task that you would like to run and test.
+//         Uncomment the task that you would like to run and test.
 
 //        Task1();
 //        Task2();
 //        Task3();
 //        Task4();
 //        Task5();
+//        Task6();
 
     }
 
@@ -135,33 +136,30 @@ public class Main {
     }
 
     public static void Task5() {
-        //Напишете булев израз, който да проверява дали едно цяло число въведено от потребител
-        // се дели на 3 и на 7 без остатък.
-
-        int N = readInt("Въведете число: ");
-        String toPrint = "Числото \"" + N + "\" се дели без остатък на ";
-
-        boolean isDivisibleBy3 = N % 3 == 0;
-        boolean isDivisibleBy7 = N % 7 == 0;
-
-
-        if (isDivisibleBy3 && isDivisibleBy7) {
-            toPrint += "3 и на 7.";
-        } else if (isDivisibleBy3) {
-            toPrint += "3, но не и на 7.";
-        } else if (isDivisibleBy7){
-            toPrint += "7, но не и на 3.";
+        // Да се напише програма за търсене в текст. В
+        //програмата е даден дълъг текст (поне 3 изречения).
+        //Потребителя въвежда търсена дума и програмата
+        //отпечатва дали тази дума се среща в текста или не.
+        //Жокер: Потърсете функция към String, която извършва
+        //такова търсене
+        String longString = readString("Въведете дълъг текст: ");
+        String shortString = readString("Въведете дума която търсите: ");
+        if (longString.contains(shortString)) {
+            System.out.println("Думата " + shortString + " се съдържа в текста.");
         } else {
-            toPrint = "Числото \"" + N + "\" не се дели без остатък нито на 3, нито на 7.";
+            System.out.println("Думата " + shortString + " не се съдържа в текста.");
         }
-        System.out.println(toPrint);
-
-
     }
 
-
-
-
-
+    public static void Task6() {
+        //  Да се напише програма, която позволява на
+        //потребителя да въведе цяло число и отпечатва
+        //символът със съответния ASCII код.
+        //Например за 97 - отпечатва ‘a’.
+        int num = readInt("Въведете цяло число, което ще принтира ASCII код с този номер: ");
+//        char asciiChar = (char) num;
+        System.out.println("Символът със съответния ASCII код е: " + (char) num);
+    }
+    
 }
 
