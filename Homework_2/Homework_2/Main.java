@@ -11,6 +11,7 @@ public class Main {
 //        Task3();
 //        Task4();
 //        Task5();
+        Exam_5();
 
     }
 
@@ -162,5 +163,74 @@ public class Main {
 
 
     }
+
+    public static void Exam_1() {
+        int a = readInt("Въведете а:");
+        int b = readInt("Въведете б:");
+        if (a > b) {
+            System.out.println("a is bigger than b");
+        } else {
+            System.out.println("a is smaller than b");
+        }
+    }
+
+    public static void Exam_2() {
+        float weight = readFloat("Въведете теглото си на Земята: ");
+        float moonRatioToEarth = 0.1653F;
+        float moonWeight = (weight/9.81F) * 1.622F;
+        System.out.println("Вашето тегло на Луната е " + moonWeight);
+    }
+
+    public static void Exam_3() {
+        float radius = readFloat("Въведете радиуса на окръжноста: ");
+        float pi = 3.14F;
+        float lice = pi * radius * radius;
+        float obikolka = pi * radius * 2;
+        System.out.println("Лицето на окръжноста е: " + lice);
+        System.out.println("Обиколката на окръжноста е: " + obikolka);
+    }
+    public static void Exam_4() {
+        int score = 0;
+        for (int i=0; i<5; i++) {
+            String question = readString("Това е произволен въпрос. Отговори с [y/n]: ");
+            if (question.equalsIgnoreCase("y")) {
+                score++;
+            } else if (question.equalsIgnoreCase("n")){
+                score--;
+            } else {
+                System.out.println("Моля отговорете с [y/n].");
+                i--;
+            }
+        }
+        System.out.println("Вашият резултат е " + score);
+    }
+
+    public static void Exam_5() {
+        Scanner input = new Scanner(System.in);
+        System.out.print("Enter the number of lines: ");
+        int n = input.nextInt();
+        input.close();
+        for (int i = 1; i <= n; i++) {
+
+            // Create the string of dashes before and after the 'A's
+            String dashes = "-".repeat(n - i);
+            String a = "";
+
+            // Create inner pyramid
+            for (int j = 0; j < (n * 2 - (n - i) * 2) - 1; j++) {
+                if (j % 2 == 0) {
+                    a += "A";
+                } else {
+                    a += "-";
+                }
+            }
+
+            // Print the pattern for this line
+            System.out.println(dashes + a + dashes);
+        }
+    }
+
+
+
 }
 
