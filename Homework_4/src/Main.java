@@ -1,13 +1,32 @@
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
             Task1();
-            Task2();
-            Task3();
-            Task4();
-            Task5();
-            Task6();
-            Task7();
+//            Task2();
+//            Task3();
+//            Task4();
+//            Task5();
+//            Task6();
+//            Task7();
         }
+    static Scanner scanner = new Scanner(System.in);
+    public static @NotNull String readString(String question) {
+        System.out.print(question);
+        return scanner.nextLine();
+    }
+
+    public static @NotNull Integer readInt(String question) {
+        System.out.print(question);
+        return scanner.nextInt();
+    }
+
+    public static @NotNull Float readFloat(String question) {
+        System.out.print(question);
+        return scanner.nextFloat();
+    }
     public static void Task1() {
         //Напишете програма, която изчислява реалните корени на
         //квадратно уравнение по дадени коефициенти a, b и c. Прочетете
@@ -21,7 +40,19 @@ public class Main {
         //x1 = (-b + Math.sqrt(D))/(2 * a) ; x2 = (-b - Math.sqrt(D))/(2 * a)
         //Ако няма реални корени - принирайте “There are not real roots”.
         //Първо принтирайте резултатът за х1, после за х2.
+        int a = readInt("Въведете A: ");
+        int b = readInt("Въведете B: ");
+        int c = readInt("Въведете C: ");
 
+        int d = b*b - 4*a*c;
+        if (d<0) {
+            System.out.println("There are not real roots");
+        } else {
+            double x1 = (-b + Math.sqrt(d))/(2 * a);
+            double x2 = (-b - Math.sqrt(d))/(2 * a);
+            System.out.println("X1 = " + x1);
+            System.out.println("X2 = " + x2);
+        }
     }
 
     public static void Task2(){
