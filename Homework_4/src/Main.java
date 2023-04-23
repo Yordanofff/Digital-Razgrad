@@ -1,15 +1,16 @@
 import org.jetbrains.annotations.NotNull;
 
+import javax.sound.midi.Soundbank;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
 //            Task1();
-            Task2();
+//            Task2();
 //            Task3();
 //            Task4();
 //            Task5();
-//            Task6();
+            Task6();
 //            Task7();
         }
     static Scanner scanner = new Scanner(System.in);
@@ -41,11 +42,13 @@ public class Main {
         //x1 = (-b + Math.sqrt(D))/(2 * a) ; x2 = (-b - Math.sqrt(D))/(2 * a)
         //Ако няма реални корени - принирайте “There are not real roots”.
         //Първо принтирайте резултатът за х1, после за х2.
+
         int a = readInt("Въведете A: ");
         int b = readInt("Въведете B: ");
         int c = readInt("Въведете C: ");
 
         int d = b*b - 4*a*c;
+
         if (d<0) {
             System.out.println("There are not real roots");
         } else {
@@ -65,14 +68,19 @@ public class Main {
         //(21) → 0 21 - 21 = 0 -> |0| = 0
         //(43) → 44 43 - 21 = 22 -> 22 * 2 = 44
         //(-100) → 121 -100 - 21 = -121 -> |-121| = 121
+
         int n = readInt("Въведете цяло число: ");
+
         int diff = n - 21 ;
         int diff_abs = Math.abs(diff);
+
         if (diff > 21) {
             System.out.println("Резултат: " + diff_abs * 2);
         } else {
             System.out.println("Резултат: " + diff_abs);
         }
+
+        Task2();
     }
 
     public static void Task3() {
@@ -84,6 +92,21 @@ public class Main {
         //-     Ако точките са 0 или повече от 9, се отпечатва съобщение за грешка.
         //Прочетете първоначалните от конзолата (цяло число между 1 и 9), изчислете
         //бонус точките, прибавете ги към първоначалните и принтирайте резултатът.
+
+        int n = readInt("Въведете броят точки [1..9]: ");
+
+        switch (n) {
+            case 1, 2, 3:
+                System.out.println("Резултат: " + n * 10); break;
+            case 4, 5, 6:
+                System.out.println("Резултат: " + n * 100); break;
+            case 7, 8, 9:
+                System.out.println("Резултат: " + n * 1000); break;
+            default:
+                System.out.println("Грешен избор. Моля въведете число между 1 и 9.");
+        }
+
+        Task3();
     }
 
     public static void Task4() {
@@ -95,12 +118,50 @@ public class Main {
         //Напишете програма, която при избирането на опция да изкарва на конзолата
         //резултата от нея.
         //Ако се избере несъществуваща опция - принтирайте “Invalid option”.
+
+        int a = 5;
+        int b = 8;
+
+        System.out.println("1. " + a + " + " + b);
+        System.out.println("2. " + a + " - " + b);
+        System.out.println("3. " + b + " - 1");
+        System.out.println("4. " + a + " * " + b);
+        System.out.println("5. " + a + " / " + b);
+        System.out.println("6. " + b + " / " + a);
+
+        int n = readInt("Изберете операцията която искате да извършите: ");
+
+        // No need for break statement with the arrow syntax
+        switch (n) {
+            case 1 -> System.out.println("Резултат: " + (a + b));
+            case 2 -> System.out.println("Резултат: " + (a - b));
+            case 3 -> System.out.println("Резултат: " + (b - 1));
+            case 4 -> System.out.println("Резултат: " + (a * b));
+            case 5 -> System.out.println("Резултат: " + ((float)a / b));
+            case 6 -> System.out.println("Резултат: " + ((float)b / a));
+            default -> System.out.println("Invalid option");
+        }
+
+        Task4();
     }
 
     public static void Task5() {
         //Да се напише програма, която по въведена оценка в училище (от 2 до 6)
         //отпечатва на екрана съответната оценка с думи. Ако въведеното число не е
         //валидна оценка - да се отпечата подходящо съобщение за грешка.
+
+        int score = readInt("Въведете оценка [2..6]: ");
+
+        switch (score) {
+            case 2 -> System.out.println("Въведохте: Двойка");
+            case 3 -> System.out.println("Въведохте: Тройка");
+            case 4 -> System.out.println("Въведохте: Четворка");
+            case 5 -> System.out.println("Въведохте: Петица");
+            case 6 -> System.out.println("Въведохте: Шестица");
+            default -> System.out.println("Невалидна оценка. Трябва да бъде между 2 и 6 (в България).");
+        }
+
+        Task5();
     }
 
     public static void Task6() {
@@ -113,6 +174,7 @@ public class Main {
         //● 501 -> "five hundred and one"
         //● 711 -> "seven hundred and eleven“
         //Ако се въведе число извън интервала - принтирайте “Invalid number”.
+        
 
     }
 
