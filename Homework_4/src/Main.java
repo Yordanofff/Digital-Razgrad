@@ -164,6 +164,68 @@ public class Main {
         Task5();
     }
 
+    public static String getSingles(int n) {
+        String to_return = "";
+
+        switch (n) {
+            case 0 -> to_return = "Zero";
+            case 1 -> to_return = "One";
+            case 2 -> to_return = "Two";
+            case 3 -> to_return = "Three";
+            case 4 -> to_return = "Four";
+            case 5 -> to_return = "Five";
+            case 6 -> to_return = "Six";
+            case 7 -> to_return = "Seven";
+            case 8 -> to_return = "Eight";
+            case 9 -> to_return = "Nine";
+        }
+        return to_return;
+    }
+    public static String getDoubles(int n){
+        // Solves 100/200.. etc.
+        if (n == 0) {
+            return "";
+        }
+
+        int len = Integer.toString(n).length();
+        if (len == 1) {
+            // len will be 1 when the number ends on 01,02 etc... (101,102..)
+            return getSingles(n);
+        }
+
+        String to_return = "";
+
+        int n_1 = Integer.parseInt(Integer.toString(n).substring(0, 1));
+        int n_2 = Integer.parseInt(Integer.toString(n).substring(1, 2));
+
+        if (n_1 == 1) {
+
+            switch (n) {
+                case 10 -> to_return = "Ten";
+                case 11 -> to_return = "Eleven";
+                case 12 -> to_return = "Twelve";
+                case 13 -> to_return = "Thirteen";
+                case 15 -> to_return = "Fifteen";
+                default -> to_return = getSingles(n_2) + "teen";
+            }
+        } else {
+            switch (n_1) {
+                case 2 -> to_return = "Twenty";
+                case 3 -> to_return = "Thirty";
+                case 5 -> to_return = "Fifty";
+                case 8 -> to_return = "Eighty";
+                default -> to_return = getSingles(n_1) + "ty";
+            }
+
+            if (n_2 != 0) {
+                to_return += " " + getSingles(n_2).toLowerCase();
+            }
+
+        }
+        return to_return;
+
+    }
+
     public static void Task6() {
         //Напишете програма, която преобразува дадено число в интервала [0..999] в текст,
         //съответстващ на английското произношение.
@@ -174,8 +236,33 @@ public class Main {
         //● 501 -> "five hundred and one"
         //● 711 -> "seven hundred and eleven“
         //Ако се въведе число извън интервала - принтирайте “Invalid number”.
-        
 
+        int n = readInt("Въедете число [0..999]: ");
+
+        int n_str = Integer.toString(n).length();
+
+        if (n < 0) {
+            System.out.println("Програмата работи само с положителни числа. Моля въведете число в диапазона [0 - 999]");
+            Task6();
+        }
+
+        if (n_str == 1) {
+            System.out.println(getSingles(n));
+        } else if (n_str == 2) {
+            System.out.println(getDoubles(n));
+        } else if (n_str == 3) {
+            int n_hundreds = Integer.parseInt(Integer.toString(n).substring(0, 1));
+            int n_doubles = Integer.parseInt(Integer.toString(n).substring(1, 3));
+            String doubles = getDoubles(n_doubles);
+            if (doubles.equalsIgnoreCase("")) {
+                System.out.println(getSingles(n_hundreds) + " hundred");
+            } else {
+                System.out.println(getSingles(n_hundreds) + " hundred and " + getDoubles(n_doubles).toLowerCase());
+            }
+        } else {
+            System.out.println("Грешен избор. Моля въведете число в диапазона [0 - 999]..");
+        }
+        Task6();
     }
 
     public static void Task7() {
