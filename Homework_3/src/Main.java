@@ -160,6 +160,6 @@ public class Main {
 //        char asciiChar = (char) num;
         System.out.println("Символът със съответния ASCII код е: " + (char) num);
     }
-    
+
 }
 
