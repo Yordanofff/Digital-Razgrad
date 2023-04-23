@@ -4,8 +4,8 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-            Task1();
-//            Task2();
+//            Task1();
+            Task2();
 //            Task3();
 //            Task4();
 //            Task5();
@@ -27,6 +27,7 @@ public class Main {
         System.out.print(question);
         return scanner.nextFloat();
     }
+
     public static void Task1() {
         //Напишете програма, която изчислява реалните корени на
         //квадратно уравнение по дадени коефициенти a, b и c. Прочетете
@@ -57,12 +58,21 @@ public class Main {
 
     public static void Task2(){
         //Прочетете числото (цяло) n. Принтирайте абсолютната стойност на
-        //разликата на n и 21. Освен ако х (резултатът от разликата им) е поголямо от 21, тогава принтирайте абсолютната им разлика по две.
+        //разликата на n и 21. Освен ако х (резултатът от разликата им) е поголямо от 21, тогава
+        // принтирайте абсолютната им разлика по две.
         //(19) → 2 19 - 21 = -2 -> |-2| = 2
         //(10) → 11 10 - 21 = -11 -> |-11| = 11
         //(21) → 0 21 - 21 = 0 -> |0| = 0
         //(43) → 44 43 - 21 = 22 -> 22 * 2 = 44
         //(-100) → 121 -100 - 21 = -121 -> |-121| = 121
+        int n = readInt("Въведете цяло число: ");
+        int diff = n - 21 ;
+        int diff_abs = Math.abs(diff);
+        if (diff > 21) {
+            System.out.println("Резултат: " + diff_abs * 2);
+        } else {
+            System.out.println("Резултат: " + diff_abs);
+        }
     }
 
     public static void Task3() {
