@@ -113,6 +113,17 @@ public class Main {
         }
     }
 
+    public static Integer reverseInt(int num) {
+        int reverse = 0;
+        while(num != 0)
+        {
+            int remainder = num % 10;
+            reverse = (reverse * 10) + remainder;
+            num = num/10;
+        }
+        return reverse;
+    }
+
     public static void Task4() {
         //Напишете програма, която решава следните задачи:
         //1) Обръща последователността на цифрите на двуцифрено число.
@@ -129,6 +140,29 @@ public class Main {
         //Ако се въведе различно число от 1, 2 или 3 -> принтирайте “Invalid input”.
         //Ако има грешка при валидирането на входните данни -> принтирайте
         //“Invalid input”.
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Изберете една от трите опции: ");
+        System.out.println("1) Обръща последователността на цифрите на двуцифрено число.");
+        System.out.println("2) Пресмята средното аритметично на две числа.");
+        System.out.println("3) Решава линейното уравнение a * x + b = 0.");
+
+        double userChoice = scanner.nextInt();
+        if (userChoice == 1) {
+            System.out.print("Въведете число, което искате да обърнете: ");
+            int num = scanner.nextInt();
+            System.out.println("Обърнатото число е: " + reverseInt(num));
+
+        } else if (userChoice == 2) {
+            System.out.println("not done yet");
+        } else if (userChoice == 3) {
+            System.out.println("not done yet");
+        } else {
+            System.out.println("Грешен избор. Въведете 1,2 или 3.");
+            Task4();
+        }
+
     }
 
 }
