@@ -1,7 +1,15 @@
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
-        Task1(4);  // Will also work with other values
-        System.out.println(Task2("Test"));
+
+//        Task1(4);  // Will also work with other values
+
+//        System.out.println(Task2("Test"));
+
+//        Task3();
+
+        Task4();
 
     }
 
@@ -58,6 +66,15 @@ public class Main {
         return newStr;
     }
 
+    public static double calculateKelvinToCelsius(double K) {
+        return K - 273.15;
+    }
+
+    public static double calculateKelvinToFahrenheit(double K) {
+        return K * 9/5 - 459.67;
+
+    }
+
     public static void Task3() {
         //Като използвате методи напишете програма, която чете един символ и
         //десетично число (в тази последователност). Десетичното число са градуси
@@ -74,6 +91,26 @@ public class Main {
         //F = K * 9/5 - 459.67
         //C = K - 273.15
         //*не е нужно да форматирате резултатът до 2 цифри след десетичната запетая
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Въведете градуси в Келвин: ");
+
+        double degreesKelvin = scanner.nextDouble();
+
+        if (degreesKelvin < -273.15) {
+            System.out.println("Въведената температура е невалидна.");
+        } else {
+            System.out.print("Въведете \"C\" за Целзий или \"F\" за Фаренхайт: ");
+            String toConvert = scanner.next();
+            if (toConvert.equalsIgnoreCase("c")) {
+                System.out.println("K(" + degreesKelvin + ") -> C(" + calculateKelvinToCelsius(degreesKelvin) + ")");
+            } else if (toConvert.equalsIgnoreCase("f")) {
+                System.out.println("K(" + degreesKelvin + ") -> F(" + calculateKelvinToFahrenheit(degreesKelvin) + ")");
+            } else {
+                System.out.println("Invalid input");
+            }
+        }
     }
 
     public static void Task4() {
@@ -93,5 +130,5 @@ public class Main {
         //Ако има грешка при валидирането на входните данни -> принтирайте
         //“Invalid input”.
     }
-    
+
 }
