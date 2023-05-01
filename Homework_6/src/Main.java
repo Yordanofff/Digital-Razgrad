@@ -1,6 +1,8 @@
 import java.util.Scanner;
 
 public class Main {
+    static Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) {
 
 //        Task1(4);  // Will also work with other values
@@ -124,6 +126,17 @@ public class Main {
         return reverse;
     }
 
+    public static double getAvgOfTwoNums(double a, double b) {
+        return (a+b)/2;
+    }
+
+    public static double solveLinearEquation(double a, double b) {
+        // a * x + b = 0
+        // a * x = -b;
+        // x = -b/a;
+        return -b/a;
+    }
+
     public static void Task4() {
         //Напишете програма, която решава следните задачи:
         //1) Обръща последователността на цифрите на двуцифрено число.
@@ -141,7 +154,6 @@ public class Main {
         //Ако има грешка при валидирането на входните данни -> принтирайте
         //“Invalid input”.
 
-        Scanner scanner = new Scanner(System.in);
 
         System.out.println("Изберете една от трите опции: ");
         System.out.println("1) Обръща последователността на цифрите на двуцифрено число.");
@@ -150,18 +162,57 @@ public class Main {
 
         double userChoice = scanner.nextInt();
         if (userChoice == 1) {
-            System.out.print("Въведете число, което искате да обърнете: ");
-            int num = scanner.nextInt();
-            System.out.println("Обърнатото число е: " + reverseInt(num));
-
+            Task41();
         } else if (userChoice == 2) {
-            System.out.println("not done yet");
+            Task42();
         } else if (userChoice == 3) {
-            System.out.println("not done yet");
+            Task43();
         } else {
             System.out.println("Грешен избор. Въведете 1,2 или 3.");
             Task4();
         }
+    }
+
+    public static void Task41() {
+        // will be called when option 1 is selected in task 4.
+        // Created so that it can be called directly when there is Invalid input.
+        System.out.print("Въведете число, което искате да обърнете: ");
+        int num = scanner.nextInt();
+        if (num <= 0) {
+            System.out.println("Invalid input. Въведеното число е отрицателно. Моля въведете положително число!");
+            Task41();
+        }
+        System.out.println("Обърнатото число е: " + reverseInt(num));
+        Task4();
+    }
+
+    public static void Task42() {
+        System.out.print("Въведете първото число: ");
+        double num1 = scanner.nextDouble();
+        System.out.print("Въведете второто число: ");
+        double num2 = scanner.nextDouble();
+        if (num1 < 0 || num2 < 0) {
+            System.out.println("Invalid input. Поне едно от въведените числа е отрицателно. Моля въведете положителни числа.");
+            Task42();
+        }
+        System.out.println("Средната аритметична стойност на двете числа е: " + getAvgOfTwoNums(num1, num2));
+        Task4();
+    }
+
+    public static void Task43() {
+        System.out.print("Въведете a: ");
+        double a = scanner.nextDouble();
+
+        if (a == 0) {
+            System.out.println("Invalid input. А не може да бъде нула. Пробвай пак.");
+            Task43();
+        }
+
+        System.out.print("Въведете b: ");
+        double b = scanner.nextDouble();
+
+        System.out.println("Задачата е" + a + "х + " + b + " = 0");
+        System.out.println("х = " + solveLinearEquation(a, b));
 
     }
 
