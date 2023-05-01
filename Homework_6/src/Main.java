@@ -3,7 +3,12 @@ import java.util.Scanner;
 public class Main {
     static Scanner scanner = new Scanner(System.in);
 
+    public static final String COLOR_RESET = "\u001B[0m";
+    public static final String COLOR_YELLOW = "\u001B[33m";
+    public static final String COLOR_RED = "\u001B[31m";
+    public static final String COLOR_GREEN = "\u001B[32m";
     public static void main(String[] args) {
+
 
 //        Task1(4);  // Will also work with other values
 
@@ -22,7 +27,6 @@ public class Main {
         //    @ @
         //  @ @ @
         //@ @ @ @
-
 
         int j = (num * 2) -3;
         String symbols_to_print = " @";
@@ -68,13 +72,14 @@ public class Main {
         return newStr;
     }
 
+    // Task 3 below
+
     public static double calculateKelvinToCelsius(double K) {
         return K - 273.15;
     }
 
     public static double calculateKelvinToFahrenheit(double K) {
         return K * 9/5 - 459.67;
-
     }
 
     public static void Task3() {
@@ -115,6 +120,8 @@ public class Main {
         }
     }
 
+    // Task 4 below
+
     public static Integer reverseInt(int num) {
         int reverse = 0;
         while(num != 0)
@@ -154,7 +161,6 @@ public class Main {
         //Ако има грешка при валидирането на входните данни -> принтирайте
         //“Invalid input”.
 
-
         System.out.println("Изберете една от трите опции: ");
         System.out.println("1) Обръща последователността на цифрите на двуцифрено число.");
         System.out.println("2) Пресмята средното аритметично на две числа.");
@@ -168,9 +174,31 @@ public class Main {
         } else if (userChoice == 3) {
             Task43();
         } else {
-            System.out.println("Грешен избор. Въведете 1,2 или 3.");
+            printError("Грешен избор. Въведете 1,2 или 3.");
             Task4();
         }
+    }
+
+    public static void reTask4() {
+        scanner.nextLine();
+        System.out.println(COLOR_YELLOW + "\nНатисни Enter за да се върнеш в менюто. Всичко друго за Exit." + COLOR_RESET);
+        String input = scanner.nextLine();
+        while (true) {
+            if (input.equals("")) {
+                Task4();
+            } else {
+                printError("Exiting the app..");
+                System.exit(0);
+            }
+        }
+    }
+
+    public static void printError(String error) {
+        System.out.println(COLOR_RED + "\n\t" + error + "\n" + COLOR_RESET);
+    }
+
+    public static void printAns(String answer) {
+        System.out.println(COLOR_GREEN + "\t" + answer + COLOR_RESET);
     }
 
     public static void Task41() {
@@ -179,41 +207,48 @@ public class Main {
         System.out.print("Въведете число, което искате да обърнете: ");
         int num = scanner.nextInt();
         if (num <= 0) {
-            System.out.println("Invalid input. Въведеното число е отрицателно. Моля въведете положително число!");
+            printError("Invalid input. Въведеното число е отрицателно. Моля въведете положително число!");
             Task41();
         }
-        System.out.println("Обърнатото число е: " + reverseInt(num));
-        Task4();
+        printAns("Обърнатото число е: " + reverseInt(num));
+
+        reTask4();
     }
 
     public static void Task42() {
+        // will be called when option 2 is selected in task 4.
+        // Created so that it can be called directly when there is Invalid input.
         System.out.print("Въведете първото число: ");
         double num1 = scanner.nextDouble();
         System.out.print("Въведете второто число: ");
         double num2 = scanner.nextDouble();
         if (num1 < 0 || num2 < 0) {
-            System.out.println("Invalid input. Поне едно от въведените числа е отрицателно. Моля въведете положителни числа.");
+            printError("Invalid input. Поне едно от въведените числа е отрицателно. Моля въведете положителни числа.");
             Task42();
         }
-        System.out.println("Средната аритметична стойност на двете числа е: " + getAvgOfTwoNums(num1, num2));
-        Task4();
+        printAns("Средната аритметична стойност на двете числа е: " + getAvgOfTwoNums(num1, num2));
+
+        reTask4();
     }
 
     public static void Task43() {
+        // will be called when option 3 is selected in task 4.
+        // Created so that it can be called directly when there is Invalid input.
         System.out.print("Въведете a: ");
         double a = scanner.nextDouble();
 
         if (a == 0) {
-            System.out.println("Invalid input. А не може да бъде нула. Пробвай пак.");
+            printError("Invalid input. А не може да бъде нула. Пробвай пак.");
             Task43();
         }
 
         System.out.print("Въведете b: ");
         double b = scanner.nextDouble();
 
-        System.out.println("Задачата е" + a + "х + " + b + " = 0");
-        System.out.println("х = " + solveLinearEquation(a, b));
+        System.out.println("Задачата е: \"" + a + "х + " + b + " = 0\"");
+        printAns("Отговор: х = " + solveLinearEquation(a, b));
 
+        reTask4();
     }
 
 }
