@@ -110,8 +110,11 @@ public class Main {
     //player 5
 
     public static void printPlayerNames() {
-        System.out.println("Въведете номера на спорта за който желаете да принтирате иметната на футболистите: \n" +
-                "1: Футбол \n2: Волейбол \n3: Баскетбол");
+        System.out.println("""
+                Въведете номера на спорта за който желаете да принтирате иметната на футболистите:\s
+                1: Футбол\s
+                2: Волейбол\s
+                3: Баскетбол""");
 
         int result = scanner.nextInt();
 
@@ -152,11 +155,17 @@ public class Main {
     //извеждаме “Too high, try again!”, ако пък е по-малко - “Too low, try again!”.
 
     public static void playGame() {
+
+        // Range for the random number
         int start_number = 1;
         int end_number = 20;
+
+        // Get a random number
         Random rand = new Random();
-        int n = rand.nextInt(end_number) + 1;
-        if (numberCheck(start_number, end_number, n, 0)) {
+        int numberToGuess = rand.nextInt(end_number) + 1;
+
+        // Try to guess it - play the game
+        if (numberCheck(start_number, end_number, numberToGuess, 0)) {
             if (anotherGame()) {
                 playGame();
             }
@@ -164,6 +173,8 @@ public class Main {
     }
 
     public static boolean anotherGame() {
+        // Ask the user if they want to play another game. True/False/Rerun.
+
         System.out.println("Искате ли още една игра? [Y/N]");
         String ans = scanner.next();
 
@@ -179,6 +190,8 @@ public class Main {
     }
 
     public static boolean numberCheck(int lowest, int highest, int randomNumber, int attempts) {
+
+        // Print number of tries after the first attempt.
         if (attempts > 1) {
             System.out.println("Пробвахте " + attempts + " пъти. Въведете число от " + lowest + " до " + highest + ":");
         } else {
@@ -189,18 +202,25 @@ public class Main {
         int guess = scanner.nextInt();
 
         if (guess > randomNumber) {
+
+            // update the highest number so that the new print statement shows the new range
             if (guess < highest) {
                 highest = guess;
             }
+
             System.out.println("Too high, try again!");
             return numberCheck(lowest, highest, randomNumber, attempts);
+
         } else if (guess < randomNumber) {
+
             // update the lowest number so that the new print statement shows the new range
             if (guess > lowest) {
                 lowest = guess;
             }
+
             System.out.println("Too low, try again!");
             return numberCheck(lowest, highest, randomNumber, attempts);
+
         } else {
             System.out.println("You guessed it right after " + attempts + " attempts. \"" + randomNumber + "\" is the correct number.");
             return true;
@@ -223,12 +243,14 @@ public class Main {
 
     public static boolean isPerfect(int number) {
         int sum = 0;
-        // find all dividers
+
+        // Find all dividers and add them to the integer "sum"
         for (int i=1; i<=number-1; i++) {
             if (number % i == 0) {
                 sum += i;
             }
         }
+
         return sum == number;
     }
 
