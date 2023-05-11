@@ -11,7 +11,7 @@ public class Main {
 //        Task_3(45);
 //        Task_4();
 
-        runAdvancedTask4(false);
+        runAdvancedTask4(true);
     }
 
     public static void Task_1(String text, int n) {
@@ -80,7 +80,8 @@ public class Main {
 
 
 
-    // Task 4 - заигравка с повече опции.
+    // Task 4 - заигравка с повече опции (извън домашното)
+
 
 
     public static void runAdvancedTask4(boolean userInput) {
@@ -89,21 +90,24 @@ public class Main {
 
         int begin;
         int end;
+        int splitTheNumbersByDashes = 0; // Don't print dashes by default.
 
         if (userInput){
             int[] userAns = getUserInput();
             begin = userAns[0];
             end = userAns[1];
+            splitTheNumbersByDashes = userAns[2];
         } else {
             begin = 10;
             end = 15000;
+//            end = 150001234;
         }
 
         List<Integer> all_happy_numbers = getListOfAllHappyNumbersInRange(begin, end);
 
         List<List<Integer>> nestedList = splitAllNumbersToLists(all_happy_numbers);
 
-        printNestedLists(nestedList);
+        printNestedLists(nestedList, splitTheNumbersByDashes);
     }
 
     public static int getDigitAtPosition(int number,int position) {
@@ -141,9 +145,32 @@ public class Main {
                 System.out.println("Грешка. Въведеното число е по-малко от " + begin);
             }
         }
-        int[] result = new int[2];
+
+        String ans = "";
+        int isSplitByDashes = 3;
+        int counter = 0;
+        while (!((ans.equalsIgnoreCase("y")) || (ans.equalsIgnoreCase("n")) || (ans.equalsIgnoreCase("x")))) {
+            if (counter == 0) {
+                System.out.println("Искате ли числата да са разделени с тиренца (ех. 1304 -> 13-04) ?");
+                System.out.println("Изберете между [y/n/x] (x - ще принтира и двата варианта)");
+                counter += 1;
+            }
+            ans = scanner.next();
+            if (ans.equalsIgnoreCase("y")) {
+                isSplitByDashes = 1;
+            } else if (ans.equalsIgnoreCase("n")) {
+                isSplitByDashes = 0;
+            } else if (ans.equalsIgnoreCase("x")) {
+                isSplitByDashes = 2;
+            } else {
+                System.out.println("Грешен отговор. Моля въведете y/n/x.");
+            }
+        }
+
+        int[] result = new int[3];
         result[0] = begin;
         result[1] = end;
+        result[2] = isSplitByDashes; // 1 = true, 0 = false, 2 = both
         return result;
     }
 
@@ -239,7 +266,7 @@ public class Main {
         return nestedList;
     }
 
-    public static void printNestedLists(List<List<Integer>> nestedList) {
+    public static void printNestedLists(List<List<Integer>> nestedList, int splitTheNumbers) {
         int lenFirst = String.valueOf(nestedList.get(0).get(0)).length();
         int lenLast = String.valueOf(nestedList.get(nestedList.size()-1).get(0)).length();
 
@@ -252,19 +279,56 @@ public class Main {
             List<Integer> cList = nestedList.get(i-lenFirst);
             System.out.println("\n\nБрой " + i + "-цифрени числа: " + cLen);
             // System.out.println(cList);
-            printListCommaSeparated(cList);
+
+            if (splitTheNumbers == 1){
+                printListCommaSeparated(cList, true);
+            } else if (splitTheNumbers == 2) {
+                printListCommaSeparated(cList, false);
+                printListCommaSeparated(cList, true);
+            } else {
+                printListCommaSeparated(cList, false);
+            }
         }
 
-        System.out.println("\n\nTotal number of happy numbers: " + counter);
+        System.out.println("\n\nВсички щастливи числа: " + counter);
     }
 
-    public static void printListCommaSeparated(List<Integer> list) {
+    public static void printListCommaSeparated(List<Integer> list, boolean splitTheNumbers) {
         String delimiter = "";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            sb.append(delimiter).append(list.get(i));
+            int num = list.get(i);
+            if (splitTheNumbers) {
+                String numWithDashes = splitNumberWithDashesOnDivider(num);
+                sb.append(delimiter).append(numWithDashes);
+            } else {
+                sb.append(delimiter).append(num);
+            }
             delimiter = ", ";
         }
         System.out.println(sb);
+    }
+
+    public static String splitNumberWithDashesOnDivider(int numberToSplit){
+        // 1120   -> 11-20
+        // 12030  -> 12-0-30
+        // 123231 -> 123-231
+
+        // Convert to String
+        String numString = String.valueOf(numberToSplit);
+
+        int numLen = numString.length();  // if 111 = 3
+
+        int divider = getLargestDivisor(numLen); // if 3=>1  4=>2  5=>2  6=>3 etc..
+
+        String sub = numString.substring(0, divider);
+        String remainder = numString.substring(divider);;
+
+        if (numLen % 2 != 0){
+            //10301 --> 10-3-01
+            remainder = numString.charAt(divider) + "-" + numString.substring(divider+1);
+        }
+
+        return sub + "-" + remainder;
     }
 }
