@@ -11,8 +11,7 @@ public class Main {
 //        Task_3(45);
 //        Task_4();
 
-        Task_4_wider_range_and_more_options();
-
+            runTask4();
     }
 
     public static void Task_1(String text, int n) {
@@ -101,21 +100,7 @@ public class Main {
 
 
 
-
-    public static void Task_4_wider_range_and_more_options() {
-        // Тази програма ще изкара всички щастливи числа.
-        // Началното число трябва да е поне двуцифрено. Няма лимит за колко да е голямо голямото число.
-        //Щастливи числа са, когато сборът на първите Х цифри на
-        //дадено число (ABCD) е равен на сбора на последните Х числа..
-
-        System.out.println("""
-                 _ _                                            _                \s
-                | | | ___  ___  ___  _ _      ._ _  _ _ ._ _ _ | |_  ___  _ _  ___
-                |   |<_> || . \\| . \\| | |     | ' || | || ' ' || . \\/ ._>| '_><_-<
-                |_|_|<___||  _/|  _/`_. |     |_|_|`___||_|_|_||___/\\___.|_|  /__/
-                          |_|  |_|  <___'                                        \s
-                """);
-
+    public static int[] getUserInput() {
         Scanner scanner = new Scanner(System.in);
 
         int begin = 0;
@@ -135,16 +120,54 @@ public class Main {
                 System.out.println("Грешка. Въведеното число е по-малко от " + begin);
             }
         }
+        int[] result = new int[2];
+        result[0] = begin;
+        result[1] = end;
+        return result;
+    }
+
+    public static void printAppName(){
+        System.out.println("""
+                 _ _                                            _                \s
+                | | | ___  ___  ___  _ _      ._ _  _ _ ._ _ _ | |_  ___  _ _  ___
+                |   |<_> || . \\| . \\| | |     | ' || | || ' ' || . \\/ ._>| '_><_-<
+                |_|_|<___||  _/|  _/`_. |     |_|_|`___||_|_|_||___/\\___.|_|  /__/
+                          |_|  |_|  <___'                                        \s
+                """);
+    }
+
+    public static void runTask4() {
+
+        printAppName();
+
+//        int[] userInput = getUserInput();
+//        int begin = userInput[0];
+//        int end = userInput[1];
+
+        int begin = 10;
+        int end = 150;
+
+        List<Integer> all_happy_numbers = getListofAllHappyNumbersInRange(begin, end);
+
+        splitAllNumbersToLists(all_happy_numbers);
+    }
+
+    public static List<Integer> getListofAllHappyNumbersInRange(int begin, int end) {
+        // Тази програма ще изкара всички щастливи числа.
+        // Началното число трябва да е поне двуцифрено. Няма лимит за колко да е голямо голямото число.
+        //Щастливи числа са, когато сборът на първите Х цифри на
+        //дадено число (ABCD) е равен на сбора на последните Х числа..
+
+        // if number len = 4 ---> compare first 2 and last 2 ---> ab_cd   ---> a+b == c+d
+        // if number len = 5 ---> compare first 2 and last 2 ---> ab_c_de ---> a+b == d+e (ignore c)
+        // if number len = 6 ---> compare first 3 and last 3 ---> abc_def ---> a+b+c == d+e+f
+        // The range might start with 4 digits but end with 6 or more.
+        // Need to check the length of the number on every iteration.
 
         List<Integer> all_numbers = new ArrayList<>();
 
         // Add all happy numbers to a list.
         for (int i = begin; i < end ; i++) {
-            // if number len = 4 ---> compare first 2 and last 2 ---> ab_cd   ---> a+b == c+d
-            // if number len = 5 ---> compare first 2 and last 2 ---> ab_c_de ---> a+b == d+e (ignore c)
-            // if number len = 6 ---> compare first 3 and last 3 ---> abc_def ---> a+b+c == d+e+f
-            // The range might start with 4 digits but end with 6 or more.
-            // Need to check the length of the number on every iteration.
 
             int length = String.valueOf(i).length();
 
@@ -174,6 +197,14 @@ public class Main {
             }
         }
 
+        return all_numbers;
+    }
+
+    public static void splitAllNumbersToLists(List<Integer> all_numbers) {
+        // Will add all numbers to nested Lists depending on the length of the numbers..
+        // list(0) ==> 11, 22 , xx....
+        // list(1) ==> 111, 222 , xxx.... etc.
+        // returns the nested list.
 
         List<List<Integer>> listsOfAllNumbers = new ArrayList<List<Integer>>();
 
