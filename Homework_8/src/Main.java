@@ -11,7 +11,7 @@ public class Main {
 //        Task_3(45);
 //        Task_4();
 
-            runTask4();
+        runAdvancedTask4(false);
     }
 
     public static void Task_1(String text, int n) {
@@ -83,6 +83,29 @@ public class Main {
     // Task 4 - заигравка с повече опции.
 
 
+    public static void runAdvancedTask4(boolean userInput) {
+
+        printAppName();
+
+        int begin;
+        int end;
+
+        if (userInput){
+            int[] userAns = getUserInput();
+            begin = userAns[0];
+            end = userAns[1];
+        } else {
+            begin = 10;
+            end = 15000;
+        }
+
+        List<Integer> all_happy_numbers = getListOfAllHappyNumbersInRange(begin, end);
+
+        List<List<Integer>> nestedList = splitAllNumbersToLists(all_happy_numbers);
+
+        printNestedLists(nestedList);
+    }
+
     public static int getDigitAtPosition(int number,int position) {
         // This method will return the value at a specified position.
         //    Example with 1234:
@@ -97,8 +120,6 @@ public class Main {
         }
         return (number / (int)Math.pow(10, length - position)) % 10;
     }
-
-
 
     public static int[] getUserInput() {
         Scanner scanner = new Scanner(System.in);
@@ -136,106 +157,105 @@ public class Main {
                 """);
     }
 
-    public static void runTask4() {
+    public static int getLargestDivisor(int numberOfDigits){
+        // if 4 --> need to compare first 2 and last 2 --> ab_cd   --> a+b == c+d            --> return 2
+        // if 5 --> need to compare first 2 and last 2 --> ab_c_de --> a+b == d+e (ignore c) --> return 2
+        // if 6 --> need to compare first 3 and last 3 --> abc_def --> a+b+c == d+e+f        --> return 3
+        int numbersToCompare = numberOfDigits/2;
 
-        printAppName();
-
-//        int[] userInput = getUserInput();
-//        int begin = userInput[0];
-//        int end = userInput[1];
-
-        int begin = 10;
-        int end = 150;
-
-        List<Integer> all_happy_numbers = getListofAllHappyNumbersInRange(begin, end);
-
-        splitAllNumbersToLists(all_happy_numbers);
+        if (numberOfDigits % 2 != 0) {
+            numbersToCompare = (numberOfDigits-1)/2;
+        }
+        return numbersToCompare;
     }
 
-    public static List<Integer> getListofAllHappyNumbersInRange(int begin, int end) {
-        // Тази програма ще изкара всички щастливи числа.
-        // Началното число трябва да е поне двуцифрено. Няма лимит за колко да е голямо голямото число.
-        //Щастливи числа са, когато сборът на първите Х цифри на
-        //дадено число (ABCD) е равен на сбора на последните Х числа..
-
+    public static List<Integer> getListOfAllHappyNumbersInRange(int start, int end) {
+        // Will return all happy numbers in the range start-end.
+        // Happy numbers are those in which the sum of the first N numbers = the sum of the last N numbers
+        // The range might start with 2 digits and end with 6 or more.
+        // Need to check the length of the number on every iteration to compare the numbers properly:
         // if number len = 4 ---> compare first 2 and last 2 ---> ab_cd   ---> a+b == c+d
         // if number len = 5 ---> compare first 2 and last 2 ---> ab_c_de ---> a+b == d+e (ignore c)
         // if number len = 6 ---> compare first 3 and last 3 ---> abc_def ---> a+b+c == d+e+f
-        // The range might start with 4 digits but end with 6 or more.
-        // Need to check the length of the number on every iteration.
 
-        List<Integer> all_numbers = new ArrayList<>();
+        List<Integer> allNumbers = new ArrayList<>();
 
-        // Add all happy numbers to a list.
-        for (int i = begin; i < end ; i++) {
+        for (int i = start; i < end ; i++) {
 
             int length = String.valueOf(i).length();
 
-            int numbersToCompare = 0;
-
             // Find the largest divisor - if the number is 6 => 3, if 5 => 2 (ignore mid) etc...
-            if (length % 2 == 0) {
-                numbersToCompare = length/2;
-            } else {
-                numbersToCompare = (length-1)/2;
-            }
+            int numberOfDigitsToCompare = getLargestDivisor(length);
 
             // Sum of the first few numbers
-            int sum_beginning = 0;
-            for (int j = 1; j < numbersToCompare + 1; j++) {
-                sum_beginning += getDigitAtPosition(i, j);
+            int sumBeginning = 0;
+            for (int j = 1; j <= numberOfDigitsToCompare; j++) {
+                sumBeginning += getDigitAtPosition(i, j);
             }
 
             // Sum of the last few numbers
-            int sum_end = 0;
-            for (int j = length; j >= length - numbersToCompare + 1; j--) {
-                sum_end += getDigitAtPosition(i, j);
+            int sumEnd = 0;
+            for (int j = length; j > length - numberOfDigitsToCompare; j--) {
+                sumEnd += getDigitAtPosition(i, j);
             }
 
-            if (sum_beginning == sum_end) {
-                all_numbers.add(i);
+            // Add all happy numbers to the list.
+            if (sumBeginning == sumEnd) {
+                allNumbers.add(i);
             }
         }
 
-        return all_numbers;
+        return allNumbers;
     }
 
-    public static void splitAllNumbersToLists(List<Integer> all_numbers) {
-        // Will add all numbers to nested Lists depending on the length of the numbers..
+    public static List<List<Integer>> splitAllNumbersToLists(List<Integer> listAllNumbers) {
+        // Will add all numbers to a nested List depending on the length of the numbers.
+        // Shortest number will be in the first nested list.
         // list(0) ==> 11, 22 , xx....
         // list(1) ==> 111, 222 , xxx.... etc.
         // returns the nested list.
 
-        List<List<Integer>> listsOfAllNumbers = new ArrayList<List<Integer>>();
+        List<List<Integer>> nestedList = new ArrayList<List<Integer>>();
 
-        int lenFirst = String.valueOf(all_numbers.get(0)).length();  // == String.valueOf(begin).length();
-        int lenLast = String.valueOf(all_numbers.get(all_numbers.size()-1)).length();
+        int lenFirst = String.valueOf(listAllNumbers.get(0)).length();
+        int lenLast = String.valueOf(listAllNumbers.get(listAllNumbers.size()-1)).length();
 
-        // Create x number of lists so that all numbers with specific length will be in its own list.
+        // Create a list for every length.
         for (int i = 0; i <= (lenLast-lenFirst); i++) {
             List<Integer> list = new ArrayList<>();
-            listsOfAllNumbers.add(list);
+            nestedList.add(list);
         }
 
-        // Add all_numbers to different lists depending on the len of the numbers starting from listsOfAllNumbers.get(0)
-        for (int i = 0 ; i < all_numbers.size(); i++) {
-            int currentNumber = all_numbers.get(i);  // 99
+        // Add each number to the list that it belongs to.
+        for (int i = 0 ; i < listAllNumbers.size(); i++) {
+            int currentNumber = listAllNumbers.get(i);  // 99
             int lengthOfCurrentNumber = String.valueOf(currentNumber).length(); // = 2 if 99.
 
-            // Index 2 out of bounds for length 2 - so will be removing the lenFirst to start from 0 for any len range.
-            listsOfAllNumbers.get(lengthOfCurrentNumber-lenFirst).add(currentNumber);
+            // Index 2 out of bounds for length 2 - so will be removing the lenFirst to start from 0.
+            // nestedList.get(0).add(11);
+            nestedList.get(lengthOfCurrentNumber-lenFirst).add(currentNumber);
         }
+
+        return nestedList;
+    }
+
+    public static void printNestedLists(List<List<Integer>> nestedList) {
+        int lenFirst = String.valueOf(nestedList.get(0).get(0)).length();
+        int lenLast = String.valueOf(nestedList.get(nestedList.size()-1).get(0)).length();
+
+        int counter = 0;
 
         // Print the different lists
         for (int i = lenFirst; i <= lenLast; i++) {
-            int cLen = listsOfAllNumbers.get(i-lenFirst).size();
-            List<Integer> cList = listsOfAllNumbers.get(i-lenFirst);
+            int cLen = nestedList.get(i-lenFirst).size();
+            counter += cLen;
+            List<Integer> cList = nestedList.get(i-lenFirst);
             System.out.println("\n\nБрой " + i + "-цифрени числа: " + cLen);
             // System.out.println(cList);
             printListCommaSeparated(cList);
         }
 
-        System.out.println("\n\nTotal number of happy numbers: " + all_numbers.size());
+        System.out.println("\n\nTotal number of happy numbers: " + counter);
     }
 
     public static void printListCommaSeparated(List<Integer> list) {
