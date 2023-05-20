@@ -83,6 +83,14 @@ public class Main {
     }
 
     public static boolean Task_4(String text, char ch) {
+        //Като използвате цикъл напишете метод, който по въведен
+        //текст и символ проверява дали символът се среща в текста
+        //или не.
+        //Hints: методи на String - charAt(), length()
+        //Примерен вход: Примерен изход:
+        //“Some long text” true
+        //‘n’
+        
         int textLen = text.length();
         for (int i = 0; i < textLen; i++) {
             char currentChar = text.charAt(i);
