@@ -7,9 +7,9 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
-//        int[] arrayTask1 = {1, 2, 3, 1, 5, 8, 5};
-//        int[] resultTask1 = Task_1(arrayTask1);
-//        System.out.println(Arrays.toString(resultTask1));
+        int[] arrayTask1 = {1, 2, 3, 1, 5, 8, 5, 1, 5};
+        int[] resultTask1 = Task_1(arrayTask1);
+        System.out.println(Arrays.toString(resultTask1));
 
 
 //        int[][] matrixTask2 = {
@@ -33,12 +33,12 @@ public class Main {
 //        }
 
 
-        String[][] board = {
-                {" _ ", " _ ", " _ "},
-                {" _ ", " _ ", " _ "},
-                {" _ ", " _ ", " _ "}
-        };
-        playGame(board);
+//        String[][] board = {
+//                {" _ ", " _ ", " _ "},
+//                {" _ ", " _ ", " _ "},
+//                {" _ ", " _ ", " _ "}
+//        };
+//        playGame(board);
     }
 
     public static int[] Task_1(int[] array) {
@@ -47,29 +47,40 @@ public class Main {
         //Пример: 1 2 3 1 5 8 5
         //Резултат: 1 5
 
-        // Count how many numbers are repeating
+        int[] repeatingItems = new int[array.length];
+        int count = 0;
         int totalMoreThanOnce = 0;
+        boolean alreadyFound;
         for (int i = 0; i < array.length; i++) {
             for (int j = i + 1; j < array.length; j++) {
                 if (array[i] == array[j]) {
-                    totalMoreThanOnce += 1;
+
+                    // Check if already exist in the array (no repeating)
+                    alreadyFound = false;
+                    for (int k = 0; k < repeatingItems.length; k++) {
+                        if (repeatingItems[k] == array[i]) {
+                            alreadyFound = true;
+                            break;
+                        }
+                    }
+
+                    // Add to the array
+                    if (!alreadyFound) {
+                        totalMoreThanOnce += 1;
+                        repeatingItems[count] = array[i];
+                        count++;
+                    }
                 }
             }
         }
 
-        // Create and populate the array
-        int[] repeatingItems = new int[totalMoreThanOnce];
-        int writtenCount = 0;
-        for (int i = 0; i < array.length; i++) {
-            for (int j = i + 1; j < array.length; j++) {
-                if (array[i] == array[j]) {
-                    repeatingItems[writtenCount] = array[i];
-                    writtenCount += 1;
-                }
-            }
+        // Remove the 0s at the end
+        int[] repeatingItemsFinal = new int[totalMoreThanOnce];
+        for (int i = 0; i < totalMoreThanOnce; i++) {
+            repeatingItemsFinal[i] = repeatingItems[i];
         }
 
-        return repeatingItems;
+        return repeatingItemsFinal;
     }
 
     public static int[] Task_2(int[][] matrix) {
