@@ -7,9 +7,20 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
-        int[] arrayTask1 = {1, 2, 3, 1, 5, 8, 5, 1, 5};
-        int[] resultTask1 = Task_1(arrayTask1);
-        System.out.println(Arrays.toString(resultTask1));
+        String str1 = "H";
+        String str2 = str1;
+        boolean x = str1==str2;
+        System.out.println(str1 + " " + str2 + x);
+        str1 = "G";
+        boolean x2 = str1==str2;
+        System.out.println(str1 + " " + str2 + x2);
+        str1 = "H";
+        boolean x3 = str1==str2;
+        System.out.println(str1 + " " + str2 + x3);
+
+//        int[] arrayTask1 = {1, 2, 3, 1, 5, 8, 5, 1, 5};
+//        int[] resultTask1 = Task_1(arrayTask1);
+//        System.out.println(Arrays.toString(resultTask1));
 
 
 //        int[][] matrixTask2 = {
