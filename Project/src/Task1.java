@@ -19,7 +19,7 @@ public class Task1 {
         //Програмата записва цялата генериране информаци в CSV файл със следните колони:
         // име на ученик, фамилия, клас (8А / 9Б), оценки, среден успех
 
-        String[] dataFromFile = readTxt("students-list1.txt");
+        String[] dataFromFile = readTxtFileToStringArray("students-list1.txt");
         generateAndWriteDataToCSV("output2.csv", dataFromFile);
     }
 
@@ -31,7 +31,8 @@ public class Task1 {
         return lines;
     }
 
-    public static String[] readTxt(String fileName) throws IOException {
+    public static String[] readTxtFileToStringArray(String fileName) throws IOException {
+        // Read a file row by row and add it to an Array
 
         int rowsInFile = getLenOfFile(fileName);
 
@@ -47,13 +48,13 @@ public class Task1 {
         return toReturn;
     }
 
-    public static void appendToFile(String fileName, String word) {
+    public static void appendRowToFile(String fileName, String row) {
         try {
             FileWriter writer = new FileWriter(fileName, true);
-            writer.write(word + "\n");
+            writer.write(row + "\n");
             writer.close();
         } catch (IOException e) {
-            System.out.println("An error occurred while writing " + word);
+            System.out.println("An error occurred while writing " + row);
             e.printStackTrace();
         }
     }
@@ -113,34 +114,34 @@ public class Task1 {
         return (float) totalScores / scores.length;
     }
 
-    public static void generateAndWriteDataToCSV(String fileNameToWrite, String[] rowsDataFromtxtFile) {
-        for (int i = 0; i < rowsDataFromtxtFile.length; i++) {
+    public static void generateAndWriteDataToCSV(String fileNameToWrite, String[] rowsDataFromTxtFile) {
+        for (int i = 0; i < rowsDataFromTxtFile.length; i++) {
 
-            String[] curUser = rowsDataFromtxtFile[i].split(" ");
+            String[] curUser = rowsDataFromTxtFile[i].split(" ");
             String fName = curUser[0];
             String lName = curUser[1];
 
-            // get grade - 8 or 9
+            // Get grade - 8 or 9
             int age = Integer.parseInt(curUser[2]);
             int grade = getClassGrade(age);
 
             // A or B
             String classLetter = getClassLetter(fName, lName);
 
-            // girl or boy
+            // Girl or boy
             boolean isGirl = isGirl(fName);
 
-            // get all scores (random) - different number for each person
+            // Get all scores (random) - different number for each person
             int[] scores = getRandomScores(isGirl);
 
-            // get avg score
+            // Get avg score
             float avgScore = calcAvgScore(scores);
 
             //име на ученик, фамилия, клас (8А / 9Б), оценки, среден успех
             String row = fName + "," + lName + ',' + grade+classLetter + ',' + Arrays.toString(scores) + ',' + avgScore;
 
             // write to csv file
-            appendToFile(fileNameToWrite, row);
+            appendRowToFile(fileNameToWrite, row);
         }
     }
 
