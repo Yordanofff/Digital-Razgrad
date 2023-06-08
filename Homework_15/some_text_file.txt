@@ -1,0 +1,8 @@
+some random text to count
+some more text
+and some more
+
+
+and     some more
+
+total count should be 20 words
