@@ -28,6 +28,7 @@ import java.util.*;
 // всички промени на наличността в дадения период, включително зареждания и извеждания на стоки)
 //
 //Пример:
+//
 //Please choose what to do (1 - List all items; 2 - Add new delivery; 3 - List deliveries for time period)
 //<< 1
 //Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips | Unit: Item | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
@@ -64,18 +65,27 @@ import java.util.*;
 
 // todo - Expiry date: n/a | Entry date: 05.05.2021 - expirity date can be n/a or null
 // todo - readFromDB , writeToDB
-
+// todo ASK:
+// unit - ITEM or ?
 public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
 //            getData();
-//        if (positionChecker("A3 /4 / 10")) {
-//            System.out.println("y");
-//        } else {
-//            System.out.println("n");
-//        }
 
+//        System.out.println(positionValidator("A3 / 4 / 10"));
+//        System.out.println(positionValidator("AА3 / 4 / 10"));
+//        System.out.println(positionValidator("A3 / А4 / 10"));
+//        System.out.println(positionValidator("A3 / 4 / А10"));
+//        System.out.println(positionValidator("A3/4/10"));
+//        System.out.println(positionValidator("A3.4/10"));
+//        System.out.println(positionValidator("A4/10"));
+
+        System.out.println(isNumber("8"));
+        System.out.println(isNumber("128"));
+        System.out.println(isNumber("128f"));
+        System.out.println(isNumber("a12"));
+        System.out.println(isNumber("a"));
 
     }
 
@@ -87,12 +97,24 @@ public class Main {
         // validate if null
     }
 //    public static void registerProduct(String name, String dateExpiry, String dateBought, String unit, int quantity, String placement, int itemsPerShelf, String comment) {
+    public static boolean isNumber(String num) {
+        try {
+            Integer.parseInt(num.strip());
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
 
-    public static boolean positionChecker(String placement) {
+    public static boolean positionValidator(String placement) {
         // Check if it's made out of секция/рафт/номер
         // A3 / 4 / 10
         String[] parts = placement.split("/");
+
         if (parts.length != 3) {
+            return false;
+        }
+        if (!(isNumber(parts[1]) && isNumber(parts[2]))) {
             return false;
         }
 
@@ -101,32 +123,21 @@ public class Main {
             // \D matches all non-digit characters, while \d matches all digit characters
             String[] firstPart = parts[0].strip().split("(?<=\\D)(?=\\d)");
 
-            String letter = firstPart[0].strip();
-            int section = Integer.parseInt(firstPart[1].strip());
-
-            int raft = Integer.parseInt(parts[1].strip());
-
-            int number = Integer.parseInt(parts[2].strip());
-            return true;
+            String letterPart = firstPart[0].strip();
+            if (letterPart.length() == 1){
+                // no need to check if is letter
+                if (isNumber(firstPart[1])) {
+                    return true;
+                }
+            }
         } catch (Exception e) {
             // something's wrong
             return false;
         }
-
-        /*
-                if (parts[1].strip() instanceof Integer){
-                    System.out.println("2 e int");
-                }
-         object.getClass().equals(Type.class)
-                if (parts[0].strip().getClass().equals(String))
-                    if( foo instanceof String ) {}
-                for (int i = 0; i < parts.length; i++) {
-                    String currPart = parts[i].strip();
-                }
-        */
+        return false;
     }
 
-    // todo delete me
+
     public static boolean dateValidator(String date) {
         // String date will be in format "dd.mm.yyyy"
         // Will return True if date is valid, else False.
@@ -216,39 +227,50 @@ public class Main {
     }
 
 
-    public static boolean unitChecker(String unit) {
-
+    public static boolean unitValidator(String unit) {
+        if (unit.equalsIgnoreCase("item") || unit.equalsIgnoreCase("liter")) {
+            return true;
+        }
+        return false;
     }
 
     //Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 |
     // Manufacturer: Philips | Unit: Item | Stock: 104 |
     // Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
-    public static void getData(String[] questions, String[] keys) {
-        String[] listQuestions = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
-                "available stock", "comment (optional)"};
-
-        String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
-                "stock", "quantity", "position", "itemsPerShelf", "comment"};
-
-        System.out.println("Enter " + question + ":"); // todo
-
-        // 1: name
-        // 2: expiryDate
-        // 3: entryDate
-        // 4: manufacturer
-        // 5: unit
-        // stock
-        // 6: quantity (int)
-        // 7: position
-        // 8: itemsPerShelf (int)
-        // 9: comment
-        HashMap<String, String> dict = new HashMap<String, String>();
-
-        for (int i = 0; i < listQuestions.length; i++) {
-            String curValue = readString("Въведете " + listQuestions[i] + ": ");
-            dict.put(listKeys[i], curValue);
-
-        }
-    }
+//    public static void getData(String[] keys) {
+//        String[] questions = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
+//                "available stock", "comment (optional)"};
+//
+//        String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
+//                "stock", "quantity", "position", "itemsPerShelf", "comment"};
+//
+//        while (true) {
+//            for (String question: questions) {
+//                System.out.println("Enter " + question + ":");
+//                String ans = scanner.nextLine();
+//
+//
+//            }
+//        }
+//
+//
+//        // 1: name
+//        // 2: expiryDate
+//        // 3: entryDate
+//        // 4: manufacturer
+//        // 5: unit
+//        // stock
+//        // 6: quantity (int)
+//        // 7: position
+//        // 8: itemsPerShelf (int)
+//        // 9: comment
+//        HashMap<String, String> dict = new HashMap<String, String>();
+//
+//        for (int i = 0; i < listQuestions.length; i++) {
+//            String curValue = readString("Въведете " + listQuestions[i] + ": ");
+//            dict.put(listKeys[i], curValue);
+//
+//        }
+//    }
 
 }
