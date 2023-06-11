@@ -126,7 +126,7 @@ public class Main {
         */
     }
 
-
+    // todo delete me
     public static boolean dateValidator(String date) {
         // String date will be in format "dd.mm.yyyy"
         // Will return True if date is valid, else False.
