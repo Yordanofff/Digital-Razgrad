@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 
 
@@ -68,24 +69,54 @@ import java.util.*;
 // todo ASK:
 // unit - ITEM or ?
 public class Main {
+
+
     // todo checker - [][][] or letter[][][]
     // todo String unit --> boolean unit --> килограми, литри
     // todo Enter available stock: ???
     // todo - color output
     // todo - print in the middle
     // todo - if no expiry date - empty string as answer or n/a?
+    // todo - add error printing in data validation --> what's wrong as a parameter
+    // todo - don't allow separator to be used in the data.
+    // todo - postypvane v sklada - opciq - today
+    // todo - opciq cancel - dokato vyvejdame dannite ako sme obyrkali neshto.
 
-    public static String readString(String question) {
-        System.out.print(question);
-        return scanner.nextLine().strip();
-        // validate if null
-    }
+    // todo - items per shelf - ako produkta ve4e go ima - da izpishe kolko se sybirat na edin raft.
+    // produkta moje da e s promeneni razmeri i da se sybirat po-malko ili pove4e ot nego.
 
+//    int x;
+
+
+    // Constructor with a parameter
+//    public Main(int x) {
+//        this.x = x;
+//        this.DB_FILE_NAME = "app_data.csv";
+//    }
     static Scanner scanner = new Scanner(System.in);
+//    static String DB_FILE_NAME = "app_data.csv";
+    static String SEPARATOR = ";";
+    static String SEPARATOR_WHEN_PRINTING = " | ";
+    static String DB_FILE_NAME = "app_data.csv";
 
-    public static void main(String[] args) {
-            addData();
+//    static char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+    static char[] letterSection = "abc".toCharArray();
 
+    static int numSections = 3;
+    static int numShelves = 5;
+    static int numNumbers = 5;
+
+//    static String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
+//            "stock", "quantity", "position", "itemsPerShelf", "comment"};
+
+
+    public static void main(String[] args) throws IOException {
+//        String[] test = getUserInputAllData();
+//        System.out.println(Arrays.toString(test));
+//        String[] test2 = {"tesla", "n/a", "20.12.2022", "Tesla", "item", "20", "fast car"};
+//        appendArrayRowToFile(DB_FILE_NAME, test2);
+
+//        printAlldataFromDB();
 //        System.out.println(positionValidator("A3 / 4 / 10"));
 //        System.out.println(positionValidator("AА3 / 4 / 10"));
 //        System.out.println(positionValidator("A3 / А4 / 10"));
@@ -99,9 +130,12 @@ public class Main {
 //        System.out.println(isNumber("128f"));
 //        System.out.println(isNumber("a12"));
 //        System.out.println(isNumber("a"));
+        generateAllPossiblePositions();
+
 
     }
-//    public static void registerProduct(String name, String dateExpiry, String dateBought, String unit, int quantity, String placement, int itemsPerShelf, String comment) {
+
+    //    public static void registerProduct(String name, String dateExpiry, String dateBought, String unit, int quantity, String placement, int itemsPerShelf, String comment) {
     public static boolean isNumber(String num) {
         try {
             Integer.parseInt(num.strip());
@@ -133,7 +167,7 @@ public class Main {
             String[] firstPart = parts[0].strip().split("(?<=\\D)(?=\\d)");
 
             String letterPart = firstPart[0].strip();
-            if (letterPart.length() == 1){
+            if (letterPart.length() == 1) {
                 // no need to check if is letter
                 if (isNumber(firstPart[1])) {
                     return true;
@@ -146,6 +180,20 @@ public class Main {
         return false;
     }
 
+//    public static void positionGenerator(String)
+
+    public static void generateAllPossiblePositions() {
+//        int[][][] matrix = new int[numSections][numShelves][numNumbers];
+        for (char c: letterSection) {
+            for (int i = 0; i < numSections; i++) {
+                for (int j = 0; j < numShelves; j++) {
+                    for (int k = 0; k < numNumbers; k++) {
+                        System.out.println(String.valueOf(c) + i + " / " + j + " / " + k);
+                    }
+                }
+            }
+        }
+    }
 
     public static boolean dateValidator(String date) {
         // String date will be in format "dd.mm.yyyy"
@@ -195,6 +243,7 @@ public class Main {
 
         return true;
     }
+
     public static boolean isLeapYear(int year) {
         if (year % 4 != 0) {
             return false;
@@ -202,6 +251,7 @@ public class Main {
             return true;
         } else return year % 100 != 0;
     }
+
     public static int getDaysInMonth(int year, int month) {
         // A leap year occurs nearly every 4 years which adds an extra day to February.
         // February is the only month with 28 days.
@@ -226,6 +276,7 @@ public class Main {
             return 28;
         }
     }
+
     public static boolean isCurrentMonthInArray(int[] months, int month) {
         for (int m : months) {
             if (m == month) {
@@ -243,10 +294,10 @@ public class Main {
         return false;
     }
 
-    //Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 |
-    // Manufacturer: Philips | Unit: Item | Stock: 104 |
-    // Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
+
+
     public static String getUserInput(String question) {
+        // Will make sure that the data entered by the user is validated.
 
         System.out.println("Enter " + question + ": ");
         String ans = scanner.nextLine();
@@ -275,7 +326,7 @@ public class Main {
             while (!(isValid || ans.equalsIgnoreCase("n/a"))) {
                 System.out.println("Error! Date needs to be in the format \"dd.mm.yyyy\" or \"n/a\". Please Enter a valid answer: ");
                 ans = scanner.nextLine();
-                isValid = unitValidator(ans);
+                isValid = dateValidator(ans);
             }
         }
 
@@ -285,14 +336,14 @@ public class Main {
             while (!isValid) {
                 System.out.println("Error! Date needs to be in the format \"dd.mm.yyyy\". Please Enter a valid answer: ");
                 ans = scanner.nextLine();
-                isValid = unitValidator(ans);
+                isValid = dateValidator(ans);
             }
         }
-        
+
         return ans;
     }
 
-    public static void addData() {
+    public static String[] getUserInputAllData() {
         //Enter product name:
         //<< Battery CR32
 
@@ -314,33 +365,55 @@ public class Main {
         //Enter comment (optional):
         //<<
         //Product was added successfully!
+
         String[] questions = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
                 "available stock", "comment (optional)"};
 
-        String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
-                "stock", "quantity", "position", "itemsPerShelf", "comment"};
 
+        String[] answers = new String[questions.length];
 
-        getUserInput(questions[1]);
+        for (int i = 0; i < questions.length; i++) {
+            String ans = getUserInput(questions[i]);
+            answers[i] = ans;
+        }
+        return answers;
+    }
 
-//            for (String question: questions) {
-////                System.out.println("Enter " + question + ":");
-////                String ans = scanner.nextLine();
-//                getUserInput(question);
-//            }
-//        }
+    public static void writeDataToDB(String fileName, String[] rowData){
+        appendArrayRowToFile(fileName, rowData);
+    }
 
+    // todo position + available items
+    public static void printAlldataFromDB() throws IOException {
+        String[] dbData = readTxtFileToStringArray(DB_FILE_NAME);
 
-        // 1: name
-        // 2: expiryDate
-        // 3: entryDate
-        // 4: manufacturer
-        // 5: unit
-        // stock
-        // 6: quantity (int)
-        // 7: position
-        // 8: itemsPerShelf (int)
-        // 9: comment
+        // Starting at the second element - "Name" not printed.
+        String[] description = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
+
+        for (String row:dbData) {
+            String[] rowArray = row.split(SEPARATOR);
+            //    // Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips |
+            //    Unit: Item | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
+
+            // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
+            System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
+            for (int i = 1; i < rowArray.length; i++) {
+                System.out.print(description[i-1] +": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+            }
+            System.out.println();
+        }
+    }
+
+    // 1: name
+    // 2: expiryDate
+    // 3: entryDate
+    // 4: manufacturer
+    // 5: unit
+    // stock
+    // 6: quantity (int)
+    // 7: position
+    // 8: itemsPerShelf (int)
+    // 9: comment
 
 //        HashMap<String, String> dict = new HashMap<String, String>();
 //
@@ -349,6 +422,44 @@ public class Main {
 //            dict.put(listKeys[i], curValue);
 //
 //        }
+
+
+
+    public static int getLenOfFile(String fileName) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        int lines = 0;
+        while (reader.readLine() != null) lines++;
+        reader.close();
+        return lines;
+    }
+    public static String[] readTxtFileToStringArray(String fileName) throws IOException {
+        // Read a file row by row and add it to an Array
+
+        int rowsInFile = getLenOfFile(fileName);
+
+        String[] toReturn = new String[rowsInFile];
+
+        File file = new File(fileName);
+        Scanner sc = new Scanner(file);
+
+        for (int i = 0; i < rowsInFile; i++) {
+            toReturn[i] = sc.nextLine();
+        }
+
+        return toReturn;
+    }
+    public static void appendArrayRowToFile(String fileName, String[] row) {
+        try {
+            FileWriter writer = new FileWriter(fileName, true);
+            for (String element : row) {
+                writer.write(element + SEPARATOR);
+            }
+            writer.write("\n");
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred while writing " + Arrays.toString(row));
+            e.printStackTrace();
+        }
     }
 
 }
