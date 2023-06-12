@@ -68,10 +68,23 @@ import java.util.*;
 // todo ASK:
 // unit - ITEM or ?
 public class Main {
+    // todo checker - [][][] or letter[][][]
+    // todo String unit --> boolean unit --> килограми, литри
+    // todo Enter available stock: ???
+    // todo - color output
+    // todo - print in the middle
+    // todo - if no expiry date - empty string as answer or n/a?
+
+    public static String readString(String question) {
+        System.out.print(question);
+        return scanner.nextLine().strip();
+        // validate if null
+    }
+
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-//            getData();
+            addData();
 
 //        System.out.println(positionValidator("A3 / 4 / 10"));
 //        System.out.println(positionValidator("AА3 / 4 / 10"));
@@ -81,20 +94,12 @@ public class Main {
 //        System.out.println(positionValidator("A3.4/10"));
 //        System.out.println(positionValidator("A4/10"));
 
-        System.out.println(isNumber("8"));
-        System.out.println(isNumber("128"));
-        System.out.println(isNumber("128f"));
-        System.out.println(isNumber("a12"));
-        System.out.println(isNumber("a"));
+//        System.out.println(isNumber("8"));
+//        System.out.println(isNumber("128"));
+//        System.out.println(isNumber("128f"));
+//        System.out.println(isNumber("a12"));
+//        System.out.println(isNumber("a"));
 
-    }
-
-    // todo checker - [][][] or letter[][][]
-    // todo String unit --> boolean unit --> килограми, литри
-    public static String readString(String question) {
-        System.out.print(question);
-        return scanner.nextLine().strip();
-        // validate if null
     }
 //    public static void registerProduct(String name, String dateExpiry, String dateBought, String unit, int quantity, String placement, int itemsPerShelf, String comment) {
     public static boolean isNumber(String num) {
@@ -111,13 +116,17 @@ public class Main {
         // A3 / 4 / 10
         String[] parts = placement.split("/");
 
+        // Check if it's made out of 3 parts
         if (parts.length != 3) {
             return false;
         }
+
+        // Check if the last 2 parts are numbers
         if (!(isNumber(parts[1]) && isNumber(parts[2]))) {
             return false;
         }
 
+        // Check if the first part is made out of a single letter + a number
         try {
             // split the first part in String/Integer
             // \D matches all non-digit characters, while \d matches all digit characters
@@ -237,33 +246,102 @@ public class Main {
     //Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 |
     // Manufacturer: Philips | Unit: Item | Stock: 104 |
     // Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
-//    public static void getData(String[] keys) {
-//        String[] questions = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
-//                "available stock", "comment (optional)"};
-//
-//        String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
-//                "stock", "quantity", "position", "itemsPerShelf", "comment"};
-//
-//        while (true) {
+    public static String getUserInput(String question) {
+
+        System.out.println("Enter " + question + ": ");
+        String ans = scanner.nextLine();
+
+        // Make sure that data has been entered for every question except the ones that are optional.
+        if (!question.contains("optional")) {
+            while (ans.isEmpty()) {
+                System.out.println("Empty answer. Please enter " + question + ": ");
+                ans = scanner.nextLine();
+            }
+        }
+
+        // Make sure that the unit question returns a valid answer
+        if (question.contains("unit")) {
+            boolean isValid = unitValidator(ans);
+            while (!isValid) {
+                System.out.println("Error! Unit can be \"Item\" or \"Liter\". Please Enter a valid answer: ");
+                ans = scanner.nextLine();
+                isValid = unitValidator(ans);
+            }
+        }
+
+        // Make sure that the date question returns a valid answer
+        else if (question.equalsIgnoreCase("expiry date")) {
+            boolean isValid = dateValidator(ans);
+            while (!(isValid || ans.equalsIgnoreCase("n/a"))) {
+                System.out.println("Error! Date needs to be in the format \"dd.mm.yyyy\" or \"n/a\". Please Enter a valid answer: ");
+                ans = scanner.nextLine();
+                isValid = unitValidator(ans);
+            }
+        }
+
+        // Make sure that the date question returns a valid answer
+        else if (question.equalsIgnoreCase("entry date")) {
+            boolean isValid = dateValidator(ans);
+            while (!isValid) {
+                System.out.println("Error! Date needs to be in the format \"dd.mm.yyyy\". Please Enter a valid answer: ");
+                ans = scanner.nextLine();
+                isValid = unitValidator(ans);
+            }
+        }
+        
+        return ans;
+    }
+
+    public static void addData() {
+        //Enter product name:
+        //<< Battery CR32
+
+        //Enter expiry date:
+        //<<24.11.2025
+
+        //Enter entry date:
+        //<< 02.06.2021
+
+        //Enter manufacturer:
+        //<< Varta
+
+        //Enter unit:
+        //<< Item
+
+        //Enter available stock:
+        //<< 900
+
+        //Enter comment (optional):
+        //<<
+        //Product was added successfully!
+        String[] questions = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
+                "available stock", "comment (optional)"};
+
+        String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
+                "stock", "quantity", "position", "itemsPerShelf", "comment"};
+
+
+        getUserInput(questions[1]);
+
 //            for (String question: questions) {
-//                System.out.println("Enter " + question + ":");
-//                String ans = scanner.nextLine();
-//
-//
+////                System.out.println("Enter " + question + ":");
+////                String ans = scanner.nextLine();
+//                getUserInput(question);
 //            }
 //        }
-//
-//
-//        // 1: name
-//        // 2: expiryDate
-//        // 3: entryDate
-//        // 4: manufacturer
-//        // 5: unit
-//        // stock
-//        // 6: quantity (int)
-//        // 7: position
-//        // 8: itemsPerShelf (int)
-//        // 9: comment
+
+
+        // 1: name
+        // 2: expiryDate
+        // 3: entryDate
+        // 4: manufacturer
+        // 5: unit
+        // stock
+        // 6: quantity (int)
+        // 7: position
+        // 8: itemsPerShelf (int)
+        // 9: comment
+
 //        HashMap<String, String> dict = new HashMap<String, String>();
 //
 //        for (int i = 0; i < listQuestions.length; i++) {
@@ -271,6 +349,6 @@ public class Main {
 //            dict.put(listKeys[i], curValue);
 //
 //        }
-//    }
+    }
 
 }
