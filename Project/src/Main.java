@@ -85,26 +85,20 @@ public class Main {
     // todo - items per shelf - ako produkta ve4e go ima - da izpishe kolko se sybirat na edin raft.
     // produkta moje da e s promeneni razmeri i da se sybirat po-malko ili pove4e ot nego.
 
-//    int x;
 
-
-    // Constructor with a parameter
-//    public Main(int x) {
-//        this.x = x;
-//        this.DB_FILE_NAME = "app_data.csv";
-//    }
     static Scanner scanner = new Scanner(System.in);
-//    static String DB_FILE_NAME = "app_data.csv";
     static String SEPARATOR = ";";
     static String SEPARATOR_WHEN_PRINTING = " | ";
     static String DB_FILE_NAME = "app_data.csv";
 
 //    static char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
-    static char[] letterSection = "abc".toCharArray();
 
-    static int numSections = 3;
-    static int numShelves = 5;
-    static int numNumbers = 5;
+    static char[] LETTER_SECTION = "abc".toCharArray();
+    static int NUM_SECTION = 3;
+    static int NUM_SHELVES = 5;
+    static int NUM_NUMBERS = 5;
+
+    static String[] UNIT_OPTIONS = {"Kg", "Liter", "Meter", "Unit"}; // килограми, литри, метри, брой
 
 //    static String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
 //            "stock", "quantity", "position", "itemsPerShelf", "comment"};
@@ -130,8 +124,9 @@ public class Main {
 //        System.out.println(isNumber("128f"));
 //        System.out.println(isNumber("a12"));
 //        System.out.println(isNumber("a"));
-        generateAllPossiblePositions();
-
+//        generateAllPossiblePositions();
+//        getUserInput("unit");
+            getUserInputAllData();
 
     }
 
@@ -184,10 +179,10 @@ public class Main {
 
     public static void generateAllPossiblePositions() {
 //        int[][][] matrix = new int[numSections][numShelves][numNumbers];
-        for (char c: letterSection) {
-            for (int i = 0; i < numSections; i++) {
-                for (int j = 0; j < numShelves; j++) {
-                    for (int k = 0; k < numNumbers; k++) {
+        for (char c : LETTER_SECTION) {
+            for (int i = 0; i < NUM_SECTION; i++) {
+                for (int j = 0; j < NUM_SHELVES; j++) {
+                    for (int k = 0; k < NUM_NUMBERS; k++) {
                         System.out.println(String.valueOf(c) + i + " / " + j + " / " + k);
                     }
                 }
@@ -269,7 +264,7 @@ public class Main {
             return 31;
         }
 
-        // Feb
+        // February will be different if leap year
         if (isLeapYear(year)) {
             return 29;
         } else {
@@ -277,9 +272,18 @@ public class Main {
         }
     }
 
-    public static boolean isCurrentMonthInArray(int[] months, int month) {
-        for (int m : months) {
-            if (m == month) {
+    public static boolean isCurrentMonthInArray(int[] monthNumbers, int monthNumber) {
+        for (int number : monthNumbers) {
+            if (number == monthNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean unitValidator(String unit) {
+        for (String unitOption : UNIT_OPTIONS) {
+            if (unit.strip().equalsIgnoreCase(unitOption)) {
                 return true;
             }
         }
@@ -287,34 +291,20 @@ public class Main {
     }
 
 
-    public static boolean unitValidator(String unit) {
-        if (unit.equalsIgnoreCase("item") || unit.equalsIgnoreCase("liter")) {
-            return true;
-        }
-        return false;
-    }
-
-
-
     public static String getUserInput(String question) {
         // Will make sure that the data entered by the user is validated.
 
         System.out.println("Enter " + question + ": ");
         String ans = scanner.nextLine();
-
-        // Make sure that data has been entered for every question except the ones that are optional.
-        if (!question.contains("optional")) {
-            while (ans.isEmpty()) {
-                System.out.println("Empty answer. Please enter " + question + ": ");
-                ans = scanner.nextLine();
-            }
+        if (ans.strip().equalsIgnoreCase("reset!")) {
+            return ans.strip();
         }
-
         // Make sure that the unit question returns a valid answer
         if (question.contains("unit")) {
             boolean isValid = unitValidator(ans);
             while (!isValid) {
-                System.out.println("Error! Unit can be \"Item\" or \"Liter\". Please Enter a valid answer: ");
+                String availableOptions = String.join(", ", UNIT_OPTIONS);
+                System.out.println("Error! Please Enter a valid option for Unit: " + availableOptions + ".");
                 ans = scanner.nextLine();
                 isValid = unitValidator(ans);
             }
@@ -324,23 +314,31 @@ public class Main {
         else if (question.equalsIgnoreCase("expiry date")) {
             boolean isValid = dateValidator(ans);
             while (!(isValid || ans.equalsIgnoreCase("n/a"))) {
-                System.out.println("Error! Date needs to be in the format \"dd.mm.yyyy\" or \"n/a\". Please Enter a valid answer: ");
+                System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" or \"n/a\" if the product doesn't expire.");
                 ans = scanner.nextLine();
                 isValid = dateValidator(ans);
             }
         }
 
-        // Make sure that the date question returns a valid answer
+        // entry date - needs to be filled in.
         else if (question.equalsIgnoreCase("entry date")) {
             boolean isValid = dateValidator(ans);
             while (!isValid) {
-                System.out.println("Error! Date needs to be in the format \"dd.mm.yyyy\". Please Enter a valid answer: ");
+                System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\"");
                 ans = scanner.nextLine();
                 isValid = dateValidator(ans);
             }
         }
 
-        return ans;
+        // Allow empty answer if the question is optional. Require an input if not.
+        else if (!question.contains("optional")) {
+            while (ans.isEmpty()) {
+                System.out.println("Empty answer. Please enter " + question + ": ");
+                ans = scanner.nextLine();
+            }
+        }
+
+        return ans.strip();
     }
 
     public static String[] getUserInputAllData() {
@@ -374,12 +372,15 @@ public class Main {
 
         for (int i = 0; i < questions.length; i++) {
             String ans = getUserInput(questions[i]);
+            if (ans.equals("reset!")) {
+                getUserInputAllData();
+            }
             answers[i] = ans;
         }
         return answers;
     }
 
-    public static void writeDataToDB(String fileName, String[] rowData){
+    public static void writeDataToDB(String fileName, String[] rowData) {
         appendArrayRowToFile(fileName, rowData);
     }
 
@@ -390,7 +391,7 @@ public class Main {
         // Starting at the second element - "Name" not printed.
         String[] description = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
 
-        for (String row:dbData) {
+        for (String row : dbData) {
             String[] rowArray = row.split(SEPARATOR);
             //    // Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips |
             //    Unit: Item | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
@@ -398,7 +399,7 @@ public class Main {
             // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
             System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
             for (int i = 1; i < rowArray.length; i++) {
-                System.out.print(description[i-1] +": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+                System.out.print(description[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
             }
             System.out.println();
         }
@@ -424,7 +425,6 @@ public class Main {
 //        }
 
 
-
     public static int getLenOfFile(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
         int lines = 0;
@@ -432,6 +432,7 @@ public class Main {
         reader.close();
         return lines;
     }
+
     public static String[] readTxtFileToStringArray(String fileName) throws IOException {
         // Read a file row by row and add it to an Array
 
@@ -448,6 +449,7 @@ public class Main {
 
         return toReturn;
     }
+
     public static void appendArrayRowToFile(String fileName, String[] row) {
         try {
             FileWriter writer = new FileWriter(fileName, true);
