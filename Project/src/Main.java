@@ -64,6 +64,9 @@ import java.util.*;
 //List of product transactions for the period 01.05.2021 - 31.05.2021:
 //Light bulb - LED 75W | Entry date: 05.05.2021 | Unit: Item | Stock delivered: 200
 
+
+//Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips | Unit: Item | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
+
 // todo - Expiry date: n/a | Entry date: 05.05.2021 - expirity date can be n/a or null
 // todo - readFromDB , writeToDB
 // todo ASK:
@@ -93,12 +96,18 @@ public class Main {
 
 //    static char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
 
-    static char[] LETTER_SECTION = "abc".toCharArray();
-    static int NUM_SECTION = 3;
-    static int NUM_SHELVES = 5;
-    static int NUM_NUMBERS = 5;
+    static char[] LETTER_SECTION = "ab".toCharArray();
+    static int NUM_SECTION = 2;
+    static int NUM_SHELVES = 3;
+    static int NUM_NUMBERS = 4;
 
-    static String[] UNIT_OPTIONS = {"Kg", "Liter", "Meter", "Unit"}; // килограми, литри, метри, брой
+    static Map<String, Integer> UNIT_OPTIONS = Map.of(
+            //Unit type - number of items per shelf
+            "Kg", 100,
+            "Liter", 100,
+            "Meter", 10,
+            "Unit", 1000
+    );
 
 //    static String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
 //            "stock", "quantity", "position", "itemsPerShelf", "comment"};
@@ -124,9 +133,11 @@ public class Main {
 //        System.out.println(isNumber("128f"));
 //        System.out.println(isNumber("a12"));
 //        System.out.println(isNumber("a"));
-//        generateAllPossiblePositions();
+        String[] x = generateAllPossiblePositions();
+        System.out.println(Arrays.toString(x));
 //        getUserInput("unit");
-            getUserInputAllData();
+//            getUserInputAllData();
+//        System.out.println(UNIT_OPTIONS.keySet());
 
     }
 
@@ -206,25 +217,33 @@ public class Main {
         // if num items == numItemsToAdd - check in method that calls it. --> all fit
         // else - numIntemsToAdd - what is returned will fit - the rest is reminder
         System.out.println();
+        return 1;
     }
 
-    public static void generateAllPossiblePositions() {
+    public static String[] generateAllPossiblePositions() {
 //        int[][][] matrix = new int[numSections][numShelves][numNumbers];
+        int numOptions = LETTER_SECTION.length * NUM_SECTION * NUM_SHELVES * NUM_NUMBERS;
+        String[] allOptions = new String[numOptions];
         for (char c : LETTER_SECTION) {
             for (int i = 0; i < NUM_SECTION; i++) {
                 for (int j = 0; j < NUM_SHELVES; j++) {
                     for (int k = 0; k < NUM_NUMBERS; k++) {
                         String itemPosition = String.valueOf(c) + i + " / " + j + " / " + k;
                         System.out.println(itemPosition);
+                        // todo - not working - fix 
+                        for (int num = 0; num < numOptions; num++) {
+                            allOptions[num] = itemPosition;
+                        }
                     }
                 }
             }
         }
+        return allOptions;
     }
 
-    public static String getformattedPosition(char c, int i, int j, int k) {
-        return String.valueOf(c) + i + " / " + j + " / " + k;
-    }
+//    public static String getformattedPosition(char c, int i, int j, int k) {
+//        return String.valueOf(c) + i + " / " + j + " / " + k;
+//    }
 
     public static boolean dateValidator(String date) {
         // String date will be in format "dd.mm.yyyy"
@@ -318,7 +337,7 @@ public class Main {
     }
 
     public static boolean unitValidator(String unit) {
-        for (String unitOption : UNIT_OPTIONS) {
+        for (String unitOption : UNIT_OPTIONS.keySet()) {
             if (unit.strip().equalsIgnoreCase(unitOption)) {
                 return true;
             }
@@ -338,7 +357,7 @@ public class Main {
         if (question.contains("unit")) {
             boolean isValid = unitValidator(ans);
             while (!isValid) {
-                String availableOptions = String.join(", ", UNIT_OPTIONS);
+                String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
                 System.out.println("Error! Please Enter a valid option for Unit: " + availableOptions + ".");
                 ans = scanner.nextLine();
                 isValid = unitValidator(ans);
