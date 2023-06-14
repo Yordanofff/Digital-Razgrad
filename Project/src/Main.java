@@ -175,7 +175,38 @@ public class Main {
         return false;
     }
 
-//    public static void positionGenerator(String)
+    public static void getPositionToPlaceItems(String[] freePositions) {
+        // need to check if item already exists and is same expiry date in the DB.
+        // if not - check next free position and place them there
+        System.out.println();
+    }
+    public static void isEnoughSpaceOnShelf(String positionToCheck) {
+        System.out.println();
+    }
+
+    public static void isItemAndExpiryDateAlreadyInDB(String itemName, String expiryDate){
+        System.out.println();
+    }
+
+    public static void getItemPosition(String itemName, String expiryDate){
+        // One item with same expiry date can be in multiple places in the warehouse.
+        // Check is shelf is full. If not full - calculate how many items can be placed there are free
+        System.out.println();
+    }
+    public static void isShelfFull(String position) {
+        // Check numItems on that location
+        // Check how many items fit on the shelf.
+        System.out.println();
+    }
+    public static void isSpaceOnShelfEnough(String position, int numItemsToAdd) {
+        System.out.println();
+    }
+
+    public static int getNumberOfItemsThatWillFitOnTheShelf(String position, int numItemsToAdd) {
+        // if num items == numItemsToAdd - check in method that calls it. --> all fit
+        // else - numIntemsToAdd - what is returned will fit - the rest is reminder
+        System.out.println();
+    }
 
     public static void generateAllPossiblePositions() {
 //        int[][][] matrix = new int[numSections][numShelves][numNumbers];
@@ -183,11 +214,16 @@ public class Main {
             for (int i = 0; i < NUM_SECTION; i++) {
                 for (int j = 0; j < NUM_SHELVES; j++) {
                     for (int k = 0; k < NUM_NUMBERS; k++) {
-                        System.out.println(String.valueOf(c) + i + " / " + j + " / " + k);
+                        String itemPosition = String.valueOf(c) + i + " / " + j + " / " + k;
+                        System.out.println(itemPosition);
                     }
                 }
             }
         }
+    }
+
+    public static String getformattedPosition(char c, int i, int j, int k) {
+        return String.valueOf(c) + i + " / " + j + " / " + k;
     }
 
     public static boolean dateValidator(String date) {
@@ -290,7 +326,6 @@ public class Main {
         return false;
     }
 
-
     public static String getUserInput(String question) {
         // Will make sure that the data entered by the user is validated.
 
@@ -367,9 +402,9 @@ public class Main {
         String[] questions = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
                 "available stock", "comment (optional)"};
 
+        System.out.println("Fill in the data for the items you want to add. Use \"reset!\" to reset the data input.");
 
         String[] answers = new String[questions.length];
-
         for (int i = 0; i < questions.length; i++) {
             String ans = getUserInput(questions[i]);
             if (ans.equals("reset!")) {
@@ -377,6 +412,7 @@ public class Main {
             }
             answers[i] = ans;
         }
+
         return answers;
     }
 
@@ -385,7 +421,7 @@ public class Main {
     }
 
     // todo position + available items
-    public static void printAlldataFromDB() throws IOException {
+    public static void printAllDataFromDB() throws IOException {
         String[] dbData = readTxtFileToStringArray(DB_FILE_NAME);
 
         // Starting at the second element - "Name" not printed.
@@ -398,32 +434,14 @@ public class Main {
 
             // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
             System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
+
             for (int i = 1; i < rowArray.length; i++) {
                 System.out.print(description[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
             }
+
             System.out.println();
         }
     }
-
-    // 1: name
-    // 2: expiryDate
-    // 3: entryDate
-    // 4: manufacturer
-    // 5: unit
-    // stock
-    // 6: quantity (int)
-    // 7: position
-    // 8: itemsPerShelf (int)
-    // 9: comment
-
-//        HashMap<String, String> dict = new HashMap<String, String>();
-//
-//        for (int i = 0; i < listQuestions.length; i++) {
-//            String curValue = readString("Въведете " + listQuestions[i] + ": ");
-//            dict.put(listKeys[i], curValue);
-//
-//        }
-
 
     public static int getLenOfFile(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
@@ -434,29 +452,31 @@ public class Main {
     }
 
     public static String[] readTxtFileToStringArray(String fileName) throws IOException {
-        // Read a file row by row and add it to an Array
+        // Read a file row by row and add each row to an Array
 
-        int rowsInFile = getLenOfFile(fileName);
+        int numRowsInFile = getLenOfFile(fileName);
 
-        String[] toReturn = new String[rowsInFile];
+        String[] rowsData = new String[numRowsInFile];
 
         File file = new File(fileName);
         Scanner sc = new Scanner(file);
 
-        for (int i = 0; i < rowsInFile; i++) {
-            toReturn[i] = sc.nextLine();
+        for (int i = 0; i < numRowsInFile; i++) {
+            rowsData[i] = sc.nextLine();
         }
 
-        return toReturn;
+        return rowsData;
     }
 
     public static void appendArrayRowToFile(String fileName, String[] row) {
         try {
             FileWriter writer = new FileWriter(fileName, true);
+
             for (String element : row) {
                 writer.write(element + SEPARATOR);
             }
             writer.write("\n");
+
             writer.close();
         } catch (IOException e) {
             System.out.println("An error occurred while writing " + Arrays.toString(row));
