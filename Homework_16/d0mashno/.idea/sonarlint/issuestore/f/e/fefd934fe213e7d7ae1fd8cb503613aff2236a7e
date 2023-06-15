@@ -1,10 +1,0 @@
-
-0
-java:S1220""Move this file to a named package.
-O
-java:S3400"9Remove this method and declare a constant for this value.(Ÿ‚–
-S	java:S106"9Replace this use of System.out or System.err by a logger.(¹®Ô¤ûÿÿÿÿ
-S	java:S106	"9Replace this use of System.out or System.err by a logger.(§Ç÷Éşÿÿÿÿ
-N	java:S106
-"9Replace this use of System.out or System.err by a logger.(ÙÜÌ­
-S	java:S106"9Replace this use of System.out or System.err by a logger.(İ©—òıÿÿÿÿ
