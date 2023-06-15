@@ -109,6 +109,9 @@ public class Main {
             "Unit", 1000
     );
 
+    static String[] USER_QUESTIONS = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
+            "available stock", "comment (optional)"};
+
 //    static String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
 //            "stock", "quantity", "position", "itemsPerShelf", "comment"};
 
@@ -133,12 +136,49 @@ public class Main {
 //        System.out.println(isNumber("128f"));
 //        System.out.println(isNumber("a12"));
 //        System.out.println(isNumber("a"));
-        String[] x = generateAllPossiblePositions();
-        System.out.println(Arrays.toString(x));
+
+//        String[] x = generateAllPossiblePositions();
+//        System.out.println(Arrays.toString(x));
+
 //        getUserInput("unit");
 //            getUserInputAllData();
 //        System.out.println(UNIT_OPTIONS.keySet());
+//        getUsedPositions();
 
+//        List<String> x = getUsedPositions();
+//        System.out.println(x);
+
+//        String[] x = getUserInputAllData();
+//        System.out.println(Arrays.toString(x));
+
+//        String[] y = {"32 tv", "n/a", "20.10.2010", "Samsung", "unit", "20", "x"};
+//        int yl = y.length;
+//        String[] y2 = insertElementInArray(y, "test", yl);
+//        System.out.println(Arrays.toString(y2));
+
+        int unitPosition = Arrays.asList(USER_QUESTIONS).indexOf("unit");
+        System.out.println(unitPosition);
+        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(unitPosition);
+        System.out.println(numberOfItemsThatCanFitOnShelf);
+
+    }
+
+    public static String[] insertElementInArray(String[] array, String elementToAdd, int position) {
+        int i;
+        int n = array.length;
+
+        String[] newArray = new String[n + 1];
+
+        for (i = 0; i < n + 1; i++) {
+            if (i < position - 1) {
+                newArray[i] = array[i];
+            } else if (i == position - 1) {
+                newArray[i] = elementToAdd;
+            } else {
+                newArray[i] = array[i - 1];
+            }
+        }
+        return newArray;
     }
 
     //    public static void registerProduct(String name, String dateExpiry, String dateBought, String unit, int quantity, String placement, int itemsPerShelf, String comment) {
@@ -191,24 +231,27 @@ public class Main {
         // if not - check next free position and place them there
         System.out.println();
     }
+
     public static void isEnoughSpaceOnShelf(String positionToCheck) {
         System.out.println();
     }
 
-    public static void isItemAndExpiryDateAlreadyInDB(String itemName, String expiryDate){
+    public static void isItemAndExpiryDateAlreadyInDB(String itemName, String expiryDate) {
         System.out.println();
     }
 
-    public static void getItemPosition(String itemName, String expiryDate){
+    public static void getItemPosition(String itemName, String expiryDate) {
         // One item with same expiry date can be in multiple places in the warehouse.
         // Check is shelf is full. If not full - calculate how many items can be placed there are free
         System.out.println();
     }
+
     public static void isShelfFull(String position) {
         // Check numItems on that location
         // Check how many items fit on the shelf.
         System.out.println();
     }
+
     public static void isSpaceOnShelfEnough(String position, int numItemsToAdd) {
         System.out.println();
     }
@@ -220,25 +263,47 @@ public class Main {
         return 1;
     }
 
-    public static String[] generateAllPossiblePositions() {
-//        int[][][] matrix = new int[numSections][numShelves][numNumbers];
-        int numOptions = LETTER_SECTION.length * NUM_SECTION * NUM_SHELVES * NUM_NUMBERS;
-        String[] allOptions = new String[numOptions];
+    public static List<String> getAllPossiblePositions() {
+
+        List<String> result = new ArrayList<>();
+
         for (char c : LETTER_SECTION) {
             for (int i = 0; i < NUM_SECTION; i++) {
                 for (int j = 0; j < NUM_SHELVES; j++) {
                     for (int k = 0; k < NUM_NUMBERS; k++) {
                         String itemPosition = String.valueOf(c) + i + " / " + j + " / " + k;
-                        System.out.println(itemPosition);
-                        // todo - not working - fix 
-                        for (int num = 0; num < numOptions; num++) {
-                            allOptions[num] = itemPosition;
-                        }
+                        result.add(itemPosition);
                     }
                 }
             }
         }
-        return allOptions;
+
+        return result;
+    }
+
+    public static List<String> getUsedPositions() throws IOException {
+        List<String> result = new ArrayList<>();
+        String[] allData = getDbDataToStringArray();
+
+        for (int i = 0; i < allData.length; i++) {
+            // todo - get position of position
+            System.out.println(allData[i].split(SEPARATOR)[0]);
+        }
+
+        return result;
+    }
+
+    public static String getFirstFreePosition() throws IOException {
+        List<String> allPositions = getAllPossiblePositions();
+        List<String> usedPositions = getUsedPositions();
+
+        for (String usedPosition : usedPositions) {
+            allPositions.remove(usedPosition);
+        }
+
+        // Need to sort the list to get the first position
+        java.util.Collections.sort(allPositions);
+        return allPositions.get(0);
     }
 
 //    public static String getformattedPosition(char c, int i, int j, int k) {
@@ -396,6 +461,7 @@ public class Main {
     }
 
     public static String[] getUserInputAllData() {
+
         //Enter product name:
         //<< Battery CR32
 
@@ -418,14 +484,14 @@ public class Main {
         //<<
         //Product was added successfully!
 
-        String[] questions = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
-                "available stock", "comment (optional)"};
+//        String[] questions = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
+//                "available stock", "comment (optional)"};
 
         System.out.println("Fill in the data for the items you want to add. Use \"reset!\" to reset the data input.");
 
-        String[] answers = new String[questions.length];
-        for (int i = 0; i < questions.length; i++) {
-            String ans = getUserInput(questions[i]);
+        String[] answers = new String[USER_QUESTIONS.length];
+        for (int i = 0; i < USER_QUESTIONS.length; i++) {
+            String ans = getUserInput(USER_QUESTIONS[i]);
             if (ans.equals("reset!")) {
                 getUserInputAllData();
             }
@@ -435,13 +501,30 @@ public class Main {
         return answers;
     }
 
+    public static String[] getAllData(String[] userInputAllData) throws IOException {
+        //Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
+        // User data + first possible position + available items (from map)  === Comment at the end.
+        int userInputAllDataLength = userInputAllData.length;
+
+        String positionToPlaceItem = getFirstFreePosition();
+
+        int unitPosition = Arrays.asList(USER_QUESTIONS).indexOf("unit");  // todo
+        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(unitPosition);
+        String numberOfItemsThatCanFitOnShelfString = String.valueOf(numberOfItemsThatCanFitOnShelf);
+
+        String[] arrayAfterFirstAdded = insertElementInArray(userInputAllData, positionToPlaceItem, userInputAllDataLength);
+        String[] arrayAfterSecondAdded = insertElementInArray(arrayAfterFirstAdded, numberOfItemsThatCanFitOnShelfString, userInputAllDataLength + 1);
+
+        return arrayAfterSecondAdded;
+    }
+
     public static void writeDataToDB(String fileName, String[] rowData) {
         appendArrayRowToFile(fileName, rowData);
     }
 
     // todo position + available items
     public static void printAllDataFromDB() throws IOException {
-        String[] dbData = readTxtFileToStringArray(DB_FILE_NAME);
+        String[] dbData = getDbDataToStringArray();
 
         // Starting at the second element - "Name" not printed.
         String[] description = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
@@ -470,14 +553,14 @@ public class Main {
         return lines;
     }
 
-    public static String[] readTxtFileToStringArray(String fileName) throws IOException {
-        // Read a file row by row and add each row to an Array
+    public static String[] getDbDataToStringArray() throws IOException {
+        // Read the DB file row by row and add each row to an Array
 
-        int numRowsInFile = getLenOfFile(fileName);
+        int numRowsInFile = getLenOfFile(DB_FILE_NAME);
 
         String[] rowsData = new String[numRowsInFile];
 
-        File file = new File(fileName);
+        File file = new File(DB_FILE_NAME);
         Scanner sc = new Scanner(file);
 
         for (int i = 0; i < numRowsInFile; i++) {
