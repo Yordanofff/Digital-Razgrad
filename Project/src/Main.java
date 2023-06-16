@@ -119,8 +119,8 @@ public class Main {
     static String[] USER_QUESTIONS = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
             "available stock", "comment (optional)"};
 
-//    static String[] listKeys = new String[]{"name", "expiryDate", "entryDate", "manufacturer", "unit",
-//            "stock", "quantity", "position", "itemsPerShelf", "comment"};
+    // Starting at the second element - "Name" not printed.
+    static String[] DESCRIPTION_NO_NAME = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
 
 
     public static void main(String[] args) throws IOException, ParseException {
@@ -169,10 +169,23 @@ public class Main {
 //        System.out.println(numberOfItemsThatCanFitOnShelf);
 
 //        String[] data = {"Battery CR321", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", ""};
+//        printResults(data);
 //        System.out.println(getItemAndExpiryDateAlreadyInDB(data));
 
 //        printAllDataFromDB();
+//        printDataForTimePeriod();
         printDataForTimePeriod();
+//        printDataForTimePeriod2();
+
+        //[Battery CR32 | Expiry date:  24.11.2025 | Entry date:  02.06.2021 | Manufacturer:  Varta | Unit:  Item | Stock:  900 | Position:  A3 / 4 / 10 | Available items at shelf:  10000] |
+        //[Battery CR321 | Expiry date:  24.11.2025 | Entry date:  02.06.2021 | Manufacturer:  Varta | Unit:  Item | Stock:  900 | Position:  A3 / 7 / 10 | Available items at shelf:  10000] |
+        //[Battery CR321 | Expiry date:  24.11.2025 | Entry date:  02.06.2021 | Manufacturer:  Varta | Unit:  Item | Stock:  10000 | Position:  A3 / 6 / 10 | Available items at shelf:  10000] |
+        //[Battery CR321 | Expiry date:  24.11.2025 | Entry date:  02.06.2021 | Manufacturer:  Varta | Unit:  Item | Stock:  1000 | Position:  A3 / 5 / 10 | Available items at shelf:  10000] |
+        //
+        //Battery CR32 | Expiry date: 24.11.2025 | Entry date: 02.06.2021 | Manufacturer: Varta | Unit: Item | Stock: 900 | Position: A3 / 4 / 10 | Available items at shelf: 10000 |
+        //Battery CR321 | Expiry date: 24.11.2025 | Entry date: 02.06.2021 | Manufacturer: Varta | Unit: Item | Stock: 900 | Position: A3 / 7 / 10 | Available items at shelf: 10000 |
+        //Battery CR321 | Expiry date: 24.11.2025 | Entry date: 02.06.2021 | Manufacturer: Varta | Unit: Item | Stock: 10000 | Position: A3 / 6 / 10 | Available items at shelf: 10000 |
+        //Battery CR321 | Expiry date: 24.11.2025 | Entry date: 02.06.2021 | Manufacturer: Varta | Unit: Item | Stock: 1000 | Position: A3 / 5 / 10 | Available items at shelf: 10000 |
 
     }
 
@@ -603,9 +616,6 @@ public class Main {
     public static void printAllDataFromDB() throws IOException {
         String[] DB = getDbDataToStringArray();
 
-        // Starting at the second element - "Name" not printed.
-        String[] description = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
-
         for (String row : DB) {
             String[] rowArray = row.split(SEPARATOR);
 
@@ -613,21 +623,18 @@ public class Main {
             System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
 
             for (int i = 1; i < rowArray.length; i++) {
-                System.out.print(description[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+                System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
             }
 
             System.out.println();
         }
     }
 
-    public static void printDataForTimePeriod() throws IOException, ParseException {
+    public static void printDataForTimePeriod2() throws IOException, ParseException {
         String fromDate = getValidUserInput("From date");
         String toDate = getValidUserInput("To date");
 
         String[] DB = getDbDataToStringArray();
-
-        // Starting at the second element - "Name" not printed.
-        String[] description = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
 
         for (String row : DB) {
             String[] rowArray = row.split(SEPARATOR);
@@ -638,7 +645,7 @@ public class Main {
                 System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
 
                 for (int i = 1; i < rowArray.length; i++) {
-                    System.out.print(description[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+                    System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
                 }
 
                 System.out.println();
@@ -646,47 +653,77 @@ public class Main {
         }
     }
 
-//    public static boolean isDateBetween(String start, String end, String date) {
-//        // 1.1.2020 - 10.1.2020 - 20.1.2020
-//        // 1.1.2020 - 10.1.2020 - 20.1.2022
-//        int date_d = Integer.parseInt(date.split("\\.")[0]);
-//        int date_m = Integer.parseInt(date.split("\\.")[1]);
-//        int date_y = Integer.parseInt(date.split("\\.")[2]);
-//
-//        int start_m = Integer.parseInt(start.split("\\.")[1]);
-//        int start_d = Integer.parseInt(start.split("\\.")[0]);
-//        int start_y = Integer.parseInt(start.split("\\.")[2]);
-//
-//        int end_d = Integer.parseInt(end.split("\\.")[0]);
-//        int end_m = Integer.parseInt(end.split("\\.")[1]);
-//        int end_y = Integer.parseInt(end.split("\\.")[2]);
-//
-//        if (date_y > start_y && date_y < end_y){
-//            // no need to check the rest
-//            return true;
-//        }
-//
-//        if (date_y == start_y && date_y == end_y) {
-//            if (date_m > start_m && date_m < end_m) {
-//                return true;
-//            } else if (date_m == start_m && date_m == end_m) {
-//                if (date_d >= start_d || date_d <= end_d) {
-//                    return true;
-//                }
-//            }
-//        } else if (date_y >= start_y || date_y <= end_y) {
-//            // ima obshta godina s nachalo ili krai
-//            if (date_y == start_y) {
-//                // compare months + days
-//            } else if (date_y == end_y) {
-//                // compare months + days
-//            }
-//        }
-//    }
-//
-//    public static boolean isMonthDayBigger(int toCompare_m, int toCompare_d, int m, int d) {
-//
-//    }
+
+    public static void printResults(String[] rows) {
+        // todo - it prints "[Battery CR32" instead of "Battery CR32"
+        // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
+        for (String row:rows) {
+            String[] rowArray = row.split(", ");
+            System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
+
+            for (int i = 1; i < rowArray.length; i++) {
+                System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+            }
+
+            System.out.println();
+        }
+    }
+
+    public static void printDataForTimePeriod() throws IOException, ParseException {
+        String[] fromToDates = getUserInputFromToDates();
+        String fromDate = fromToDates[0];
+        String toDate = fromToDates[1];
+
+        List<String> dataBetweenTwoDates = getDataForTimePeriod(fromDate, toDate);
+
+        String[] dataBetweenTwoDatesArray = convertListToArray(dataBetweenTwoDates);
+
+        printResults(dataBetweenTwoDatesArray);
+    }
+
+    public static String[] convertListToArray(List<String> listToConvert) {
+        // Need to convert the list to Array so that printResults will print both
+        // 1 - List all items;
+        // 3 - List deliveries for time period
+
+        String[] arr = new String[listToConvert.size()];
+
+        for (int i = 0; i < listToConvert.size(); i++) {
+            arr[i] = listToConvert.get(i);
+        }
+
+        return arr;
+    }
+
+    public static List<String> getDataForTimePeriod(String fromDate, String toDate) throws IOException, ParseException {
+        // todo - results will not record an empty string. Use N/A of some sort when no comment or check len after
+        //  [Battery CR32, 24.11.2025, 02.06.2021, Varta, Item, 900, A3 / 4 / 10, 10000]
+        //  [Battery CR321, 24.11.2025, 02.06.2021, Varta, Item, 10000, A3 / 6 / 10, 10000, test]
+        List<String> results = new ArrayList<>();
+
+        String[] DB = getDbDataToStringArray();
+
+        for (String row : DB) {
+            String[] rowArray = row.split(SEPARATOR);
+            String currentEntryDate = rowArray[2];
+            if (isDateBetweenTwoDates(currentEntryDate, fromDate, toDate)) {
+                results.add(Arrays.toString(rowArray));
+            }
+        }
+        return results;
+    }
+
+    public static String[] getUserInputFromToDates() {
+        String[] result = new String[2];
+
+        String fromDate = getValidUserInput("From date");
+        String toDate = getValidUserInput("To date");
+
+        result[0] = fromDate;
+        result[1] = toDate;
+        return result;
+    }
+
     public static boolean isDateBetweenTwoDates(String dateToCheck, String startDate, String endDate) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
         Date date = sdf.parse(dateToCheck);
