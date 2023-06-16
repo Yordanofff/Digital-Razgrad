@@ -150,9 +150,9 @@ public class Main {
 //        getValidUserInput("unit");
 //            getAllValidUserInput();
 //        System.out.println(UNIT_OPTIONS.keySet());
-//        getUsedPositions();
+//        getPositionsThatHaveAtLeastOneItem();
 
-//        List<String> x = getUsedPositions();
+//        List<String> x = getPositionsThatHaveAtLeastOneItem();
 //        System.out.println(x);
 
 //        String[] x = getAllValidUserInput();
@@ -189,8 +189,10 @@ public class Main {
 
 //        printDataForTimePeriod();
 //        printAllDataFromDB();
-        getUsedPositions();
+//        getPositionsThatHaveAtLeastOneItem();
+
     }
+
 
     public static String[] insertElementInArray(String[] array, String elementToAdd, int position) {
         int i;
@@ -279,7 +281,7 @@ public class Main {
     }
 
     // todo
-    public static List<String> getUsedPositions() throws IOException {
+    public static List<String> getPositionsThatHaveAtLeastOneItem() throws IOException {
         List<String> result = new ArrayList<>();
         String[] allData = getDbDataToStringArray();
 
@@ -292,7 +294,7 @@ public class Main {
 
     public static String getFirstFreePosition() throws IOException {
         List<String> allPositions = getAllPossiblePositions();
-        List<String> usedPositions = getUsedPositions();
+        List<String> usedPositions = getPositionsThatHaveAtLeastOneItem();
 
         for (String usedPosition : usedPositions) {
             allPositions.remove(usedPosition);
@@ -301,6 +303,27 @@ public class Main {
         // Sort the list to get the first position
         java.util.Collections.sort(allPositions);
         return allPositions.get(0);
+    }
+
+    public static List<String> getPositionToPlaceItems(String[] allValidUserInput) throws IOException {
+        List<String> result = new ArrayList<>();
+        int stockToAdd = Integer.parseInt(allValidUserInput[5]);
+
+        HashMap<String, Integer> ItemAndExpiryDateAlreadyInDB = getItemAndExpiryDateAlreadyInDB(allValidUserInput);
+//        for (List<String,Integer>item:ItemAndExpiryDateAlreadyInDB) {        }
+
+        for (Map.Entry<String, Integer> entry : ItemAndExpiryDateAlreadyInDB.entrySet()) {
+            String itemPosition = entry.getKey();
+            int positionFreeSpace = entry.getValue();
+
+            // If items can fit - return that position
+            if (positionFreeSpace >= stockToAdd) {
+                result.add(itemPosition);
+                return result;
+            } else {
+                // todo while loop - all empty - fill in the rest.
+            }
+        }
     }
 
     public static boolean isDateValid(String date) {
@@ -560,6 +583,7 @@ public class Main {
         return arrayAfterSecondAdded;
     }
 
+    // todo - maybe not needed
     public static boolean isItemAndExpiryDateAlreadyInDB(String[] allValidUserInput) throws IOException {
         String itemName = allValidUserInput[0];
         String expiryDate = allValidUserInput[1];
