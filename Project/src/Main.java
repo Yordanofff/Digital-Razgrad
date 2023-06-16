@@ -188,7 +188,8 @@ public class Main {
         //Battery CR321 | Expiry date: 24.11.2025 | Entry date: 02.06.2021 | Manufacturer: Varta | Unit: Item | Stock: 1000 | Position: A3 / 5 / 10 | Available items at shelf: 10000 |
 
 //        printDataForTimePeriod();
-        printAllDataFromDB();
+//        printAllDataFromDB();
+        getUsedPositions();
     }
 
     public static String[] insertElementInArray(String[] array, String elementToAdd, int position) {
@@ -282,9 +283,8 @@ public class Main {
         List<String> result = new ArrayList<>();
         String[] allData = getDbDataToStringArray();
 
-        for (int i = 0; i < allData.length; i++) {
-            // todo - get position of position
-            System.out.println(allData[i].split(SEPARATOR)[0]);
+        for (String row : allData) {
+            System.out.println(row.split(SEPARATOR)[6]);
         }
 
         return result;
@@ -302,10 +302,6 @@ public class Main {
         java.util.Collections.sort(allPositions);
         return allPositions.get(0);
     }
-
-//    public static String getformattedPosition(char c, int i, int j, int k) {
-//        return String.valueOf(c) + i + " / " + j + " / " + k;
-//    }
 
     public static boolean isDateValid(String date) {
         /*
@@ -613,38 +609,21 @@ public class Main {
         return positionsAndRemainingPlaces;
     }
 
-
     public static void printAllDataFromDB() throws IOException {
-//        String[] DB = getDbDataToStringArray();
-//
-//        for (String row : DB) {
-//            String[] rowArray = row.split(SEPARATOR);
-//
-//            // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
-//            System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
-//
-//            for (int i = 1; i < rowArray.length; i++) {
-//                System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
-//            }
-//
-//            System.out.println();
-//        }
         String[][] DB = getAllDataFromDB();
-        System.out.println(Arrays.deepToString(DB));
-//        printResults(DB);
+        printResults(DB);
     }
 
-    //    public static List<List<String>> getAllDataFromDB() throws IOException, ParseException {
     public static String[][] getAllDataFromDB() throws IOException {
-        // When the data is not converted to List and back to Array, then the length of the list is 8 when no Comment.
         int arrayLen = getLenOfFile(DB_FILE_NAME);
         String[][] result = new String[arrayLen][DESCRIPTION_NO_NAME.length + 1];
-        String[] rowArray;
         String[] DB = getDbDataToStringArray();
+
         for (int i = 0; i < arrayLen; i++) {
-            rowArray = DB[i].split(SEPARATOR);
+            String[] rowArray = DB[i].split(SEPARATOR);
             result[i] = rowArray;
         }
+
         return result;
     }
 
@@ -652,8 +631,8 @@ public class Main {
         // Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips | Unit: Item
         // | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
 
-        int printingDescriptionLength = DESCRIPTION_NO_NAME.length + 1;
         for (int i = 0; i < rows.length; i++) {
+            int printingDescriptionLength = rows[i].length;
 
             // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
             System.out.print(rows[i][0] + SEPARATOR_WHEN_PRINTING);
