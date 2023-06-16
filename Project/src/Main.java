@@ -1,4 +1,6 @@
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -121,7 +123,7 @@ public class Main {
 //            "stock", "quantity", "position", "itemsPerShelf", "comment"};
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ParseException {
 //        String[] test = getAllValidUserInput();
 //        System.out.println(Arrays.toString(test));
 //        String[] test2 = {"tesla", "n/a", "20.12.2022", "Tesla", "item", "20", "fast car"};
@@ -166,8 +168,11 @@ public class Main {
 //        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(unitPosition);
 //        System.out.println(numberOfItemsThatCanFitOnShelf);
 
-        String[] data = {"Battery CR321", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", ""};
-        System.out.println(getItemAndExpiryDateAlreadyInDB(data));
+//        String[] data = {"Battery CR321", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", ""};
+//        System.out.println(getItemAndExpiryDateAlreadyInDB(data));
+
+//        printAllDataFromDB();
+        printDataForTimePeriod();
 
     }
 
@@ -430,8 +435,8 @@ public class Main {
             }
         }
 
-        // entry date - needs to be a date. Can't be "n/a"
-        else if (question.equalsIgnoreCase("entry date")) {
+        // entry date - needs to be a date. Can't be "n/a". Will also work for other "date"(s).
+        else if (question.contains("date")) {
             boolean isValid = isDateValid(ans);
             while (!isValid) {
                 System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\"");
@@ -492,6 +497,7 @@ public class Main {
         return answers;
     }
 
+    // todo
     public static String[] getAllData(String[] allValidUserInput) throws IOException {
         /*
         The data that the user will add will be something like:
@@ -592,20 +598,16 @@ public class Main {
         return positionsAndRemainingPlaces;
     }
 
-    
 
 
-    // todo position + available items
     public static void printAllDataFromDB() throws IOException {
-        String[] dbData = getDbDataToStringArray();
+        String[] DB = getDbDataToStringArray();
 
         // Starting at the second element - "Name" not printed.
         String[] description = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
 
-        for (String row : dbData) {
+        for (String row : DB) {
             String[] rowArray = row.split(SEPARATOR);
-            //    // Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips |
-            //    Unit: Item | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
 
             // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
             System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
@@ -617,6 +619,82 @@ public class Main {
             System.out.println();
         }
     }
+
+    public static void printDataForTimePeriod() throws IOException, ParseException {
+        String fromDate = getValidUserInput("From date");
+        String toDate = getValidUserInput("To date");
+
+        String[] DB = getDbDataToStringArray();
+
+        // Starting at the second element - "Name" not printed.
+        String[] description = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
+
+        for (String row : DB) {
+            String[] rowArray = row.split(SEPARATOR);
+            String currentEntryDate = rowArray[2];
+            if (isDateBetweenTwoDates(currentEntryDate, fromDate, toDate)) {
+
+                // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
+                System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
+
+                for (int i = 1; i < rowArray.length; i++) {
+                    System.out.print(description[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+                }
+
+                System.out.println();
+            }
+        }
+    }
+
+//    public static boolean isDateBetween(String start, String end, String date) {
+//        // 1.1.2020 - 10.1.2020 - 20.1.2020
+//        // 1.1.2020 - 10.1.2020 - 20.1.2022
+//        int date_d = Integer.parseInt(date.split("\\.")[0]);
+//        int date_m = Integer.parseInt(date.split("\\.")[1]);
+//        int date_y = Integer.parseInt(date.split("\\.")[2]);
+//
+//        int start_m = Integer.parseInt(start.split("\\.")[1]);
+//        int start_d = Integer.parseInt(start.split("\\.")[0]);
+//        int start_y = Integer.parseInt(start.split("\\.")[2]);
+//
+//        int end_d = Integer.parseInt(end.split("\\.")[0]);
+//        int end_m = Integer.parseInt(end.split("\\.")[1]);
+//        int end_y = Integer.parseInt(end.split("\\.")[2]);
+//
+//        if (date_y > start_y && date_y < end_y){
+//            // no need to check the rest
+//            return true;
+//        }
+//
+//        if (date_y == start_y && date_y == end_y) {
+//            if (date_m > start_m && date_m < end_m) {
+//                return true;
+//            } else if (date_m == start_m && date_m == end_m) {
+//                if (date_d >= start_d || date_d <= end_d) {
+//                    return true;
+//                }
+//            }
+//        } else if (date_y >= start_y || date_y <= end_y) {
+//            // ima obshta godina s nachalo ili krai
+//            if (date_y == start_y) {
+//                // compare months + days
+//            } else if (date_y == end_y) {
+//                // compare months + days
+//            }
+//        }
+//    }
+//
+//    public static boolean isMonthDayBigger(int toCompare_m, int toCompare_d, int m, int d) {
+//
+//    }
+    public static boolean isDateBetweenTwoDates(String dateToCheck, String startDate, String endDate) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        Date date = sdf.parse(dateToCheck);
+        Date start = sdf.parse(startDate);
+        Date end = sdf.parse(endDate);
+        return date.compareTo(start) >= 0 && date.compareTo(end) <= 0;
+    }
+
 
     public static int getLenOfFile(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
