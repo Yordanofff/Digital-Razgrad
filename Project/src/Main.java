@@ -174,7 +174,7 @@ public class Main {
 
 //        printAllDataFromDB();
 //        printDataForTimePeriod();
-        printDataForTimePeriod();
+//        printDataForTimePeriod();
 //        printDataForTimePeriod2();
 
         //[Battery CR32 | Expiry date:  24.11.2025 | Entry date:  02.06.2021 | Manufacturer:  Varta | Unit:  Item | Stock:  900 | Position:  A3 / 4 / 10 | Available items at shelf:  10000] |
@@ -187,6 +187,8 @@ public class Main {
         //Battery CR321 | Expiry date: 24.11.2025 | Entry date: 02.06.2021 | Manufacturer: Varta | Unit: Item | Stock: 10000 | Position: A3 / 6 / 10 | Available items at shelf: 10000 |
         //Battery CR321 | Expiry date: 24.11.2025 | Entry date: 02.06.2021 | Manufacturer: Varta | Unit: Item | Stock: 1000 | Position: A3 / 5 / 10 | Available items at shelf: 10000 |
 
+//        printDataForTimePeriod();
+        printAllDataFromDB();
     }
 
     public static String[] insertElementInArray(String[] array, String elementToAdd, int position) {
@@ -612,57 +614,67 @@ public class Main {
     }
 
 
-
     public static void printAllDataFromDB() throws IOException {
-        String[] DB = getDbDataToStringArray();
+//        String[] DB = getDbDataToStringArray();
+//
+//        for (String row : DB) {
+//            String[] rowArray = row.split(SEPARATOR);
+//
+//            // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
+//            System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
+//
+//            for (int i = 1; i < rowArray.length; i++) {
+//                System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+//            }
+//
+//            System.out.println();
+//        }
+        String[][] DB = getAllDataFromDB();
+        System.out.println(Arrays.deepToString(DB));
+//        printResults(DB);
+    }
 
-        for (String row : DB) {
-            String[] rowArray = row.split(SEPARATOR);
+    //    public static List<List<String>> getAllDataFromDB() throws IOException, ParseException {
+    public static String[][] getAllDataFromDB() throws IOException {
+        // When the data is not converted to List and back to Array, then the length of the list is 8 when no Comment.
+        int arrayLen = getLenOfFile(DB_FILE_NAME);
+        String[][] result = new String[arrayLen][DESCRIPTION_NO_NAME.length + 1];
+        String[] rowArray;
+        String[] DB = getDbDataToStringArray();
+        for (int i = 0; i < arrayLen; i++) {
+            rowArray = DB[i].split(SEPARATOR);
+            result[i] = rowArray;
+        }
+        return result;
+    }
+
+    public static void printResults(String[][] rows) {
+        // Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips | Unit: Item
+        // | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
+
+        int printingDescriptionLength = DESCRIPTION_NO_NAME.length + 1;
+        for (int i = 0; i < rows.length; i++) {
 
             // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
-            System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
+            System.out.print(rows[i][0] + SEPARATOR_WHEN_PRINTING);
 
-            for (int i = 1; i < rowArray.length; i++) {
-                System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
-            }
+            // Print every other description: value |
+            for (int j = 1; j < printingDescriptionLength; j++) {
+                String currentVal = rows[i][j];
+                if (j == printingDescriptionLength - 1) {
 
-            System.out.println();
-        }
-    }
+                    // When converting from List to Array - and there is no comment - the value becomes null.
+                    // Don't print null in the Comment section if empty.
+                    if (currentVal == null) {
+                        currentVal = "";
+                    }
 
-    public static void printDataForTimePeriod2() throws IOException, ParseException {
-        String fromDate = getValidUserInput("From date");
-        String toDate = getValidUserInput("To date");
-
-        String[] DB = getDbDataToStringArray();
-
-        for (String row : DB) {
-            String[] rowArray = row.split(SEPARATOR);
-            String currentEntryDate = rowArray[2];
-            if (isDateBetweenTwoDates(currentEntryDate, fromDate, toDate)) {
-
-                // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
-                System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
-
-                for (int i = 1; i < rowArray.length; i++) {
-                    System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+                    // Don't print separator at the end.
+                    System.out.print(DESCRIPTION_NO_NAME[j - 1] + ": " + currentVal);
+                    continue;
                 }
+                System.out.print(DESCRIPTION_NO_NAME[j - 1] + ": " + currentVal + SEPARATOR_WHEN_PRINTING);
 
-                System.out.println();
-            }
-        }
-    }
-
-
-    public static void printResults(String[] rows) {
-        // todo - it prints "[Battery CR32" instead of "Battery CR32"
-        // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
-        for (String row:rows) {
-            String[] rowArray = row.split(", ");
-            System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
-
-            for (int i = 1; i < rowArray.length; i++) {
-                System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
             }
 
             System.out.println();
@@ -674,32 +686,35 @@ public class Main {
         String fromDate = fromToDates[0];
         String toDate = fromToDates[1];
 
-        List<String> dataBetweenTwoDates = getDataForTimePeriod(fromDate, toDate);
+        // Populate a list with the rows in the range
+        List<List<String>> dataBetweenTwoDates = getDataForTimePeriod(fromDate, toDate);
 
-        String[] dataBetweenTwoDatesArray = convertListToArray(dataBetweenTwoDates);
+        // Convert the list to an Array
+        String[][] dataBetweenTwoDatesArray = convertListToArray(dataBetweenTwoDates);
 
+        // Print the DESCRIPTION and the VALUES from the Array
         printResults(dataBetweenTwoDatesArray);
     }
 
-    public static String[] convertListToArray(List<String> listToConvert) {
-        // Need to convert the list to Array so that printResults will print both
+    public static String[][] convertListToArray(List<List<String>> listOfListsToConvert) {
+        // Convert the list to an Array, so that printResults can print both:
         // 1 - List all items;
         // 3 - List deliveries for time period
 
-        String[] arr = new String[listToConvert.size()];
+        String[][] arr = new String[listOfListsToConvert.size()][DESCRIPTION_NO_NAME.length + 1];
 
-        for (int i = 0; i < listToConvert.size(); i++) {
-            arr[i] = listToConvert.get(i);
+        for (int i = 0; i < listOfListsToConvert.size(); i++) {
+            for (int j = 0; j < listOfListsToConvert.get(i).size(); j++) {
+                String currentElement = listOfListsToConvert.get(i).get(j);
+                arr[i][j] = currentElement;
+            }
         }
 
         return arr;
     }
 
-    public static List<String> getDataForTimePeriod(String fromDate, String toDate) throws IOException, ParseException {
-        // todo - results will not record an empty string. Use N/A of some sort when no comment or check len after
-        //  [Battery CR32, 24.11.2025, 02.06.2021, Varta, Item, 900, A3 / 4 / 10, 10000]
-        //  [Battery CR321, 24.11.2025, 02.06.2021, Varta, Item, 10000, A3 / 6 / 10, 10000, test]
-        List<String> results = new ArrayList<>();
+    public static List<List<String>> getDataForTimePeriod(String fromDate, String toDate) throws IOException, ParseException {
+        List<List<String>> results = new ArrayList<>();
 
         String[] DB = getDbDataToStringArray();
 
@@ -707,9 +722,10 @@ public class Main {
             String[] rowArray = row.split(SEPARATOR);
             String currentEntryDate = rowArray[2];
             if (isDateBetweenTwoDates(currentEntryDate, fromDate, toDate)) {
-                results.add(Arrays.toString(rowArray));
+                results.add(List.of(rowArray));
             }
         }
+
         return results;
     }
 
@@ -721,6 +737,7 @@ public class Main {
 
         result[0] = fromDate;
         result[1] = toDate;
+
         return result;
     }
 
@@ -731,7 +748,6 @@ public class Main {
         Date end = sdf.parse(endDate);
         return date.compareTo(start) >= 0 && date.compareTo(end) <= 0;
     }
-
 
     public static int getLenOfFile(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
@@ -810,3 +826,47 @@ public class Main {
     }
 
 }
+
+
+// todo - works - keep until all working
+
+//    public static void printDataForTimePeriod2() throws IOException, ParseException {
+//        String fromDate = getValidUserInput("From date");
+//        String toDate = getValidUserInput("To date");
+//
+//        String[] DB = getDbDataToStringArray();
+//
+//        for (String row : DB) {
+//            String[] rowArray = row.split(SEPARATOR);
+//            String currentEntryDate = rowArray[2];
+//            if (isDateBetweenTwoDates(currentEntryDate, fromDate, toDate)) {
+//
+//                // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
+//                System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
+//
+//                for (int i = 1; i < rowArray.length; i++) {
+//                    System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+//                }
+//
+//                System.out.println();
+//            }
+//        }
+//    }
+
+
+//    public static void printAllDataFromDB2() throws IOException {
+//        String[] DB = getDbDataToStringArray();
+//
+//        for (String row : DB) {
+//            String[] rowArray = row.split(SEPARATOR);
+//
+//            // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
+//            System.out.print(rowArray[0] + SEPARATOR_WHEN_PRINTING);
+//
+//            for (int i = 1; i < rowArray.length; i++) {
+//                System.out.print(DESCRIPTION_NO_NAME[i - 1] + ": " + rowArray[i] + SEPARATOR_WHEN_PRINTING);
+//            }
+//
+//            System.out.println();
+//        }
+//    }
