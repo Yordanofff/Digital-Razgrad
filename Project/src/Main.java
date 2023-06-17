@@ -96,6 +96,8 @@ public class Main {
 
     // todo - write tests
 
+    // todo - if entry date earlier than expiry date - warning - stock is expired
+
     static Scanner scanner = new Scanner(System.in);
     static String SEPARATOR = ";";
     static String SEPARATOR_WHEN_PRINTING = " | ";
@@ -110,10 +112,10 @@ public class Main {
 
     static Map<String, Integer> UNIT_OPTIONS = Map.of(
             //Unit type - number of items per shelf
-            "Kg", 100,
-            "Liter", 100,
-            "Meter", 10,
-            "Unit", 1000
+            "kg", 100,
+            "liter", 100,
+            "meter", 10,
+            "unit", 1000
     );
 
     static String[] USER_QUESTIONS = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
@@ -150,9 +152,9 @@ public class Main {
 //        getValidUserInput("unit");
 //            getAllValidUserInput();
 //        System.out.println(UNIT_OPTIONS.keySet());
-//        getPositionsThatHaveAtLeastOneItem();
+//        getAllLocationsThatHaveAtLeastOneItem();
 
-//        List<String> x = getPositionsThatHaveAtLeastOneItem();
+//        List<String> x = getAllLocationsThatHaveAtLeastOneItem();
 //        System.out.println(x);
 
 //        String[] x = getAllValidUserInput();
@@ -168,9 +170,9 @@ public class Main {
 //        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(unitPosition);
 //        System.out.println(numberOfItemsThatCanFitOnShelf);
 
-//        String[] data = {"Battery CR321", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", ""};
+//        String[] data = {"Battery CR321", "24.11.2025", "02.06.2021", "Varta", "Unit", "900", "A3 / 4 / 10", "10000", ""};
 //        printResults(data);
-//        System.out.println(getItemAndExpiryDateAlreadyInDB(data));
+//        System.out.println(getAllUniqueLocationsForItem(data));
 
 //        printAllDataFromDB();
 //        printDataForTimePeriod();
@@ -189,8 +191,13 @@ public class Main {
 
 //        printDataForTimePeriod();
 //        printAllDataFromDB();
-//        getPositionsThatHaveAtLeastOneItem();
+//        getAllLocationsThatHaveAtLeastOneItem();
 
+        writeAllDataToDB();
+//        int unitPosition = Arrays.asList(USER_QUESTIONS).indexOf("unit");
+//        System.out.println(unitPosition);
+//        String currentUnitType = allValidUserInput[unitPosition];
+//        List<List<String>> x =getAllData(data);
     }
 
 
@@ -262,14 +269,15 @@ public class Main {
         return false;
     }
 
-    public static List<String> getAllPossiblePositions() {
+    public static List<String> getAllPossibleLocations() {
 
         List<String> result = new ArrayList<>();
 
+        // Rows/shelves/numbers start at 1.
         for (char c : LETTER_SECTION) {
-            for (int i = 0; i < NUM_SECTION; i++) {
-                for (int j = 0; j < NUM_SHELVES; j++) {
-                    for (int k = 0; k < NUM_NUMBERS; k++) {
+            for (int i = 1; i < NUM_SECTION; i++) {
+                for (int j = 1; j < NUM_SHELVES; j++) {
+                    for (int k = 1; k < NUM_NUMBERS; k++) {
                         String itemPosition = String.valueOf(c) + i + " / " + j + " / " + k;
                         result.add(itemPosition);
                     }
@@ -281,50 +289,93 @@ public class Main {
     }
 
     // todo
-    public static List<String> getPositionsThatHaveAtLeastOneItem() throws IOException {
+    public static List<String> getAllLocationsThatHaveAtLeastOneItem() throws IOException {
         List<String> result = new ArrayList<>();
-        String[] allData = getDbDataToStringArray();
+        String[] DB = getDbDataToStringArray();
 
-        for (String row : allData) {
-            System.out.println(row.split(SEPARATOR)[6]);
+        for (String row : DB) {
+            result.add(row.split(SEPARATOR)[6]);
         }
 
         return result;
     }
 
-    public static String getFirstFreePosition() throws IOException {
-        List<String> allPositions = getAllPossiblePositions();
-        List<String> usedPositions = getPositionsThatHaveAtLeastOneItem();
+    public static String getFirstLocationThatDoeNotHaveAnyItems() throws IOException {
+        List<String> allPositions = getAllPossibleLocations();
+        List<String> usedPositions = getAllLocationsThatHaveAtLeastOneItem();
 
         for (String usedPosition : usedPositions) {
+            // No need to check if usedPosition in allPositions
             allPositions.remove(usedPosition);
         }
 
         // Sort the list to get the first position
         java.util.Collections.sort(allPositions);
+
         return allPositions.get(0);
     }
 
-    public static List<String> getPositionToPlaceItems(String[] allValidUserInput) throws IOException {
-        List<String> result = new ArrayList<>();
-        int stockToAdd = Integer.parseInt(allValidUserInput[5]);
+    public static int getFreeSpaceAtLocationIfAtLeastOneItem(String location) throws IOException {
+        /*
+        Need to check all rows that have the same Position and calculate total number of Items added to that location
+        By design - only same item names + expiry date will be added to 1 location, so no need to check if they match.
+        returns number of items that can be added to the location.
+        returns 0 - if location not in DB.
+         */
 
-        HashMap<String, Integer> ItemAndExpiryDateAlreadyInDB = getItemAndExpiryDateAlreadyInDB(allValidUserInput);
-//        for (List<String,Integer>item:ItemAndExpiryDateAlreadyInDB) {        }
+        String[][] DB = getAllDataFromDB();
+        int numItems = 0;
+        int maxNumItems = 0;
+        for (String[] row : DB) {
+            if (row[6].equalsIgnoreCase(location)) {
+                int currentRowStock = Integer.parseInt(row[5]);
+                numItems += currentRowStock;
 
-        for (Map.Entry<String, Integer> entry : ItemAndExpiryDateAlreadyInDB.entrySet()) {
-            String itemPosition = entry.getKey();
-            int positionFreeSpace = entry.getValue();
-
-            // If items can fit - return that position
-            if (positionFreeSpace >= stockToAdd) {
-                result.add(itemPosition);
-                return result;
-            } else {
-                // todo while loop - all empty - fill in the rest.
+                maxNumItems = Integer.parseInt(row[7]);
             }
         }
+        return maxNumItems - numItems;
     }
+
+    public static String getPositionToPlaceItem(String itemName, String expiryDate) throws IOException {
+        // If item is already in the DB - find location where that item is.
+        // Check if there are spaces left on that shelf - calculateRemainingSpaceAtLocation
+        // fill them up until none left - then get first free location - keep adding there.
+
+        List<String> locations = getAllUniqueLocationsForItem(itemName, expiryDate);
+
+        // If the item is in the DB and there is free space for more items - return location
+        for (String location:locations) {
+            if (getFreeSpaceAtLocationIfAtLeastOneItem(location) > 0){
+                return location;
+            }
+        }
+
+        // If item not in DB or in DB but all locations are full - get the next free location.
+        // todo - check if free location in warehouse
+        return getFirstLocationThatDoeNotHaveAnyItems();
+    }
+
+//    public static List<String> getPositionToPlaceItems(String[] allValidUserInput) throws IOException {
+//        List<String> result = new ArrayList<>();
+//        int numItemsStockToAdd = Integer.parseInt(allValidUserInput[5]);
+//
+//        HashMap<String, Integer> ItemAndExpiryDateAlreadyInDB = getAllUniqueLocationsForItem(allValidUserInput);
+////        for (List<String,Integer>item:ItemAndExpiryDateAlreadyInDB) {        }
+//
+//        for (Map.Entry<String, Integer> entry : ItemAndExpiryDateAlreadyInDB.entrySet()) {
+//            String itemPosition = entry.getKey();
+//            int positionFreeSpace = entry.getValue();
+//
+//            // If items can fit - return that position
+//            if (positionFreeSpace >= numItemsStockToAdd) {
+//                result.add(itemPosition);
+//                return result;
+//            } else {
+//                // todo while loop - all empty - fill in the rest.
+//            }
+//        }
+//    }
 
     public static boolean isDateValid(String date) {
         /*
@@ -450,11 +501,13 @@ public class Main {
 
         // Make sure that the unit question returns a valid answer
         if (question.contains("unit")) {
+            // Convert the input to lowercase
+            ans = ans.toLowerCase();
             boolean isValid = isUnitValid(ans);
             while (!isValid) {
                 String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
                 System.out.println("Error! Please Enter a valid option for Unit: " + availableOptions + ".");
-                ans = scanner.nextLine();
+                ans = scanner.nextLine().toLowerCase();
                 isValid = isUnitValid(ans);
             }
         }
@@ -532,7 +585,7 @@ public class Main {
     }
 
     // todo
-    public static String[] getAllData(String[] allValidUserInput) throws IOException {
+    public static List<List<String>> getAllData(String[] allValidUserInput) throws IOException {
         /*
         The data that the user will add will be something like:
         "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock", "comment (optional)"
@@ -561,26 +614,73 @@ public class Main {
         {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", ""}
          */
 
-        int userInputAllDataLength = allValidUserInput.length;
-
-        // Check if item+expiry date already in the DB and there is free space.
-        if (isItemAndExpiryDateAlreadyInDB(allValidUserInput)) {
-
+        List<String> allValidUserInputList = new ArrayList<>();
+        for (String element:allValidUserInput) {
+            allValidUserInputList.add(element);
         }
-        String positionToPlaceItem = getFirstFreePosition();
+
+        List<List<String>> newRowsToAdd = new ArrayList<>();
+
+        String itemName = allValidUserInput[0];
+        String expiryDate = allValidUserInput[1];
 
         // get the position where "unit" is in the questions. (Could be hardcoded too)
         // Get the answer at that position and use it to get the value for that answer from the map.
-        int unitPosition = Arrays.asList(USER_QUESTIONS).indexOf("unit");
-        String currentUnitType = allValidUserInput[unitPosition];
-        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(currentUnitType);
-
+        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]); // only when new location
         String numberOfItemsThatCanFitOnShelfString = String.valueOf(numberOfItemsThatCanFitOnShelf);
 
-        String[] arrayAfterFirstAdded = insertElementInArray(allValidUserInput, positionToPlaceItem, userInputAllDataLength);
-        String[] arrayAfterSecondAdded = insertElementInArray(arrayAfterFirstAdded, numberOfItemsThatCanFitOnShelfString, userInputAllDataLength + 1);
+        int numItemsRemainingToAdd = Integer.parseInt(allValidUserInput[5]);
+        while (numItemsRemainingToAdd > 0) {
+            // might be new - with no data in it.
+            String positionToPlaceItem = getPositionToPlaceItem(itemName, expiryDate);
 
-        return arrayAfterSecondAdded;
+            // If item is in DB - get free space in location
+            int numItemsThatWillFitInLocation;
+            if (isAtLeastOneItemInLocation(positionToPlaceItem)){
+                numItemsThatWillFitInLocation = getFreeSpaceAtLocationIfAtLeastOneItem(positionToPlaceItem);
+            } else {
+                numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
+            }
+
+            // There might be 100 free spaces but only 10 items need to be added
+            int numItemsThatWillBeAddedToLocation;
+            if (numItemsRemainingToAdd < numItemsThatWillFitInLocation) {
+                numItemsThatWillBeAddedToLocation = numItemsRemainingToAdd;
+            } else {
+                numItemsThatWillBeAddedToLocation = numItemsThatWillFitInLocation;
+            }
+
+            allValidUserInputList.add(6, positionToPlaceItem);
+            allValidUserInputList.add(7, numberOfItemsThatCanFitOnShelfString);
+            newRowsToAdd.add(allValidUserInputList);
+
+            numItemsRemainingToAdd -= numItemsThatWillBeAddedToLocation;
+        }
+
+        return newRowsToAdd;
+    }
+    
+
+    public static void writeAllDataToDB() throws IOException {
+        String[] allValidUserInput = getAllValidUserInput();
+        List<List<String>> allData = getAllData(allValidUserInput);
+//        String[][] allDataArr = convertListToArray(allData);
+//        for (String[] row:allDataArr) {
+//            writeDataToDB(row);
+//        }
+        for (List<String> row:allData) {
+            writeDataToDB(row);
+        }
+    }
+
+    public static boolean isAtLeastOneItemInLocation(String location) throws IOException {
+        String[][] DB = getAllDataFromDB();
+        for (String[] row : DB) {
+            if (row[6].equalsIgnoreCase(location)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // todo - maybe not needed
@@ -598,40 +698,35 @@ public class Main {
         return false;
     }
 
-    public static HashMap<String, Integer> getItemAndExpiryDateAlreadyInDB(String[] allValidUserInput) throws IOException {
+    public static List<String> getAllUniqueLocationsForItem(String itemName, String expiryDate) throws IOException {
         /*
-        Will return every position and the number of items that can be added to that position if the
-        itemName and expiryDate are the same (new stock of the same item added)
+        Will return every UNIQUE location if the itemName and expiryDate are the same.
 
-        Will not return any positions that are full.
+        Will return all positions, including those that are full.
 
-        Example return = {A3 / 5 / 10=9100, A3 / 7 / 10=9000}
+        Example return = {A3 / 5 / 10, A3 / 7 / 10}
         */
 
-        HashMap<String, Integer> positionsAndRemainingPlaces = new HashMap<>();
-
-        String itemName = allValidUserInput[0];
-        String expiryDate = allValidUserInput[1];
+        List<String> positions = new ArrayList<>();
         String[] DB = getDbDataToStringArray();
 
         for (String row : DB) {
             String currentItemName = row.split(SEPARATOR)[0];
             String currentExpiryDate = row.split(SEPARATOR)[1];
-            if ((itemName.equalsIgnoreCase(currentItemName)) && expiryDate.equalsIgnoreCase(currentExpiryDate)) {
+            if ((itemName.equalsIgnoreCase(currentItemName)) && expiryDate.equals(currentExpiryDate)) {
 
                 String currentPosition = row.split(SEPARATOR)[6];
-                int numberOfItems = Integer.parseInt(row.split(SEPARATOR)[5]);
-                int numberOfItemsThatCanFit = Integer.parseInt(row.split(SEPARATOR)[7]);
 
-                if (numberOfItemsThatCanFit > numberOfItems) {
-                    int freeSpace = numberOfItemsThatCanFit - numberOfItems;
-                    positionsAndRemainingPlaces.put(currentPosition, freeSpace);
+                // Add position only once - there might be multiple rows with same position.
+                if (!positions.contains(currentPosition)) {
+                    positions.add(currentPosition);
                 }
             }
         }
 
-        return positionsAndRemainingPlaces;
+        return positions;
     }
+
 
     public static void printAllDataFromDB() throws IOException {
         String[][] DB = getAllDataFromDB();
@@ -777,7 +872,8 @@ public class Main {
         return rowsData;
     }
 
-    public static void writeDataToDB(String[] row) {
+
+    public static void writeDataToDB(List<String> row) {
         try {
             FileWriter writer = new FileWriter(DB_FILE_NAME, true);
 
@@ -788,7 +884,7 @@ public class Main {
 
             writer.close();
         } catch (IOException e) {
-            System.out.println("An error occurred while writing " + Arrays.toString(row));
+            System.out.println("An error occurred while writing " + row);
             e.printStackTrace();
         }
     }
@@ -821,12 +917,6 @@ public class Main {
         System.out.println();
     }
 
-    public static int getNumberOfItemsThatWillFitOnTheShelf(String position, int numItemsToAdd) {
-        // if num items == numItemsToAdd - check in method that calls it. --> all fit
-        // else - numIntemsToAdd - what is returned will fit - the rest is reminder
-        System.out.println();
-        return 1;
-    }
 
 }
 
@@ -871,5 +961,22 @@ public class Main {
 //            }
 //
 //            System.out.println();
+//        }
+//    }
+
+
+//    public static void writeDataToDB(String[] row) {
+//        try {
+//            FileWriter writer = new FileWriter(DB_FILE_NAME, true);
+//
+//            for (String element : row) {
+//                writer.write(element + SEPARATOR);
+//            }
+//            writer.write("\n");
+//
+//            writer.close();
+//        } catch (IOException e) {
+//            System.out.println("An error occurred while writing " + Arrays.toString(row));
+//            e.printStackTrace();
 //        }
 //    }
