@@ -124,6 +124,7 @@ public class Main {
 //        getAllLocationsThatHaveAtLeastOneItem();
 
         writeAllDataToDB();
+
 //        String[] x = getDbDataToStringArray();
 //        for (String row:x) {
 //            System.out.println(row);
@@ -296,6 +297,15 @@ public class Main {
         // If the item is in the DB and there is free space for more items - return location
         for (String location:locations) {
             if (getFreeSpaceAtLocationIfAtLeastOneItem(location) > 0){
+
+                // Check if the location has been filled in, so that on the second iteration in getAllData() while loop
+                // this will not return the same location
+                for (String loc: TEMP_USED_LOCATIONS_NOT_IN_DB) {
+                    if (loc.equals(location)){
+                        return getFirstLocationThatDoeNotHaveAnyItems();
+                    }
+                }
+
                 return location;
             }
         }
@@ -564,13 +574,6 @@ public class Main {
         {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", ""}
          */
 
-        // Add the user input to a List and add 2 extra fields that will store "position in WH" and "Max number of items on shelf"
-        List<String> allValidUserInputList = new ArrayList<>();
-        for (String element:allValidUserInput) {
-            allValidUserInputList.add(element);
-        }
-        allValidUserInputList.add(6, " ");
-        allValidUserInputList.add(7, " ");
 
         // Get the max number of items per shelf depending on the type of item
         int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]);
@@ -582,8 +585,9 @@ public class Main {
         String expiryDate = allValidUserInput[1];
         int numItemsRemainingToAdd = Integer.parseInt(allValidUserInput[5]);  // Stock from user input
         while (numItemsRemainingToAdd > 0) {
-            // might be new shelf - with no items
-            // todo - because adding to List - the method doesn't know that they have been added on the first loop there. global ? counter wont work
+
+            // Because we want to return a List, items won't be recorded in the DB on every iteration.
+            // that's why we use a temp variable to store the locations that are already used.
             String positionToPlaceItem = getPositionToPlaceItem(itemName, expiryDate);
             TEMP_USED_LOCATIONS_NOT_IN_DB.add(positionToPlaceItem);
 
@@ -599,22 +603,24 @@ public class Main {
                 numItemsThatWillBeAddedToLocation = numItemsRemainingToAdd;
             }
 
+            // List initialization is inside the loop, so that it stores the data in different memory
+            List<String> allValidUserInputList = new ArrayList<>();
+            for (String element:allValidUserInput) {
+                allValidUserInputList.add(element);
+            }
             allValidUserInputList.set(5, String.valueOf(numItemsThatWillBeAddedToLocation));
-            allValidUserInputList.set(6, positionToPlaceItem);
-            allValidUserInputList.set(7, numberOfItemsThatCanFitOnShelfString);
+            allValidUserInputList.add(6, positionToPlaceItem);
+            allValidUserInputList.add(7, numberOfItemsThatCanFitOnShelfString);
 
-            System.out.println(allValidUserInputList);
             newRowsToAdd.add(allValidUserInputList);
-            System.out.println(newRowsToAdd);
-            System.out.println();
 
             numItemsRemainingToAdd -= numItemsThatWillBeAddedToLocation;
-//            writeDataToDB(allValidUserInputList);
         }
-        System.out.println(newRowsToAdd);
+
         // This can be added to a Finally block in writeDataToDB() but will work as good here too.
         // Even if it fails to write the data - it will start over and the list needs to be empty.
         TEMP_USED_LOCATIONS_NOT_IN_DB.clear();
+
         return newRowsToAdd;
     }
 
@@ -622,7 +628,6 @@ public class Main {
     public static void writeAllDataToDB() throws IOException {
         String[] allValidUserInput = getAllValidUserInput();
         List<List<String>> allData = getAllData(allValidUserInput);
-//        getAllData(allValidUserInput);
 
         for (List<String> row:allData) {
             writeDataToDB(row);
