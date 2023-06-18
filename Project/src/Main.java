@@ -1,30 +1,33 @@
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-// todo - Expiry date: n/a | Entry date: 05.05.2021 - expirity date can be n/a or null
-// todo checker - [][][] or letter[][][]
+
 // todo - color output
 // todo - print in the middle
-// todo - if no expiry date - empty string as answer or n/a?
+
 // todo - add error printing in data validation --> what's wrong as a parameter
-// todo - don't allow separator to be used in the data.
-// todo - postypvane v sklada - opciq - today
+// todo - don't allow separator to be used in the data... maybe and "
 
 // todo - items per shelf - ako produkta ve4e go ima - da izpishe kolko se sybirat na edin raft.
 // produkta moje da e s promeneni razmeri i da se sybirat po-malko ili pove4e ot nego.
 
-// todo - print "Product was added successfully! after getAllValidUserInput()"
-
-// todo - forbiden elements - " and separator/delimiter
 
 // todo - write tests
 
-// todo - if entry date earlier than expiry date - warning - stock is expired
+// todo - if entry date earlier than expiry date - warning - stock is expired before entering the Warehouse
+// todo if expiry date is earlier than today - expired.
 
-// todo - allow date to be split by . and /
+// todo - menu option - print stock that expires soon - sort ? 1 week ?
+
 // todo Enter available stock: --> Enter available stock(unit): -> Enter available stock(kg):
+
+// todo option - print units and amount that can be fit on shelf
+// todo - move units to a config file
+// todo option - allow user to modify amount units/kg + warehouse size
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
@@ -61,10 +64,7 @@ public class Main {
 
     public static void runApp() throws IOException, ParseException {
         createDBfileIfMissing();
-        while (true) {
-            if (!printMenuGetAnsAndTakeAction()) {
-                break;
-            }
+        while (printMenuGetAnsAndTakeAction()) {
             System.out.println();
         }
     }
@@ -75,14 +75,13 @@ public class Main {
     }
 
     public static boolean takeMenuAction(int selectedOption) throws IOException, ParseException {
-        if (selectedOption == 1) {
-            printAllDataFromDB();
-        } else if (selectedOption == 2) {
-            getAllUserDataAndWriteToDB();
-        } else if (selectedOption == 3) {
-            printDataForTimePeriod();
-        } else if (selectedOption == 4) {
-            return false;
+        switch (selectedOption) {
+            case 1 -> printAllDataFromDB();
+            case 2 -> getAllUserDataAndWriteToDB();
+            case 3 -> printDataForTimePeriod();
+            case 4 -> {
+                return false;
+            }
         }
         return true;
     }
@@ -102,80 +101,15 @@ public class Main {
     public static int getMenuAnswer(int numOptions) {
         int ans = scanner.nextInt();
         scanner.nextLine();
+
+        // Keep printing the error msg if ans is less than 1 or greater than the highest option number
         while (ans < 1 || ans > numOptions) {
             System.out.println("Wrong answer. Please choose a number between 1 and " + numOptions);
             ans = scanner.nextInt();
             scanner.nextLine();
         }
+
         return ans;
-    }
-
-    public static String[] insertElementInArray(String[] array, String elementToAdd, int position) {
-        int i;
-        int n = array.length;
-
-        String[] newArray = new String[n + 1];
-
-        for (i = 0; i < n + 1; i++) {
-            if (i < position - 1) {
-                newArray[i] = array[i];
-            } else if (i == position - 1) {
-                newArray[i] = elementToAdd;
-            } else {
-                newArray[i] = array[i - 1];
-            }
-        }
-        return newArray;
-    }
-
-    public static boolean isNumber(String num) {
-        try {
-            Integer.parseInt(num.strip());
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
-    public static boolean isPositionValid(String placement) {
-         /*
-         Example of valid positions:
-         A3 / 4 / 10
-         A3/4/10
-         A3/4/10
-         B40/15 / 20
-         */
-
-        String[] parts = placement.split("/");
-
-        // Check if it's made out of 3 parts
-        if (parts.length != 3) {
-            return false;
-        }
-
-        // Check if the last 2 parts are numbers
-        if (!(isNumber(parts[1]) && isNumber(parts[2]))) {
-            return false;
-        }
-
-        // Check if the first part is made out of a single letter + a number
-        try {
-            // split the first part in String/Integer
-            // \D matches all non-digit characters, while \d matches all digit characters
-            String[] firstPart = parts[0].strip().split("(?<=\\D)(?=\\d)");
-
-            String letterPart = firstPart[0].strip();
-            if (letterPart.length() == 1) {
-                // no need to check if is letter
-                if (isNumber(firstPart[1])) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            // something's wrong
-            return false;
-        }
-        return false;
     }
 
     public static List<String> getAllPossibleLocations() {
@@ -197,7 +131,6 @@ public class Main {
         return result;
     }
 
-    // todo ?
     public static List<String> getAllLocationsThatHaveAtLeastOneItem() throws IOException {
         List<String> result = new ArrayList<>();
         String[] DB = getDbDataToStringArray();
@@ -209,7 +142,7 @@ public class Main {
             }
         }
 
-        // don't use the same location that has been used, but not written to DB.
+        // Don't use the same location that has been used, but not written to DB.
         if (!TEMP_USED_LOCATIONS_NOT_IN_DB.isEmpty()) {
             for (String tempLocation : TEMP_USED_LOCATIONS_NOT_IN_DB) {
                 if (!result.contains(tempLocation)) {
@@ -233,9 +166,9 @@ public class Main {
         // Sort the list to get the first position
         java.util.Collections.sort(allPositions);
 
-//        if (allPositions.size() == 0){
-//            throw new Exception("No more space in the warehouse.");
-//        }
+        if (allPositions.size() == 0){
+            throw new RuntimeException("DB file/Warehouse is full.");
+        }
 
         return allPositions.get(0);
     }
@@ -286,7 +219,6 @@ public class Main {
         }
 
         // If item not in DB or in DB but all locations are full - get the next free location.
-        // todo - check if free location in warehouse
         return getFirstLocationThatDoeNotHaveAnyItems();
     }
 
@@ -414,34 +346,48 @@ public class Main {
 
         // Make sure that the unit question returns a valid answer
         if (question.contains("unit")) {
-            // Convert the input to lowercase
             ans = ans.toLowerCase();
             boolean isValid = isUnitValid(ans);
             while (!isValid) {
                 String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
                 System.out.println("Error! Please Enter a valid option for Unit: " + availableOptions + ".");
                 ans = scanner.nextLine().toLowerCase();
+                if (ans.strip().equals("reset!")) {
+                    return ans.strip();
+                }
                 isValid = isUnitValid(ans);
             }
         }
 
-        // expiry date - can be a date or "n/a" for products that don't expire. todo - allow blank input as N/A ?
+        // expiry date - can be a date or "n/a" for products that don't expire.
         else if (question.equalsIgnoreCase("expiry date")) {
-            boolean isValid = isDateValid(ans);
+            boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
             while (!(isValid || ans.equalsIgnoreCase("n/a"))) {
-                System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" or \"n/a\" if the product doesn't expire.");
+                System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
                 ans = scanner.nextLine();
-                isValid = isDateValid(ans);
+                if (ans.strip().equalsIgnoreCase("reset!")) {
+                    return ans.strip();
+                }
+                isValid = isDateValid(convertDateFromUKtoEUType(ans));
             }
         }
 
         // entry date - needs to be a date. Can't be "n/a". Will also work for other "date"(s).
         else if (question.contains("date")) {
-            boolean isValid = isDateValid(ans);
+            if (ans.equalsIgnoreCase("today")){
+                ans = getToday();
+            }
+            boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
             while (!isValid) {
-                System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\"");
+                System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
                 ans = scanner.nextLine();
-                isValid = isDateValid(ans);
+                if (ans.equalsIgnoreCase("today")){
+                    ans = getToday();
+                }
+                else if (ans.strip().equalsIgnoreCase("reset!")) {
+                    return ans.strip();
+                }
+                isValid = isDateValid(convertDateFromUKtoEUType(ans));
             }
         }
 
@@ -450,10 +396,25 @@ public class Main {
             while (ans.isEmpty()) {
                 System.out.println("Empty answer. Please enter " + question + ": ");
                 ans = scanner.nextLine();
+                // no need for reset! check as it will be returned anyway if entered.
             }
         }
 
         return ans.strip();
+    }
+
+    public static String getToday(){
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        return date.format(formatter);
+    }
+
+    public static String convertDateFromUKtoEUType(String date){
+        // Allow date to be entered as dd/mm/yyyy as well as dd.mm.yyyy. Will not get triggered on n/a.
+        if (date.split("/").length == 3){
+            return date.replace("/", ".");
+        }
+        return date;
     }
 
     public static String[] getAllValidUserInput() {
@@ -488,15 +449,18 @@ public class Main {
         String[] answers = new String[USER_QUESTIONS.length];
         for (int i = 0; i < USER_QUESTIONS.length; i++) {
             String ans = getValidUserInput(USER_QUESTIONS[i]);
-            if (ans.equals("reset!")) {
+
+            // Call itself if reset! is entered at any point on any question.
+            if (ans.equalsIgnoreCase("reset!")) {
+                System.out.println();
                 getAllValidUserInput();
             }
+
             answers[i] = ans;
         }
 
         return answers;
     }
-
 
     public static List<List<String>> getAllData(String[] allValidUserInput) throws IOException {
         /*
@@ -511,8 +475,9 @@ public class Main {
             DB with a new position where the rest of the items will be located.
 
         If item with the same "name" and "expiry date" is already in the DB, and there is free space on
-            the shelf where that item is, we need to add the items in that same position.
-            If they don't fit the remaining items will be added to another position.
+            the shelf where that item is, we need to add the items in that same location.
+            If they don't fit, the remaining items will be added to another locations.
+            There might be only 1 shelf that is partly full, that has the same item name with same expiry date.
 
         The String Array that this method returns will be written in the DB.
 
@@ -540,13 +505,13 @@ public class Main {
         while (numItemsRemainingToAdd > 0) {
 
             // Because we want to return a List, items won't be recorded in the DB on every iteration.
-            // that's why we use a temp variable to store the locations that are already used.
+            // that's why there is a temp variable to store the locations that are already used but not written.
             String positionToPlaceItem = getPositionToPlaceItem(itemName, expiryDate);
             TEMP_USED_LOCATIONS_NOT_IN_DB.add(positionToPlaceItem);
 
             // If item is in DB - get free space in location
             int numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
-            if (isAtLeastOneItemInLocation(positionToPlaceItem)) {  // todo - move to another func
+            if (isAtLeastOneItemInLocation(positionToPlaceItem)) {
                 numItemsThatWillFitInLocation = getFreeSpaceAtLocationIfAtLeastOneItem(positionToPlaceItem);
             }
 
@@ -577,7 +542,6 @@ public class Main {
         return newRowsToAdd;
     }
 
-
     public static void getAllUserDataAndWriteToDB() throws IOException {
         String[] allValidUserInput = getAllValidUserInput();
         List<List<String>> allData = getAllData(allValidUserInput);
@@ -599,7 +563,6 @@ public class Main {
 
         return false;
     }
-
 
     public static List<String> getAllUniqueLocationsForItem(String itemName, String expiryDate) throws IOException {
         /*
@@ -633,7 +596,6 @@ public class Main {
 
         return positions;
     }
-
 
     public static void printAllDataFromDB() throws IOException {
         String[][] DB = getAllDataFromDB();
@@ -702,10 +664,6 @@ public class Main {
     }
 
     public static String[][] convertListToArray(List<List<String>> listOfListsToConvert) {
-        // Convert the list to an Array, so that printResults can print both:
-        // 1 - List all items;
-        // 3 - List deliveries for time period
-
         String[][] arr = new String[listOfListsToConvert.size()][DESCRIPTION_NO_NAME.length + 1];
 
         for (int i = 0; i < listOfListsToConvert.size(); i++) {
@@ -782,7 +740,7 @@ public class Main {
     }
 
     public static String[] getDbDataToStringArray() throws IOException {
-        // Create an array as big as many rows are in the file (without empty rows)
+        // Create an array as big as the number of rows in the file (without empty rows)
         int numRowsInFile = getLenOfFile(false);
         String[] rowsData = new String[numRowsInFile];
 
@@ -819,5 +777,3 @@ public class Main {
     }
 
 }
-
-
