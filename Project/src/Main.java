@@ -292,10 +292,15 @@ public class Main {
     public static List<String> getAllLocationsThatHaveAtLeastOneItem() throws IOException {
         List<String> result = new ArrayList<>();
         String[] DB = getDbDataToStringArray();
-
-        for (String row : DB) {
-            result.add(row.split(SEPARATOR)[6]);
+        try {
+            for (String row : DB) {
+                result.add(row.split(SEPARATOR)[6]);
+            }
         }
+        catch (Exception e) {
+            System.out.println("Error! Empty row in " + DB_FILE_NAME + " file." + e);
+        }
+
 
         return result;
     }
@@ -585,7 +590,83 @@ public class Main {
     }
 
     // todo
-    public static List<List<String>> getAllData(String[] allValidUserInput) throws IOException {
+//    public static List<List<String>> getAllData(String[] allValidUserInput) throws IOException {
+//        /*
+//        The data that the user will add will be something like:
+//        "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock", "comment (optional)"
+//        {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", ""}
+//        We need to add two more things:
+//            - position where the items will be located in the warehouse (First possible place)
+//            - number of items that can fit on a single shelf.
+//
+//        If we add more stock than what can fit on a shelf, then we need to add another row in the
+//            DB with a new position where the rest of the items will be located.
+//
+//        If item with the same "name" and "expiry date" is already in the DB, and there is free space on
+//            the shelf where that item is, we need to add the items in that same position.
+//            If they don't fit the remaining items will be added to another position.
+//
+//        The String Array that this method returns will be written in the DB.
+//
+//        "Position" and "Max number of items on shelf" will be placed between "Stock" and "Comment", so that they can
+//        later be printed easily in the required format:
+//        //Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips | Unit: Item | Stock: 104 |
+//        Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
+//
+//        "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock",
+//        "position in WH", "Max number of items on shelf", "comment (optional)"
+//
+//        {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", ""}
+//         */
+//
+//        // Add the user input to a List and add 2 extra fields that will store "position in WH" and "Max number of items on shelf"
+//        List<String> allValidUserInputList = new ArrayList<>();
+//        for (String element:allValidUserInput) {
+//            allValidUserInputList.add(element);
+//        }
+//        allValidUserInputList.add(6, " ");
+//        allValidUserInputList.add(7, " ");
+//
+//        // Get the max number of items per shelf depending on the type of item
+//        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]);
+//        String numberOfItemsThatCanFitOnShelfString = String.valueOf(numberOfItemsThatCanFitOnShelf);
+//
+//        List<List<String>> newRowsToAdd = new ArrayList<>();
+//
+//        String itemName = allValidUserInput[0];
+//        String expiryDate = allValidUserInput[1];
+//        int numItemsRemainingToAdd = Integer.parseInt(allValidUserInput[5]);  // Stock from user input
+//        while (numItemsRemainingToAdd > 0) {
+//            // might be new shelf - with no items
+//            // todo - because adding to List - the method doesn't know that they have been added on the first loop there. global ? counter wont work
+//            String positionToPlaceItem = getPositionToPlaceItem(itemName, expiryDate);
+//
+//            // If item is in DB - get free space in location
+//            int numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
+//            if (isAtLeastOneItemInLocation(positionToPlaceItem)){
+//                numItemsThatWillFitInLocation = getFreeSpaceAtLocationIfAtLeastOneItem(positionToPlaceItem);
+//            }
+//
+//            // There might be 100 free spaces but only 10 items need to be added
+//            int numItemsThatWillBeAddedToLocation = numItemsThatWillFitInLocation;
+//            if (numItemsRemainingToAdd < numItemsThatWillFitInLocation) {
+//                numItemsThatWillBeAddedToLocation = numItemsRemainingToAdd;
+//            }
+//
+//            // Battery CR321; 24.11.2025; 02.06.2021; Varta; Unit; 10000; A3 / 6 / 10; 10000; test;
+//            // baaa         ;   1.1.2020;   2.2.2022;  dell;  300;  4300;  b1 / 1 / 2;  1000; bez komn;
+//            allValidUserInputList.set(5, String.valueOf(numItemsThatWillBeAddedToLocation));
+//            allValidUserInputList.set(6, positionToPlaceItem);
+//            allValidUserInputList.set(7, numberOfItemsThatCanFitOnShelfString);
+//            newRowsToAdd.add(allValidUserInputList);
+//
+//            numItemsRemainingToAdd -= numItemsThatWillBeAddedToLocation;
+//        }
+//
+//        return newRowsToAdd;
+//    }
+
+    public static void getAllData(String[] allValidUserInput) throws IOException {
         /*
         The data that the user will add will be something like:
         "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock", "comment (optional)"
@@ -614,63 +695,63 @@ public class Main {
         {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", ""}
          */
 
+        // Add the user input to a List and add 2 extra fields that will store "position in WH" and "Max number of items on shelf"
         List<String> allValidUserInputList = new ArrayList<>();
         for (String element:allValidUserInput) {
             allValidUserInputList.add(element);
         }
+        allValidUserInputList.add(6, " ");
+        allValidUserInputList.add(7, " ");
 
-        List<List<String>> newRowsToAdd = new ArrayList<>();
+        // Get the max number of items per shelf depending on the type of item
+        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]);
+        String numberOfItemsThatCanFitOnShelfString = String.valueOf(numberOfItemsThatCanFitOnShelf);
+
+//        List<List<String>> newRowsToAdd = new ArrayList<>();
 
         String itemName = allValidUserInput[0];
         String expiryDate = allValidUserInput[1];
-
-        // get the position where "unit" is in the questions. (Could be hardcoded too)
-        // Get the answer at that position and use it to get the value for that answer from the map.
-        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]); // only when new location
-        String numberOfItemsThatCanFitOnShelfString = String.valueOf(numberOfItemsThatCanFitOnShelf);
-
-        int numItemsRemainingToAdd = Integer.parseInt(allValidUserInput[5]);
+        int numItemsRemainingToAdd = Integer.parseInt(allValidUserInput[5]);  // Stock from user input
         while (numItemsRemainingToAdd > 0) {
-            // might be new - with no data in it.
+            // might be new shelf - with no items
+            // todo - because adding to List - the method doesn't know that they have been added on the first loop there. global ? counter wont work
             String positionToPlaceItem = getPositionToPlaceItem(itemName, expiryDate);
 
             // If item is in DB - get free space in location
-            int numItemsThatWillFitInLocation;
+            int numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
             if (isAtLeastOneItemInLocation(positionToPlaceItem)){
                 numItemsThatWillFitInLocation = getFreeSpaceAtLocationIfAtLeastOneItem(positionToPlaceItem);
-            } else {
-                numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
             }
 
             // There might be 100 free spaces but only 10 items need to be added
-            int numItemsThatWillBeAddedToLocation;
+            int numItemsThatWillBeAddedToLocation = numItemsThatWillFitInLocation;
             if (numItemsRemainingToAdd < numItemsThatWillFitInLocation) {
                 numItemsThatWillBeAddedToLocation = numItemsRemainingToAdd;
-            } else {
-                numItemsThatWillBeAddedToLocation = numItemsThatWillFitInLocation;
             }
 
-            allValidUserInputList.add(6, positionToPlaceItem);
-            allValidUserInputList.add(7, numberOfItemsThatCanFitOnShelfString);
-            newRowsToAdd.add(allValidUserInputList);
+            // Battery CR321; 24.11.2025; 02.06.2021; Varta; Unit; 10000; A3 / 6 / 10; 10000; test;
+            // baaa         ;   1.1.2020;   2.2.2022;  dell;  300;  4300;  b1 / 1 / 2;  1000; bez komn;
+            allValidUserInputList.set(5, String.valueOf(numItemsThatWillBeAddedToLocation));
+            allValidUserInputList.set(6, positionToPlaceItem);
+            allValidUserInputList.set(7, numberOfItemsThatCanFitOnShelfString);
+//            newRowsToAdd.add(allValidUserInputList);
 
             numItemsRemainingToAdd -= numItemsThatWillBeAddedToLocation;
+            writeDataToDB(allValidUserInputList);
         }
 
-        return newRowsToAdd;
+//        return newRowsToAdd;
     }
-    
+
 
     public static void writeAllDataToDB() throws IOException {
         String[] allValidUserInput = getAllValidUserInput();
-        List<List<String>> allData = getAllData(allValidUserInput);
-//        String[][] allDataArr = convertListToArray(allData);
-//        for (String[] row:allDataArr) {
+//        List<List<String>> allData = getAllData(allValidUserInput);
+        getAllData(allValidUserInput);
+
+//        for (List<String> row:allData) {
 //            writeDataToDB(row);
 //        }
-        for (List<String> row:allData) {
-            writeDataToDB(row);
-        }
     }
 
     public static boolean isAtLeastOneItemInLocation(String location) throws IOException {
@@ -711,16 +792,21 @@ public class Main {
         String[] DB = getDbDataToStringArray();
 
         for (String row : DB) {
-            String currentItemName = row.split(SEPARATOR)[0];
-            String currentExpiryDate = row.split(SEPARATOR)[1];
-            if ((itemName.equalsIgnoreCase(currentItemName)) && expiryDate.equals(currentExpiryDate)) {
+            try {
+                String currentItemName = row.split(SEPARATOR)[0];
+                String currentExpiryDate = row.split(SEPARATOR)[1];
+                if ((itemName.equalsIgnoreCase(currentItemName)) && expiryDate.equals(currentExpiryDate)) {
 
-                String currentPosition = row.split(SEPARATOR)[6];
+                    String currentPosition = row.split(SEPARATOR)[6];
 
-                // Add position only once - there might be multiple rows with same position.
-                if (!positions.contains(currentPosition)) {
-                    positions.add(currentPosition);
+                    // Add position only once - there might be multiple rows with same position.
+                    if (!positions.contains(currentPosition)) {
+                        positions.add(currentPosition);
+                    }
                 }
+            }
+            catch (Exception e) {
+                System.out.println("Error! Empty row in " + DB_FILE_NAME + " file.");
             }
         }
 
