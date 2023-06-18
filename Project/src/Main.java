@@ -3,89 +3,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
-//Склад
-//Да се напише компютърна програма, реализираща информационна система, обслужваща склад.
-// Програмата да поддържа текстов диалогов режим, позволяващ удобен интерактивен избор на следните операции:
-//
-//списък на наличните продукти в склада.
-//
-// За всеки продукт се съхранява и извежда следната информация:
-//име (описание - символен низ с произволна дължина)
-//срок на годност
-//дата на постъпване в склада
-//име на производител
-//мерна единица (килограми, литри)
-//налично количество
-//местоположение (секция/рафт/номер) (номерирайте склада си както прецените, че ще ви е удобно,
-// имайте предвид, че в началото той е празен и различно количество стока е нормално да заема различно по обем място)
-//допустим брой от продукта на рафт
-//коментар (свободен текст)
-//
-//записване на нова доставка
-//ако нов продукт е с различен срок на годност от вече съществуващ едноименен продукт, той да бъде поставен на различно място
-//ако имате достатъчно място, еднакви продукти с един и същи срок на годност да бъдат поставени на едно и също място
-
-//при извеждане на списъка с налични продукти да се изведе общото количество на едноименните продукти независимо от срока им на годност
-//справка за наличността в даден период (по дадена начална и крайна дата се извежда списък с
-// всички промени на наличността в дадения период, включително зареждания и извеждания на стоки)
-//
-//Пример:
-//
-//Please choose what to do (1 - List all items; 2 - Add new delivery; 3 - List deliveries for time period)
-//<< 1
-//Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips | Unit: Item | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
-//Battery AAA | Expiry date: 10.10.2026 | Entry date: 10.07.2020 | Manufacturer: Duracel | Unit: Item | Stock: 638 | Position: C2 / 5 / 1 | Available items at shelf: 10000 | Comment:in every box there are 10 packages of 4 batters each
-//
-//
-//Please choose what to do (1 - List all items; 2 - Add new delivery; 3 - List deliveries for time period)
-//<< 2
-//Enter product name:
-//<< Battery CR32
-//Enter expiry date:
-//<<24.11.2025
-//Enter entry date:
-//<< 02.06.2021
-//Enter manufacturer:
-//<< Varta
-//Enter unit:
-//<< Item
-//Enter available stock:
-//<< 900
-//Enter comment (optional):
-//<<
-//Product was added successfully!
-//
-//
-//Please choose what to do (1 - List all items; 2 - Add new delivery; 3 - List deliveries for time period)
-//<< 3
-//From date:
-//<< 01.05.2021
-//To date:
-//<< 31.05.2021
-//List of product transactions for the period 01.05.2021 - 31.05.2021:
-//Light bulb - LED 75W | Entry date: 05.05.2021 | Unit: Item | Stock delivered: 200
-
-
-//Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips | Unit: Item | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
-
 // todo - Expiry date: n/a | Entry date: 05.05.2021 - expirity date can be n/a or null
-// todo - readFromDB , writeToDB
-// todo ASK:
-// unit - ITEM or ?
+
 public class Main {
 
 
     // todo checker - [][][] or letter[][][]
-    // todo String unit --> boolean unit --> килограми, литри
-    // todo Enter available stock: ???
     // todo - color output
     // todo - print in the middle
     // todo - if no expiry date - empty string as answer or n/a?
     // todo - add error printing in data validation --> what's wrong as a parameter
     // todo - don't allow separator to be used in the data.
     // todo - postypvane v sklada - opciq - today
-    // todo - opciq cancel - dokato vyvejdame dannite ako sme obyrkali neshto.
 
     // todo - items per shelf - ako produkta ve4e go ima - da izpishe kolko se sybirat na edin raft.
     // produkta moje da e s promeneni razmeri i da se sybirat po-malko ili pove4e ot nego.
@@ -124,6 +53,7 @@ public class Main {
     // Starting at the second element - "Name" not printed.
     static String[] DESCRIPTION_NO_NAME = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
 
+    private static List<String> TEMP_USED_LOCATIONS_NOT_IN_DB = new ArrayList<>();
 
     public static void main(String[] args) throws IOException, ParseException {
 //        String[] test = getAllValidUserInput();
@@ -193,12 +123,13 @@ public class Main {
 //        printAllDataFromDB();
 //        getAllLocationsThatHaveAtLeastOneItem();
 
-//        writeAllDataToDB();
+        writeAllDataToDB();
 //        String[] x = getDbDataToStringArray();
 //        for (String row:x) {
 //            System.out.println(row);
 //        }
-        printAllDataFromDB();
+//        printAllDataFromDB();
+//        System.out.println(getAllLocationsThatHaveAtLeastOneItem());
 
 //        int unitPosition = Arrays.asList(USER_QUESTIONS).indexOf("unit");
 //        System.out.println(unitPosition);
@@ -294,19 +225,26 @@ public class Main {
         return result;
     }
 
-    // todo
+    // todo ?
     public static List<String> getAllLocationsThatHaveAtLeastOneItem() throws IOException {
         List<String> result = new ArrayList<>();
         String[] DB = getDbDataToStringArray();
-        try {
-            for (String row : DB) {
-                result.add(row.split(SEPARATOR)[6]);
+
+        for (String row : DB) {
+            String currentElement = row.split(SEPARATOR)[6];
+            if (!result.contains(currentElement)){
+                result.add(currentElement);
             }
         }
-        catch (Exception e) {
-            System.out.println("Error! Empty row in " + DB_FILE_NAME + " file." + e);
-        }
 
+        // don't use the same location that has been used, but not written to DB.
+        if (!TEMP_USED_LOCATIONS_NOT_IN_DB.isEmpty()){
+            for (String tempLocation: TEMP_USED_LOCATIONS_NOT_IN_DB) {
+                if (!result.contains(tempLocation)){
+                    result.add(tempLocation);
+                }
+            }
+        }
 
         return result;
     }
@@ -314,7 +252,7 @@ public class Main {
     public static String getFirstLocationThatDoeNotHaveAnyItems() throws IOException {
         List<String> allPositions = getAllPossibleLocations();
         List<String> usedPositions = getAllLocationsThatHaveAtLeastOneItem();
-
+        // todo - positions - all capital/lowercase == user positions have dublicates
         for (String usedPosition : usedPositions) {
             // No need to check if usedPosition in allPositions
             allPositions.remove(usedPosition);
@@ -597,7 +535,7 @@ public class Main {
 
 
 
-    public static void getAllData(String[] allValidUserInput) throws IOException {
+    public static List<List<String>> getAllData(String[] allValidUserInput) throws IOException {
         /*
         The data that the user will add will be something like:
         "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock", "comment (optional)"
@@ -638,7 +576,7 @@ public class Main {
         int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]);
         String numberOfItemsThatCanFitOnShelfString = String.valueOf(numberOfItemsThatCanFitOnShelf);
 
-//        List<List<String>> newRowsToAdd = new ArrayList<>();
+        List<List<String>> newRowsToAdd = new ArrayList<>();
 
         String itemName = allValidUserInput[0];
         String expiryDate = allValidUserInput[1];
@@ -647,10 +585,11 @@ public class Main {
             // might be new shelf - with no items
             // todo - because adding to List - the method doesn't know that they have been added on the first loop there. global ? counter wont work
             String positionToPlaceItem = getPositionToPlaceItem(itemName, expiryDate);
+            TEMP_USED_LOCATIONS_NOT_IN_DB.add(positionToPlaceItem);
 
             // If item is in DB - get free space in location
             int numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
-            if (isAtLeastOneItemInLocation(positionToPlaceItem)){
+            if (isAtLeastOneItemInLocation(positionToPlaceItem)){  // todo - move to another func
                 numItemsThatWillFitInLocation = getFreeSpaceAtLocationIfAtLeastOneItem(positionToPlaceItem);
             }
 
@@ -660,29 +599,35 @@ public class Main {
                 numItemsThatWillBeAddedToLocation = numItemsRemainingToAdd;
             }
 
-            // Battery CR321; 24.11.2025; 02.06.2021; Varta; Unit; 10000; A3 / 6 / 10; 10000; test;
-            // baaa         ;   1.1.2020;   2.2.2022;  dell;  300;  4300;  b1 / 1 / 2;  1000; bez komn;
             allValidUserInputList.set(5, String.valueOf(numItemsThatWillBeAddedToLocation));
             allValidUserInputList.set(6, positionToPlaceItem);
             allValidUserInputList.set(7, numberOfItemsThatCanFitOnShelfString);
-//            newRowsToAdd.add(allValidUserInputList);
+
+            System.out.println(allValidUserInputList);
+            newRowsToAdd.add(allValidUserInputList);
+            System.out.println(newRowsToAdd);
+            System.out.println();
 
             numItemsRemainingToAdd -= numItemsThatWillBeAddedToLocation;
-            writeDataToDB(allValidUserInputList);
+//            writeDataToDB(allValidUserInputList);
         }
-
-//        return newRowsToAdd;
+        System.out.println(newRowsToAdd);
+        // This can be added to a Finally block in writeDataToDB() but will work as good here too.
+        // Even if it fails to write the data - it will start over and the list needs to be empty.
+        TEMP_USED_LOCATIONS_NOT_IN_DB.clear();
+        return newRowsToAdd;
     }
 
 
     public static void writeAllDataToDB() throws IOException {
         String[] allValidUserInput = getAllValidUserInput();
-//        List<List<String>> allData = getAllData(allValidUserInput);
-        getAllData(allValidUserInput);
+        List<List<String>> allData = getAllData(allValidUserInput);
+//        getAllData(allValidUserInput);
 
-//        for (List<String> row:allData) {
-//            writeDataToDB(row);
-//        }
+        for (List<String> row:allData) {
+            writeDataToDB(row);
+        }
+        System.out.println("Product was added successfully!");
     }
 
     public static boolean isAtLeastOneItemInLocation(String location) throws IOException {
@@ -692,6 +637,12 @@ public class Main {
                 return true;
             }
         }
+        // check the temp
+//        for (String TempLocation: TEMP_USED_LOCATIONS_NOT_IN_DB) {
+//            if (TempLocation.equalsIgnoreCase(location)) {
+//                return true;
+//            }
+//        }
         return false;
     }
 
