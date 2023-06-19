@@ -65,8 +65,42 @@ public class Main {
 
     static String[] ANSWERS = new String[USER_QUESTIONS.length];
 
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+
     public static void main(String[] args) throws IOException, ParseException {
-        runApp();
+//        runApp();
+        printSurroundedBy("tesla", ANSI_GREEN);
+        printSurroundedBy("speaker", ANSI_GREEN);
+        printSurroundedBy("kola", ANSI_GREEN);
+        printWarning("test");
+        printError("test");
+    }
+
+    public static void printWarning(String msg) {
+        System.out.println(getColoredMsg("Warning: " + msg, ANSI_YELLOW));
+    }
+
+    public static void printError(String msg) {
+        System.out.println(getColoredMsg("Error: " + msg, ANSI_RED));
+    }
+
+    public static String getColoredMsg(String msg, String ANSI_color) {
+        return ANSI_color + msg + ANSI_RESET;
+    }
+
+    public static void printSurroundedBy(String msg, String ANSI_color) {
+        int msgLength = msg.length();
+        int spacesAroundOnEachSide = 3;
+
+        String topAndBottom = "=".repeat(msgLength + spacesAroundOnEachSide * 2 + 2);
+        String mid = "|" + " ".repeat(spacesAroundOnEachSide) + msg + " ".repeat(spacesAroundOnEachSide) + "|";
+
+        System.out.println(getColoredMsg(topAndBottom, ANSI_color));
+        System.out.println(getColoredMsg(mid, ANSI_color));
+        System.out.println(getColoredMsg(topAndBottom, ANSI_color));
     }
 
     public static void runApp() throws IOException, ParseException {
@@ -354,57 +388,40 @@ public class Main {
             System.out.println("Enter " + question + ": ");
         }
 
-        // Make sure that the unit question returns a valid answer
-        if (question.contains("unit")) {
-            return getUnit();
-        }
-
-        // expiry date - can be a date or "n/a" for products that don't expire.
-        else if (question.equalsIgnoreCase("expiry date")) {
-            return getExpiryDate();
-        }
-
-        // entry date - needs to be a date. Can't be "n/a". Will also work for other "date"(s).
-        else if (question.contains("date")) {
-            return getDate();
-        }
-
-        // Allow empty/blank input if the question is optional. Require an input if not.
-        else if (!question.contains("optional")) {
-            return getNonOptional(question);
-        }
-
-        // Optional
         String ans = scanner.nextLine();
 
         if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
             return RESET_CMD;
+        }
+
+        // Make sure that the unit question returns a valid answer
+        if (question.contains("unit")) {
+            return getUnit(ans);
+        }
+
+        // expiry date - can be a date or "n/a" for products that don't expire.
+        else if (question.equalsIgnoreCase("expiry date")) {
+            return getExpiryDate(ans);
+        }
+
+        // entry date - needs to be a date. Can't be "n/a". Will also work for other "date"(s).
+        else if (question.contains("date")) {
+            return getDate(ans);
+        }
+
+        // Allow empty/blank input if the question is optional. Require an input if not.
+        else if (!question.contains("optional")) {
+            while (ans.isEmpty()) {
+                System.out.println("Empty answer. Please enter " + question + ": ");
+                ans = scanner.nextLine();
+                // no need for reset! check as it will be returned anyway if entered.
+            }
         }
 
         return ans.strip();
     }
 
-    public static String getNonOptional(String question) {
-        String ans = scanner.nextLine();
-
-        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
-            return RESET_CMD;
-        }
-
-        while (ans.isEmpty()) {
-            System.out.println("Empty answer. Please enter " + question + ": ");
-            ans = scanner.nextLine();
-            // no need for reset! check as it will be returned anyway if entered.
-        }
-        return ans;
-    }
-
-    public static String getExpiryDate() {
-        String ans = scanner.nextLine();
-
-        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
-            return RESET_CMD;
-        }
+    public static String getExpiryDate(String ans) {
 
         boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
 
@@ -422,13 +439,7 @@ public class Main {
         return ans.strip();
     }
 
-    public static String getDate() {
-        String ans = scanner.nextLine();
-
-        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
-            return RESET_CMD;
-        }
-
+    public static String getDate(String ans) {
         if (ans.equalsIgnoreCase("today")) {
             return getToday();
         }
@@ -448,13 +459,7 @@ public class Main {
         return ans;
     }
 
-    public static String getUnit() {
-        String ans = scanner.nextLine();
-
-        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
-            return RESET_CMD;
-        }
-
+    public static String getUnit(String ans) {
         ans = ans.toLowerCase();
         boolean isValid = isUnitValid(ans);
 
