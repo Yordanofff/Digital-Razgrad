@@ -20,6 +20,7 @@ import java.util.*;
 
 // todo - if entry date earlier than expiry date - warning - stock is expired before entering the Warehouse
 // todo if expiry date is earlier than today - expired.
+// todo if entry date is after today - not possible - try again
 
 // todo - menu option - print stock that expires soon - sort ? 1 week ?
 
@@ -57,6 +58,8 @@ public class Main {
     static String[] DESCRIPTION_NO_NAME = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
 
     private static List<String> TEMP_USED_LOCATIONS_NOT_IN_DB = new ArrayList<>();
+
+    final static String RESET_CMD = "reset!";
 
     public static void main(String[] args) throws IOException, ParseException {
         runApp();
@@ -339,68 +342,121 @@ public class Main {
          */
 
         System.out.println("Enter " + question + ": ");
-        String ans = scanner.nextLine();
-        if (ans.strip().equalsIgnoreCase("reset!")) {
-            return ans.strip();
-        }
 
         // Make sure that the unit question returns a valid answer
         if (question.contains("unit")) {
-            ans = ans.toLowerCase();
-            boolean isValid = isUnitValid(ans);
-            while (!isValid) {
-                String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
-                System.out.println("Error! Please Enter a valid option for Unit: " + availableOptions + ".");
-                ans = scanner.nextLine().toLowerCase();
-                if (ans.strip().equals("reset!")) {
-                    return ans.strip();
-                }
-                isValid = isUnitValid(ans);
-            }
+            return getUnit();
         }
 
         // expiry date - can be a date or "n/a" for products that don't expire.
         else if (question.equalsIgnoreCase("expiry date")) {
-            boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
-            while (!(isValid || ans.equalsIgnoreCase("n/a"))) {
-                System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
-                ans = scanner.nextLine();
-                if (ans.strip().equalsIgnoreCase("reset!")) {
-                    return ans.strip();
-                }
-                isValid = isDateValid(convertDateFromUKtoEUType(ans));
-            }
+            return getExpiryDate();
         }
 
         // entry date - needs to be a date. Can't be "n/a". Will also work for other "date"(s).
         else if (question.contains("date")) {
-            if (ans.equalsIgnoreCase("today")){
-                ans = getToday();
-            }
-            boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
-            while (!isValid) {
-                System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
-                ans = scanner.nextLine();
-                if (ans.equalsIgnoreCase("today")){
-                    ans = getToday();
-                }
-                else if (ans.strip().equalsIgnoreCase("reset!")) {
-                    return ans.strip();
-                }
-                isValid = isDateValid(convertDateFromUKtoEUType(ans));
-            }
+            return getDate();
         }
 
         // Allow empty/blank input if the question is optional. Require an input if not.
         else if (!question.contains("optional")) {
-            while (ans.isEmpty()) {
-                System.out.println("Empty answer. Please enter " + question + ": ");
-                ans = scanner.nextLine();
-                // no need for reset! check as it will be returned anyway if entered.
-            }
+            return getNonOptional(question);
+        }
+
+        // Optional
+        String ans = scanner.nextLine();
+
+        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
+            return RESET_CMD;
         }
 
         return ans.strip();
+    }
+    public static String getNonOptional(String question){
+        String ans = scanner.nextLine();
+
+        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
+            return RESET_CMD;
+        }
+
+        while (ans.isEmpty()) {
+            System.out.println("Empty answer. Please enter " + question + ": ");
+            ans = scanner.nextLine();
+            // no need for reset! check as it will be returned anyway if entered.
+        }
+        return ans;
+    }
+    public static String getExpiryDate(){
+        String ans = scanner.nextLine();
+
+        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
+            return RESET_CMD;
+        }
+
+        boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
+
+        while (!(isValid || ans.equalsIgnoreCase("n/a"))) {
+            System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
+            ans = scanner.nextLine();
+
+            if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
+                return RESET_CMD;
+            }
+
+            isValid = isDateValid(convertDateFromUKtoEUType(ans));
+        }
+
+        return ans.strip();
+    }
+    public static String getDate() {
+        String ans = scanner.nextLine();
+
+        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
+            return RESET_CMD;
+        }
+
+        if (ans.equalsIgnoreCase("today")){
+            return getToday();
+        }
+
+        boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
+
+        while (!isValid) {
+            System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
+            ans = scanner.nextLine();
+            if (ans.equalsIgnoreCase("today")){
+                ans = getToday();
+            }
+            else if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
+                return RESET_CMD;
+            }
+            isValid = isDateValid(convertDateFromUKtoEUType(ans));
+        }
+        return ans;
+    }
+    public static String getUnit(){
+        String ans = scanner.nextLine();
+
+        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
+            return RESET_CMD;
+        }
+
+        ans = ans.toLowerCase();
+        boolean isValid = isUnitValid(ans);
+
+        while (!isValid) {
+            String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
+            System.out.println("Error! Please Enter a valid option for Unit: " + availableOptions + ".");
+            ans = scanner.nextLine().toLowerCase();
+
+            if (ans.strip().equals(RESET_CMD)) {
+                return RESET_CMD;
+            }
+
+            isValid = isUnitValid(ans);
+        }
+
+        return ans;
     }
 
     public static String getToday(){
@@ -451,7 +507,7 @@ public class Main {
             String ans = getValidUserInput(USER_QUESTIONS[i]);
 
             // Call itself if reset! is entered at any point on any question.
-            if (ans.equalsIgnoreCase("reset!")) {
+            if (ans.equalsIgnoreCase(RESET_CMD)) {
                 System.out.println();
                 getAllValidUserInput();
             }
