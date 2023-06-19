@@ -63,8 +63,6 @@ public class Main {
 
     final static String RESET_CMD = "reset!";
 
-    static boolean IS_RESET;
-
     static String[] ANSWERS = new String[USER_QUESTIONS.length];
 
     public static void main(String[] args) throws IOException, ParseException {
@@ -175,7 +173,7 @@ public class Main {
         // Sort the list to get the first position
         java.util.Collections.sort(allPositions);
 
-        if (allPositions.size() == 0){
+        if (allPositions.size() == 0) {
             throw new RuntimeException("DB file/Warehouse is full.");
         }
 
@@ -347,7 +345,14 @@ public class Main {
         returns a valid answer
          */
 
-        System.out.println("Enter " + question + ": ");
+        // Modify the question "Enter available stock" to include the unit type and values on shelf
+        if (question.contains("stock")) {
+            String unitType = ANSWERS[4];
+            int unitValue = UNIT_OPTIONS.get(unitType);
+            System.out.println("Enter " + question + " ([" + unitType + "] - " + unitValue + " items per shelf): ");
+        } else {
+            System.out.println("Enter " + question + ": ");
+        }
 
         // Make sure that the unit question returns a valid answer
         if (question.contains("unit")) {
@@ -378,7 +383,8 @@ public class Main {
 
         return ans.strip();
     }
-    public static String getNonOptional(String question){
+
+    public static String getNonOptional(String question) {
         String ans = scanner.nextLine();
 
         if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
@@ -392,7 +398,8 @@ public class Main {
         }
         return ans;
     }
-    public static String getExpiryDate(){
+
+    public static String getExpiryDate() {
         String ans = scanner.nextLine();
 
         if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
@@ -414,6 +421,7 @@ public class Main {
 
         return ans.strip();
     }
+
     public static String getDate() {
         String ans = scanner.nextLine();
 
@@ -421,7 +429,7 @@ public class Main {
             return RESET_CMD;
         }
 
-        if (ans.equalsIgnoreCase("today")){
+        if (ans.equalsIgnoreCase("today")) {
             return getToday();
         }
 
@@ -430,17 +438,17 @@ public class Main {
         while (!isValid) {
             System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
             ans = scanner.nextLine();
-            if (ans.equalsIgnoreCase("today")){
+            if (ans.equalsIgnoreCase("today")) {
                 ans = getToday();
-            }
-            else if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
+            } else if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
                 return RESET_CMD;
             }
             isValid = isDateValid(convertDateFromUKtoEUType(ans));
         }
         return ans;
     }
-    public static String getUnit(){
+
+    public static String getUnit() {
         String ans = scanner.nextLine();
 
         if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
@@ -465,15 +473,15 @@ public class Main {
         return ans;
     }
 
-    public static String getToday(){
+    public static String getToday() {
         LocalDate date = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         return date.format(formatter);
     }
 
-    public static String convertDateFromUKtoEUType(String date){
+    public static String convertDateFromUKtoEUType(String date) {
         // Allow date to be entered as dd/mm/yyyy as well as dd.mm.yyyy. Will not get triggered on n/a.
-        if (date.split("/").length == 3){
+        if (date.split("/").length == 3) {
             return date.replace("/", ".");
         }
         return date;
@@ -507,27 +515,20 @@ public class Main {
          */
 
         System.out.println("\nEnter the data for the items that you want to add.\nUse \"reset!\" to reset the data input.");
-        IS_RESET = false;
-//        String[] answers = new String[USER_QUESTIONS.length];
+
         for (int i = 0; i < USER_QUESTIONS.length; i++) {
             String ans = getValidUserInput(USER_QUESTIONS[i]);
 
             // Call itself if reset! is entered at any point on any question.
             if (ans.equalsIgnoreCase(RESET_CMD)) {
-                IS_RESET = true;
-                break;
+                System.out.println();
+                Arrays.fill(ANSWERS, null);
+                return getAllValidUserInput();
             }
 
             ANSWERS[i] = ans;
         }
-
-        if (IS_RESET) {
-            IS_RESET = false;
-            System.out.println();
-            Arrays.fill(ANSWERS, null);
-            getAllValidUserInput();
-        }
-
+        // todo - ANSWERS clear?
         return ANSWERS;
     }
 
