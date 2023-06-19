@@ -30,6 +30,8 @@ import java.util.*;
 // todo - move units to a config file
 // todo option - allow user to modify amount units/kg + warehouse size
 
+// todo reset! --> !reset + add !stop to go back to menu
+
 public class Main {
     static Scanner scanner = new Scanner(System.in);
     static String SEPARATOR = ";";
@@ -60,6 +62,10 @@ public class Main {
     private static List<String> TEMP_USED_LOCATIONS_NOT_IN_DB = new ArrayList<>();
 
     final static String RESET_CMD = "reset!";
+
+    static boolean IS_RESET;
+
+    static String[] ANSWERS = new String[USER_QUESTIONS.length];
 
     public static void main(String[] args) throws IOException, ParseException {
         runApp();
@@ -500,22 +506,29 @@ public class Main {
          returns: {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", ""}
          */
 
-        System.out.println("Enter the data for the items that you want to add.\nUse \"reset!\" to reset the data input.");
-
-        String[] answers = new String[USER_QUESTIONS.length];
+        System.out.println("\nEnter the data for the items that you want to add.\nUse \"reset!\" to reset the data input.");
+        IS_RESET = false;
+//        String[] answers = new String[USER_QUESTIONS.length];
         for (int i = 0; i < USER_QUESTIONS.length; i++) {
             String ans = getValidUserInput(USER_QUESTIONS[i]);
 
             // Call itself if reset! is entered at any point on any question.
             if (ans.equalsIgnoreCase(RESET_CMD)) {
-                System.out.println();
-                getAllValidUserInput();
+                IS_RESET = true;
+                break;
             }
 
-            answers[i] = ans;
+            ANSWERS[i] = ans;
         }
 
-        return answers;
+        if (IS_RESET) {
+            IS_RESET = false;
+            System.out.println();
+            Arrays.fill(ANSWERS, null);
+            getAllValidUserInput();
+        }
+
+        return ANSWERS;
     }
 
     public static List<List<String>> getAllData(String[] allValidUserInput) throws IOException {
