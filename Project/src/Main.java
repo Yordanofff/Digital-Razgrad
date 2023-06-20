@@ -6,14 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
-// todo - items per shelf - ako produkta ve4e go ima - da izpishe kolko se sybirat na edin raft.
-// produkta moje da e s promeneni razmeri i da se sybirat po-malko ili pove4e ot nego.
-
 // todo - write tests
-
-// todo - if entry date earlier than expiry date - warning - stock is expired before entering the Warehouse
-// todo if expiry date is earlier than today - expired.
-// todo if entry date is before today - not possible - try again (maybe should be possible - stock entered yesterday - in db today)
 
 // todo option - print units and amount that can be fit on shelf
 // todo - move units to a config file
@@ -71,7 +64,7 @@ public class Main {
             "Forbidden character: " + getBoldYellow(SEPARATOR));
 
     public static void main(String[] args) throws IOException, ParseException {
-
+//        System.out.println(getExpiryDate("n/a"));
         runApp();
     }
 
@@ -117,7 +110,7 @@ public class Main {
         String[] DESCRIPTION_WITH_NAME = new String[DESCRIPTION_NO_NAME.length + 1];
         DESCRIPTION_WITH_NAME[0] = "Name";
         for (int i = 0; i < DESCRIPTION_NO_NAME.length; i++) {
-            DESCRIPTION_WITH_NAME[i+1] = DESCRIPTION_NO_NAME[i];
+            DESCRIPTION_WITH_NAME[i + 1] = DESCRIPTION_NO_NAME[i];
         }
         for (int i = 0; i < DESCRIPTION_WITH_NAME.length; i++) {
             if (maxColumn[i] < DESCRIPTION_WITH_NAME[i].length()) {
@@ -709,11 +702,24 @@ public class Main {
 
     public static String getExpiryDate(String ans) {
 
-        boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
+        if (ans.equalsIgnoreCase("n/a")) {
+            return "n/a";
+        }
 
-        while (!(isValid || ans.equalsIgnoreCase("n/a"))) {
+        boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
+        boolean isNotExpired = false;
+
+        if (isValid) {
+            isNotExpired = !isExpired(ans);
+        }
+
+        while (!((isValid && isNotExpired) || ans.equalsIgnoreCase("n/a"))) {
             printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
             ans = scanner.nextLine();
+
+            if (ans.equalsIgnoreCase("n/a")) {
+                return "n/a";
+            }
 
             for (String specialCmd : SPECIAL_CMDS) {
                 if (ans.strip().equalsIgnoreCase(specialCmd)) {
@@ -722,9 +728,22 @@ public class Main {
             }
 
             isValid = isDateValid(convertDateFromUKtoEUType(ans));
+            if (isValid) {
+                isNotExpired = !isExpired(ans);
+            }
         }
 
         return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(ans).strip());
+    }
+
+    public static boolean isExpired(String date) {
+        if (getDaysDifferenceFromToday(date) < 0) {
+            printError("The item has already expired!");
+            return true;
+        } else if (getDaysDifferenceFromToday(date) == 0) {
+            printWarning("The item expires today!");
+        }
+        return false;
     }
 
     public static String getDate(String ans) {
@@ -733,8 +752,18 @@ public class Main {
         }
 
         boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
+        boolean isEntryDateLaterThanExpiryDate = false;
 
-        while (!isValid) {
+        // Check if the items entered the WH are already expired at the day of entry
+        if (isValid) {
+            String currentExpiryDate = ANSWERS[1];
+            if (convertDateToDays(ans) >= convertDateToDays(currentExpiryDate)) {
+                printError("Something is wrong. Entry date(" + ans + ") is after expiry date(" + currentExpiryDate + ")");
+                isEntryDateLaterThanExpiryDate = true;
+            }
+        }
+
+        while (!(isValid && !isEntryDateLaterThanExpiryDate)) {
             printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
             ans = scanner.nextLine();
             if (ans.equalsIgnoreCase("today")) {
@@ -748,6 +777,17 @@ public class Main {
             }
 
             isValid = isDateValid(convertDateFromUKtoEUType(ans));
+
+            // Check if the items entered the WH are already expired at the day of entry
+            if (isValid) {
+                String currentExpiryDate = ANSWERS[1];
+                if (convertDateToDays(ans) > convertDateToDays(currentExpiryDate)) {
+                    printError("Something is wrong. Entry date(" + addLeadingZeroToDayMonth(ans) + ") is after expiry date(" + currentExpiryDate + ").");
+                    isEntryDateLaterThanExpiryDate = true;
+                } else {
+                    isEntryDateLaterThanExpiryDate = false;
+                }
+            }
         }
         return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(ans));
     }
