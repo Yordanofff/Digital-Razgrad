@@ -77,7 +77,54 @@ public class Main {
 //        printSurroundedBy("kola", ANSI_GREEN, false, false);
 //        printWarning("test");
 //        printError("test");
-        printMenuOptions();
+//        printMenuOptions();
+//        createDBfileIfMissing();
+        printCSVFormatted(getDbDataToArrayListWithDescription());
+//        getDbDataToArrayListWithDescription();
+    }
+
+    public static void printCSVFormatted(ArrayList<ArrayList<String>> rows){
+
+        if (rows.size() == 0)
+            throw new RuntimeException("DB file " + DB_FILE_NAME + " is empty.");
+
+        // Make sure all rows are same length - some don't have comments and will be 8, other 9 --> all 9.
+        for (List<String> row : rows){
+            while (row.size() < DESCRIPTION_NO_NAME.length + 1){
+                row.add("");
+            }
+        }
+
+        // Get the maximum word length of every column
+        // Will be something like [9, 23, 22, 18, 10, 11, 20, 30, 18]
+        int[] maxColumn = new int[DESCRIPTION_NO_NAME.length + 1];
+
+        for (int i = 0; i < rows.size(); i++){
+            // rows.get(i).size() <==> DESCRIPTION_NO_NAME.length + 1 <==> 9
+            for (int j = 0; j < rows.get(i).size(); j++) {
+                if (maxColumn[j] < rows.get(i).get(j).length()){
+                    maxColumn[j] = rows.get(i).get(j).length();
+                }
+            }
+        }
+
+        for (int i = 0; i < rows.size(); i++) {
+            for (int j = 0; j < maxColumn.length; j++) {
+                // "%" + numberOfSpaces + "s", "text To Print");
+                // The formatString will be something like "%-25s | "
+                // "-" is used for left alignment
+
+                // Don't print Separator at the end.
+                String formatString = "%-" + maxColumn[j]+ "s";
+                if (j != maxColumn.length - 1){
+                    formatString = "%-" + maxColumn[j]+ "s" + SEPARATOR_WHEN_PRINTING;
+                }
+
+                System.out.printf(formatString, rows.get(i).get(j));
+            }
+            System.out.println();
+        }
+
     }
 
     public static void printWarning(String msg) {
@@ -862,6 +909,29 @@ public class Main {
         }
 
         return rowsData;
+    }
+    
+    public static ArrayList<ArrayList<String>> getDbDataToArrayListWithDescription() throws IOException {
+        ArrayList<ArrayList<String>> rows = new ArrayList<>();
+        File file = new File(DB_FILE_NAME);
+        Scanner sc = new Scanner(file);
+
+        int numRowsInFileIncludingEmpty = getLenOfFile(true);
+        for (int i = 0; i < numRowsInFileIncludingEmpty; i++) {
+            ArrayList<String> row = new ArrayList<>();
+            String rowCSV = sc.nextLine();
+            if (!rowCSV.equals("")) {
+                row.add(rowCSV.split(SEPARATOR)[0]);
+                for (int j = 1; j < rowCSV.split(SEPARATOR).length; j++) {
+                    String val = rowCSV.split(SEPARATOR)[j];
+                    String desc = DESCRIPTION_NO_NAME[j-1];
+                    row.add(desc + ": " + val);
+                }
+            }
+            rows.add(row);
+        }
+
+        return rows;
     }
 
     public static void writeDataToDB(List<String> row) {
