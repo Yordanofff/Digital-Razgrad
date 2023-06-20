@@ -9,13 +9,11 @@ import java.util.*;
 // todo - items per shelf - ako produkta ve4e go ima - da izpishe kolko se sybirat na edin raft.
 // produkta moje da e s promeneni razmeri i da se sybirat po-malko ili pove4e ot nego.
 
-
 // todo - write tests
 
 // todo - if entry date earlier than expiry date - warning - stock is expired before entering the Warehouse
 // todo if expiry date is earlier than today - expired.
 // todo if entry date is before today - not possible - try again (maybe should be possible - stock entered yesterday - in db today)
-
 
 // todo option - print units and amount that can be fit on shelf
 // todo - move units to a config file
@@ -73,18 +71,8 @@ public class Main {
             "Forbidden character: " + getBoldYellow(SEPARATOR));
 
     public static void main(String[] args) throws IOException, ParseException {
-//        printStockExpiringSoon();
-//        System.out.println(getDaysDifferenceFromToday("25.06.2023"));
-//        System.out.println(getDaysDifferenceFromToday("2.06.2023"));
-//        System.out.println(convertDateToDays("20.02.2020"));
-//        System.out.println(convertDateToDays("21.02.2021"));
-        // printMenuOptions takeMenuAction
+
         runApp();
-//        System.out.println(getStringLengthWithoutANSI(getBoldYellow("one")));
-//        System.out.println(getStringLengthWithoutANSI("Dates need to be formatted as " +
-//                getBoldYellow("dd.mm.yyyy") + " or " +
-//                getBoldYellow("d.m.yyyy") + " and can be separated by " +
-//                getBoldYellow(".") + " or " + getBoldYellow("/")));
     }
 
     public static void tests() {
