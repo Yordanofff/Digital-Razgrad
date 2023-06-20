@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
-
 // todo - items per shelf - ako produkta ve4e go ima - da izpishe kolko se sybirat na edin raft.
 // produkta moje da e s promeneni razmeri i da se sybirat po-malko ili pove4e ot nego.
 
@@ -75,6 +74,11 @@ public class Main {
             "Forbidden character: " + getBoldYellow(SEPARATOR));
 
     public static void main(String[] args) throws IOException, ParseException {
+//        printStockExpiringSoon();
+//        System.out.println(getDaysDifferenceFromToday("25.06.2023"));
+//        System.out.println(getDaysDifferenceFromToday("2.06.2023"));
+//        System.out.println(convertDateToDays("20.02.2020"));
+//        System.out.println(convertDateToDays("21.02.2021"));
         // printMenuOptions takeMenuAction
         runApp();
 //        System.out.println(getStringLengthWithoutANSI(getBoldYellow("one")));
@@ -97,7 +101,7 @@ public class Main {
         System.out.println(isDateValid("10.1.1900"));
     }
 
-    public static void printCSVFormatted(ArrayList<ArrayList<String>> rows) {
+    public static void printCSVFormatted(ArrayList<ArrayList<String>> rows, String colorANSI) {
 
         if (rows.size() == 0)
             throw new RuntimeException("DB file " + DB_FILE_NAME + " is empty.");
@@ -125,21 +129,21 @@ public class Main {
         int numTopBottom = Arrays.stream(maxColumn).sum() + SEPARATOR_WHEN_PRINTING.length() * (DESCRIPTION_NO_NAME.length + 2) - 2;
 
 
-        System.out.println("\n" + getColoredMsg("=".repeat(numTopBottom), ANSI_GREEN));
+        System.out.println("\n" + getColoredMsg("=".repeat(numTopBottom), colorANSI));
         for (int i = 0; i < rows.size(); i++) {
-            System.out.print(getColoredMsg(SEPARATOR_WHEN_PRINTING.strip() + " ", ANSI_GREEN));
+            System.out.print(getColoredMsg(SEPARATOR_WHEN_PRINTING.strip() + " ", colorANSI));
             for (int j = 0; j < maxColumn.length; j++) {
                 // "%" + numberOfSpaces + "s", "text To Print");
                 // The formatString will be something like "%-25s | "
                 // "-" is used for left alignment
-                String formatString = "%-" + maxColumn[j] + "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, ANSI_GREEN);
+                String formatString = "%-" + maxColumn[j] + "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, colorANSI);
 
                 System.out.printf(formatString, rows.get(i).get(j));
             }
             System.out.println();
         }
 
-        System.out.println(getColoredMsg("=".repeat(numTopBottom), ANSI_GREEN) + "\n");
+        System.out.println(getColoredMsg("=".repeat(numTopBottom), colorANSI) + "\n");
 
     }
 
@@ -158,20 +162,18 @@ public class Main {
     public static String getColoredMsg(String msg, String ANSI_color) {
         return ANSI_color + msg + ANSI_RESET;
     }
+
     public static String getBoldMsg(String msg) {
         return ANSI_BOLD + msg + ANSI_RESET;
     }
 
     public static int getStringLengthWithoutANSI(String str) {
-//        return str.replaceAll("(\\x9B|\\x1B\\[)[0-?]*[ -\\/]*[@-~]", "").length();
-//        return str.replaceAll("[^\\\\p{ASCII}]", "").length();
-//        return str.replaceAll("[^\\p{ASCII}]", "").length();
         return str.replaceAll("\u001B\\[[;\\d]*m", "").length();
     }
 
-    public static int getLongestWordInList(List<String> list){
+    public static int getLongestWordInList(List<String> list) {
         int longest = 0;
-        for (String row: list) {
+        for (String row : list) {
             int currentLength = getStringLengthWithoutANSI(row);
             if (currentLength > longest) {
                 longest = currentLength;
@@ -179,6 +181,7 @@ public class Main {
         }
         return longest;
     }
+
     public static void printMenuOptionsInFrame(String menuTopQuestion, List<String> menuOptions, String ANSI_color) {
         List<String> menuQuestionAndOptions = new ArrayList<>();
         menuQuestionAndOptions.addAll(menuOptions);
@@ -187,7 +190,6 @@ public class Main {
         // Dates need to be formatted as dd.mm.yyyy or d.m.yyyy and can be separated by . or /
         int msgRows = menuOptions.size();
 
-//        int longestWordInMsg = menuQuestionAndOptions.stream().map(String::length).max(Integer::compareTo).get();
         int longestWordInMsg = getLongestWordInList(menuQuestionAndOptions);
         int spacesAroundOnEachSide = 5;
 
@@ -228,12 +230,13 @@ public class Main {
     public static boolean takeMenuAction(int selectedOption) throws IOException, ParseException {
         switch (selectedOption) {
             case 1 -> printAllDataFromDB();
-            case 2 -> printCSVFormatted(getDbDataToArrayListWithDescription());
+            case 2 -> printCSVFormatted(getDbDataToArrayListWithDescription(), ANSI_GREEN);
             case 3 -> getAllUserDataAndWriteToDB();
             case 4 -> printDataForTimePeriod();
             case 5 -> printAllEmptyLocations();
-            case 6 -> printWarehouseInfo();
-            case 7 -> {
+            case 6 -> printStockExpiringSoon();
+            case 7 -> printWarehouseInfo();
+            case 8 -> {
                 return false;
             }
         }
@@ -242,7 +245,7 @@ public class Main {
 
     public static int printMenuOptions() {
         String[] menuOptions = new String[]{"List all items", "List all items(Formatted)", "Add new delivery",
-                "List deliveries for time period", "Print all empty locations", "Print Warehouse Info", "Exit"};
+                "List deliveries for time period", "Print all empty locations", "Print stock expiring soon", "Print Warehouse Info", "Exit"};
 
         // Add all questions to a List with numbers for the options
         List<String> menuOptionsWithNumbers = new ArrayList<>();
@@ -253,6 +256,72 @@ public class Main {
         printMenuOptionsInFrame("Please choose what to do:", menuOptionsWithNumbers, ANSI_GREEN);
 
         return getMenuAnswer(menuOptions.length);
+    }
+
+    public static void printStockExpiringSoon() throws IOException {
+        System.out.println("Enter number of days to check: ");
+        int daysToCheck = scanner.nextInt();
+
+        ArrayList<ArrayList<String>> rowsExpired = new ArrayList<>();
+        ArrayList<ArrayList<String>> rowsNotExpired = new ArrayList<>();
+
+        ArrayList<ArrayList<String>> data = getDbDataToArrayList();
+        for (ArrayList<String> row : data) {
+
+            String expiryDate = row.get(1);
+
+            int diff = getDaysDifferenceFromToday(expiryDate);
+            ArrayList<String> rowExpired = new ArrayList<>();
+            ArrayList<String> rowNotExpired = new ArrayList<>();
+            if (diff < 1) {
+                rowExpired.addAll(row);
+                rowsExpired.add(rowExpired);
+
+            }
+            else if (daysToCheck >= diff) {
+                rowNotExpired.addAll(row);
+                rowsNotExpired.add(rowNotExpired);
+            }
+        }
+        System.out.print(getColoredMsg("ALREADY EXPIRED STOCK:", ANSI_RED));
+        printCSVFormatted(rowsExpired, ANSI_RED);
+        System.out.print(getColoredMsg("STOCK THAT WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_YELLOW));
+        printCSVFormatted(rowsNotExpired, ANSI_YELLOW);
+    }
+
+    public static int getDaysDifferenceFromToday(String dateToCheck) {
+        // if tomorrow --> 1, if yesterday --> -1
+        String today = getToday();
+        int todaysDateIndays = convertDateToDays(today);
+        int dateToCheckInDays = convertDateToDays(dateToCheck);
+        return dateToCheckInDays - todaysDateIndays;
+    }
+
+    public static int convertDateToDays(String date){
+        // date in format dd.mm.yyyy - will not take in account
+
+        int year = Integer.parseInt(date.split("\\.")[2]);
+        int month = Integer.parseInt(date.split("\\.")[1]);
+        int day = Integer.parseInt(date.split("\\.")[0]);
+
+        int totalYearsInDays = 0;
+        for (int i = 1; i < year; i++) {
+            // without the current year because it hasn't passed.
+            if (isLeapYear(i)){
+                totalYearsInDays += 366;
+            } else {
+                totalYearsInDays += 365;
+            }
+        }
+
+        int totalMonthsInDays = 0;
+        for (int i = 1; i < month; i++) {
+            // without the current month because it hasn't passed.
+            int m_days = i * getDaysInMonth(year, month);
+            totalMonthsInDays += m_days;
+        }
+
+        return totalYearsInDays + totalMonthsInDays + day;
     }
 
     public static int getMenuAnswer(int numOptions) {
@@ -322,7 +391,7 @@ public class Main {
             results.add("Total number of " + unit + "(s): " + total);
         }
 
-        printMenuOptionsInFrame("WAREHOUSE INFO", results,ANSI_GREEN);
+        printMenuOptionsInFrame("WAREHOUSE INFO", results, ANSI_GREEN);
     }
 
     public static List<String> getAllLocationsThatHaveAtLeastOneItem() throws IOException {
@@ -662,8 +731,7 @@ public class Main {
             ans = scanner.nextLine();
             if (ans.equalsIgnoreCase("today")) {
                 ans = getToday();
-            }
-            else {
+            } else {
                 for (String specialCmd : SPECIAL_CMDS) {
                     if (ans.strip().equalsIgnoreCase(specialCmd)) {
                         return specialCmd;
@@ -762,7 +830,7 @@ public class Main {
             String ans = getValidUserInput(USER_QUESTIONS[i]);
 
             // Don't allow ; to be added in the ans string as this is used in the CSV file and will mess things up.
-            while (isSeparatorInAns(ans)){
+            while (isSeparatorInAns(ans)) {
                 printError("The symbol \"" + SEPARATOR + "\" can't be used. ");
                 ans = getValidUserInput(USER_QUESTIONS[i]);
             }
@@ -772,8 +840,7 @@ public class Main {
                 System.out.println();
                 Arrays.fill(ANSWERS, null);
                 return getAllValidUserInput();
-            }
-            else if (ans.equalsIgnoreCase("stop!")){
+            } else if (ans.equalsIgnoreCase("stop!")) {
                 Arrays.fill(ANSWERS, null);
                 runApp();
             }
@@ -786,7 +853,7 @@ public class Main {
 
     public static boolean isSeparatorInAns(String ans) {
         for (int i = 0; i < ans.length(); i++) {
-            if (ans.split("")[i].equals(SEPARATOR)){
+            if (ans.split("")[i].equals(SEPARATOR)) {
                 return true;
             }
         }
