@@ -277,8 +277,7 @@ public class Main {
                 rowExpired.addAll(row);
                 rowsExpired.add(rowExpired);
 
-            }
-            else if (daysToCheck >= diff) {
+            } else if (daysToCheck >= diff) {
                 rowNotExpired.addAll(row);
                 rowsNotExpired.add(rowNotExpired);
             }
@@ -297,7 +296,7 @@ public class Main {
         return dateToCheckInDays - todaysDateIndays;
     }
 
-    public static int convertDateToDays(String date){
+    public static int convertDateToDays(String date) {
         // date in format dd.mm.yyyy - will not take in account
 
         int year = Integer.parseInt(date.split("\\.")[2]);
@@ -307,7 +306,7 @@ public class Main {
         int totalYearsInDays = 0;
         for (int i = 1; i < year; i++) {
             // without the current year because it hasn't passed.
-            if (isLeapYear(i)){
+            if (isLeapYear(i)) {
                 totalYearsInDays += 366;
             } else {
                 totalYearsInDays += 365;
@@ -1054,11 +1053,16 @@ public class Main {
         // Populate a list with the rows in the range
         List<List<String>> dataBetweenTwoDates = getDataForTimePeriod(fromDate, toDate);
 
-        // Convert the list to an Array
-        String[][] dataBetweenTwoDatesArray = convertListToArray(dataBetweenTwoDates);
+        // Add the results to an ArrayList so it can be printed
+        ArrayList<ArrayList<String>> results = new ArrayList<>();
+        for (List<String> row : dataBetweenTwoDates) {
+            ArrayList<String> result = new ArrayList<>();
+            result.addAll(row);
+            results.add(result);
+        }
+        System.out.print(getColoredMsg("STOCK ADDED IN THE PERIOD " + fromDate + " TO " + toDate + ":", ANSI_GREEN));
+        printCSVFormatted(results, ANSI_GREEN);
 
-        // Print the DESCRIPTION and the VALUES from the Array
-        printResults(dataBetweenTwoDatesArray);
     }
 
     public static String[][] convertListToArray(List<List<String>> listOfListsToConvert) {
