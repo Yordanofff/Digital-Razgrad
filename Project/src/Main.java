@@ -55,9 +55,10 @@ public class Main {
 
     private static List<String> TEMP_USED_LOCATIONS_NOT_IN_DB = new ArrayList<>();
 
-    final static String RESET_CMD = "reset!";
-
     static String[] ANSWERS = new String[USER_QUESTIONS.length];
+
+    static final String[] SPECIAL_CMDS = new String[]{"reset!", "stop!"};
+    static final List<String> specialOptions = Arrays.asList("Use \"reset!\" to reset the data input.", "Use \"stop!\" to go back to the menu.");
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_YELLOW = "\u001B[33m";
@@ -556,8 +557,10 @@ public class Main {
         String ans = scanner.nextLine();
 
 
-        if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
-            return RESET_CMD;
+        for (String specialCmd : SPECIAL_CMDS) {
+            if (ans.strip().equalsIgnoreCase(specialCmd)) {
+                return specialCmd;
+            }
         }
 
         // Make sure that the unit question returns a valid answer
@@ -595,8 +598,10 @@ public class Main {
             printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
             ans = scanner.nextLine();
 
-            if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
-                return RESET_CMD;
+            for (String specialCmd : SPECIAL_CMDS) {
+                if (ans.strip().equalsIgnoreCase(specialCmd)) {
+                    return specialCmd;
+                }
             }
 
             isValid = isDateValid(convertDateFromUKtoEUType(ans));
@@ -617,9 +622,15 @@ public class Main {
             ans = scanner.nextLine();
             if (ans.equalsIgnoreCase("today")) {
                 ans = getToday();
-            } else if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
-                return RESET_CMD;
             }
+            else {
+                for (String specialCmd : SPECIAL_CMDS) {
+                    if (ans.strip().equalsIgnoreCase(specialCmd)) {
+                        return specialCmd;
+                    }
+                }
+            }
+
             isValid = isDateValid(convertDateFromUKtoEUType(ans));
         }
         return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(ans));
@@ -634,8 +645,10 @@ public class Main {
             printError("Please Enter a valid option for Unit: " + availableOptions + ".");
             ans = scanner.nextLine().toLowerCase();
 
-            if (ans.strip().equals(RESET_CMD)) {
-                return RESET_CMD;
+            for (String specialCmd : SPECIAL_CMDS) {
+                if (ans.strip().equalsIgnoreCase(specialCmd)) {
+                    return specialCmd;
+                }
             }
 
             isValid = isUnitValid(ans);
@@ -672,7 +685,7 @@ public class Main {
         return dateFormatted;
     }
 
-    public static String[] getAllValidUserInput() {
+    public static String[] getAllValidUserInput() throws IOException, ParseException {
         /*
         Enter product name:
         << Battery CR32
@@ -698,11 +711,11 @@ public class Main {
          "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock", "comment (optional)"
          returns: {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", ""}
          */
-        // todo - without ANSWERS being in the Class.
-        // No need to clear the ANSWERS, as they will be re-assigned anyway.
-        // todo - print with a frame - add reset! and stop!... etc.
-        System.out.println("\nEnter the data for the items that you want to add.\nUse \"reset!\" to reset the data input.");
 
+        // Clear ANSWERS - not necessary but better to have it.
+        Arrays.fill(ANSWERS, null);
+
+        printMenuOptionsInFrame("Enter the data for the items that you want to add:", specialOptions, ANSI_GREEN);
         for (int i = 0; i < USER_QUESTIONS.length; i++) {
 
             String ans = getValidUserInput(USER_QUESTIONS[i]);
@@ -713,11 +726,15 @@ public class Main {
                 ans = getValidUserInput(USER_QUESTIONS[i]);
             }
 
-            // Call itself if reset! is entered at any point on any question.
-            if (ans.equalsIgnoreCase(RESET_CMD)) {
+            // SPECIAL_CMDS - take action
+            if (ans.equalsIgnoreCase("reset!")) {
                 System.out.println();
                 Arrays.fill(ANSWERS, null);
                 return getAllValidUserInput();
+            }
+            else if (ans.equalsIgnoreCase("stop!")){
+                Arrays.fill(ANSWERS, null);
+                runApp();
             }
 
             ANSWERS[i] = ans;
@@ -815,7 +832,7 @@ public class Main {
         return newRowsToAdd;
     }
 
-    public static void getAllUserDataAndWriteToDB() throws IOException {
+    public static void getAllUserDataAndWriteToDB() throws IOException, ParseException {
         String[] allValidUserInput = getAllValidUserInput();
         List<List<String>> allData = getAllData(allValidUserInput);
 
