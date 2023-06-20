@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
-// todo - don't allow separator to be used in the data... maybe and "
 
 // todo - items per shelf - ako produkta ve4e go ima - da izpishe kolko se sybirat na edin raft.
 // produkta moje da e s promeneni razmeri i da se sybirat po-malko ili pove4e ot nego.
@@ -16,7 +15,7 @@ import java.util.*;
 
 // todo - if entry date earlier than expiry date - warning - stock is expired before entering the Warehouse
 // todo if expiry date is earlier than today - expired.
-// todo if entry date is after today - not possible - try again
+// todo if entry date is before today - not possible - try again (maybe should be possible - stock entered yesterday - in db today)
 
 // todo - menu option - print stock that expires soon - sort ? 1 week ?
 
@@ -24,7 +23,6 @@ import java.util.*;
 // todo - move units to a config file
 // todo option - allow user to modify amount units/kg + warehouse size
 
-// todo reset! --> !reset + add !stop to go back to menu
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
@@ -57,18 +55,33 @@ public class Main {
 
     static String[] ANSWERS = new String[USER_QUESTIONS.length];
 
-    static final String[] SPECIAL_CMDS = new String[]{"reset!", "stop!"};
-    static final List<String> specialOptions = Arrays.asList("Use \"reset!\" to reset the data input.", "Use \"stop!\" to go back to the menu.");
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_BOLD = "\u001B[1m";
+
+    static final String[] SPECIAL_CMDS = new String[]{"reset!", "stop!"};
+    static final List<String> specialOptions = Arrays.asList("Use \"" + getBoldYellow("reset!") + "\" to reset the data input.",
+            "Use \"" + getBoldYellow("stop!") + "\" to go back to the menu.",
+            "Dates need to be formatted as " +
+                    getBoldYellow("dd.mm.yyyy") + " or " +
+                    getBoldYellow("d.m.yyyy") + " and can be separated by " +
+                    getBoldYellow(".") + " or " + getBoldYellow("/"),
+            "Expiry date can be " + getBoldYellow("n/a"),
+            "Entry date can be " + getBoldYellow("today"),
+            "Units can be: " + getBoldYellow(UNIT_OPTIONS.keySet().toString()),
+            "Forbidden character: " + getBoldYellow(SEPARATOR));
 
     public static void main(String[] args) throws IOException, ParseException {
         // printMenuOptions takeMenuAction
         runApp();
-
+//        System.out.println(getStringLengthWithoutANSI(getBoldYellow("one")));
+//        System.out.println(getStringLengthWithoutANSI("Dates need to be formatted as " +
+//                getBoldYellow("dd.mm.yyyy") + " or " +
+//                getBoldYellow("d.m.yyyy") + " and can be separated by " +
+//                getBoldYellow(".") + " or " + getBoldYellow("/")));
     }
 
     public static void tests() {
@@ -138,18 +151,44 @@ public class Main {
         System.out.println(getColoredMsg("Error: " + msg, ANSI_RED));
     }
 
+    public static String getBoldYellow(String msg) {
+        return getBoldMsg(getColoredMsg(msg, ANSI_YELLOW));
+    }
+
     public static String getColoredMsg(String msg, String ANSI_color) {
         return ANSI_color + msg + ANSI_RESET;
     }
+    public static String getBoldMsg(String msg) {
+        return ANSI_BOLD + msg + ANSI_RESET;
+    }
 
+    public static int getStringLengthWithoutANSI(String str) {
+//        return str.replaceAll("(\\x9B|\\x1B\\[)[0-?]*[ -\\/]*[@-~]", "").length();
+//        return str.replaceAll("[^\\\\p{ASCII}]", "").length();
+//        return str.replaceAll("[^\\p{ASCII}]", "").length();
+        return str.replaceAll("\u001B\\[[;\\d]*m", "").length();
+    }
+
+    public static int getLongestWordInList(List<String> list){
+        int longest = 0;
+        for (String row: list) {
+            int currentLength = getStringLengthWithoutANSI(row);
+            if (currentLength > longest) {
+                longest = currentLength;
+            }
+        }
+        return longest;
+    }
     public static void printMenuOptionsInFrame(String menuTopQuestion, List<String> menuOptions, String ANSI_color) {
         List<String> menuQuestionAndOptions = new ArrayList<>();
         menuQuestionAndOptions.addAll(menuOptions);
         menuQuestionAndOptions.add(menuTopQuestion); // add the Menu question in case it's longer than the options.
 
+        // Dates need to be formatted as dd.mm.yyyy or d.m.yyyy and can be separated by . or /
         int msgRows = menuOptions.size();
 
-        int longestWordInMsg = menuQuestionAndOptions.stream().map(String::length).max(Integer::compareTo).get();
+//        int longestWordInMsg = menuQuestionAndOptions.stream().map(String::length).max(Integer::compareTo).get();
+        int longestWordInMsg = getLongestWordInList(menuQuestionAndOptions);
         int spacesAroundOnEachSide = 5;
 
         int numSymbolsTopBottom = longestWordInMsg + spacesAroundOnEachSide * 2 + 2;
@@ -168,7 +207,8 @@ public class Main {
 
             System.out.print(getColoredMsg("|" + " ".repeat(spacesAroundOnEachSide), ANSI_color));
             System.out.print(msgRow);
-            System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom - (msgRow.length() + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
+            //msgRow.lines().toList() - used to escape the ANSI symbols
+            System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom - (getLongestWordInList(msgRow.lines().toList()) + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
         }
         System.out.println(getColoredMsg(topAndBottom, ANSI_color));
     }
@@ -715,6 +755,7 @@ public class Main {
         // Clear ANSWERS - not necessary but better to have it.
         Arrays.fill(ANSWERS, null);
 
+        System.out.println();
         printMenuOptionsInFrame("Enter the data for the items that you want to add:", specialOptions, ANSI_GREEN);
         for (int i = 0; i < USER_QUESTIONS.length; i++) {
 
