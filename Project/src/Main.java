@@ -193,7 +193,8 @@ public class Main {
             case 3 -> getAllUserDataAndWriteToDB();
             case 4 -> printDataForTimePeriod();
             case 5 -> printAllEmptyLocations();
-            case 6 -> {
+            case 6 -> printWarehouseInfo();
+            case 7 -> {
                 return false;
             }
         }
@@ -201,7 +202,8 @@ public class Main {
     }
 
     public static int printMenuOptions() {
-        String[] menuOptions = new String[]{"List all items", "List all items(Formatted)", "Add new delivery", "List deliveries for time period", "Print all empty locations", "Exit"};
+        String[] menuOptions = new String[]{"List all items", "List all items(Formatted)", "Add new delivery",
+                "List deliveries for time period", "Print all empty locations", "Print Warehouse Info", "Exit"};
 
         // Add all questions to a List with numbers for the options
         List<String> menuOptionsWithNumbers = new ArrayList<>();
@@ -234,9 +236,9 @@ public class Main {
 
         // Rows/shelves/numbers start at 1.
         for (char c : LETTER_SECTION) {
-            for (int i = 1; i < NUM_SECTION; i++) {
-                for (int j = 1; j < NUM_SHELVES; j++) {
-                    for (int k = 1; k < NUM_NUMBERS; k++) {
+            for (int i = 1; i <= NUM_SECTION; i++) {
+                for (int j = 1; j <= NUM_SHELVES; j++) {
+                    for (int k = 1; k <= NUM_NUMBERS; k++) {
                         String itemPosition = String.valueOf(c) + i + " / " + j + " / " + k;
                         result.add(itemPosition);
                     }
@@ -245,6 +247,43 @@ public class Main {
         }
 
         return result;
+    }
+
+    public static int getWarehouseSize() {
+        List<String> all = getAllPossibleLocations();
+        return all.size();
+    }
+
+    public static void printWarehouseInfo() throws IOException {
+        List<String> results = new ArrayList<>();
+
+        int numAllLocations = getWarehouseSize();
+        List<String> allEmptyLocations = getAllEmptyLocations();
+        int numEmptyLocations = allEmptyLocations.size();
+        int numUsed = numAllLocations - numEmptyLocations;
+        float percentageUsed = ((float) numUsed / numAllLocations) * 100;
+        String percentageUsedFormatted = String.format("%.2f%%", percentageUsed);
+
+        results.add("Warehouse size: " + numAllLocations);
+        results.add("Used locations: " + numUsed);
+        results.add("Empty locations: " + numEmptyLocations);
+        results.add("Percentage used: " + percentageUsedFormatted);
+
+        // Sum up all different UNIT types and add them to the Warehouse info.
+        ArrayList<ArrayList<String>> data = getDbDataToArrayList();
+        for (String unit : UNIT_OPTIONS.keySet()) {
+            int total = 0;
+            for (ArrayList<String> row : data) {
+                if (!row.isEmpty()) {
+                    if (row.get(4).equalsIgnoreCase(unit)) {
+                        total += Integer.parseInt(row.get(5));
+                    }
+                }
+            }
+            results.add("Total number of " + unit + "(s): " + total);
+        }
+
+        printMenuOptionsInFrame("WAREHOUSE INFO", results,ANSI_GREEN);
     }
 
     public static List<String> getAllLocationsThatHaveAtLeastOneItem() throws IOException {
@@ -619,6 +658,7 @@ public class Main {
         }
         return date;
     }
+
     public static String addLeadingZeroToDayMonth(String date) {
         // date needs to be in the format dd.mm.yyyy - already checked.
         String d = date.split("\\.")[0];
@@ -992,6 +1032,28 @@ public class Main {
                     String val = rowCSV.split(SEPARATOR)[j];
                     String desc = DESCRIPTION_NO_NAME[j - 1];
                     row.add(desc + ": " + val);
+                }
+            }
+            rows.add(row);
+        }
+
+        return rows;
+    }
+
+    public static ArrayList<ArrayList<String>> getDbDataToArrayList() throws IOException {
+        ArrayList<ArrayList<String>> rows = new ArrayList<>();
+        File file = new File(DB_FILE_NAME);
+        Scanner sc = new Scanner(file);
+
+        int numRowsInFileIncludingEmpty = getLenOfFile(true);
+        for (int i = 0; i < numRowsInFileIncludingEmpty; i++) {
+            ArrayList<String> row = new ArrayList<>();
+            String rowCSV = sc.nextLine();
+            if (!rowCSV.equals("")) {
+                row.add(rowCSV.split(SEPARATOR)[0]);
+                for (int j = 1; j < rowCSV.split(SEPARATOR).length; j++) {
+                    String val = rowCSV.split(SEPARATOR)[j];
+                    row.add(val);
                 }
             }
             rows.add(row);
