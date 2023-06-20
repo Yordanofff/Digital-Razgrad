@@ -72,11 +72,11 @@ public class Main {
 
     public static void main(String[] args) throws IOException, ParseException {
 //        runApp();
-        printSurroundedBy("tesla", ANSI_GREEN);
-        printSurroundedBy("speaker", ANSI_GREEN);
-        printSurroundedBy("kola", ANSI_GREEN);
-        printWarning("test");
-        printError("test");
+        printSurroundedBy("tes \ntesla 22343a", ANSI_GREEN, false, true);
+        printSurroundedBy("speaker", ANSI_GREEN, false, true);
+        printSurroundedBy("kola", ANSI_GREEN, false, false);
+//        printWarning("test");
+//        printError("test");
     }
 
     public static void printWarning(String msg) {
@@ -91,15 +91,42 @@ public class Main {
         return ANSI_color + msg + ANSI_RESET;
     }
 
-    public static void printSurroundedBy(String msg, String ANSI_color) {
-        int msgLength = msg.length();
+    public static int getLongestWord(String word) {
+        int n = 0;
+        for (int i = 0; i < word.split("\n").length; i++) {
+            int currentWordLen = word.split("\n")[i].length();
+            if (currentWordLen > n) {
+                n = currentWordLen;
+            }
+        }
+        return n;
+    }
+
+    public static void printSurroundedBy(String msg, String ANSI_color, boolean printMidSeparator, boolean printTextWhite) {
+        int msgRows = msg.split("\n").length;
+        int longestWordInMsg = getLongestWord(msg);
         int spacesAroundOnEachSide = 3;
 
-        String topAndBottom = "=".repeat(msgLength + spacesAroundOnEachSide * 2 + 2);
-        String mid = "|" + " ".repeat(spacesAroundOnEachSide) + msg + " ".repeat(spacesAroundOnEachSide) + "|";
+        int numSymbolsTopBottom = longestWordInMsg + spacesAroundOnEachSide * 2 + 2;
+        String topAndBottom = "=".repeat(numSymbolsTopBottom);
 
         System.out.println(getColoredMsg(topAndBottom, ANSI_color));
-        System.out.println(getColoredMsg(mid, ANSI_color));
+        for (int i = 0; i < msgRows; i++) {
+            String msgRow = msg.split("\n")[i];
+
+            System.out.print(getColoredMsg("|" + " ".repeat(spacesAroundOnEachSide), ANSI_color));
+
+            if (printTextWhite) {
+                System.out.print(msgRow);
+            } else {
+                System.out.print(getColoredMsg(msgRow, ANSI_color));
+            }
+
+            System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom - msgRow.length() - spacesAroundOnEachSide*2 + 1) + "|", ANSI_color));
+            if (printMidSeparator && i != msgRows-1) {
+                System.out.println(getColoredMsg("-".repeat(numSymbolsTopBottom), ANSI_color));
+            }
+        }
         System.out.println(getColoredMsg(topAndBottom, ANSI_color));
     }
 
