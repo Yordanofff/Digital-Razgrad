@@ -71,6 +71,8 @@ public class Main {
     public static final String ANSI_GREEN = "\u001B[32m";
 
     public static void main(String[] args) throws IOException, ParseException {
+//        System.out.println(getFirstLocationThatDoesntHaveAnyItems());
+//        printAllEmptyLocations();
         runApp();
 //        printMenuOptionsInFrame("tes \ntesla 22343a", ANSI_GREEN, false, true);
 //        printMenuOptionsInFrame("speaker", ANSI_GREEN, false, true);
@@ -152,10 +154,14 @@ public class Main {
         return n;
     }
 
-    public static void printMenuOptionsInFrame(String menuTopQuestion, String menuOptions, String ANSI_color) {
-        String msgg = menuTopQuestion + "\n" + menuOptions;  // add the Menu question in case it's longer than the options.
-        int msgRows = menuOptions.split("\n").length;
-        int longestWordInMsg = getLongestWord(msgg);
+    public static void printMenuOptionsInFrame(String menuTopQuestion, List<String> menuOptions, String ANSI_color) {
+        List<String> menuQuestionAndOptions = new ArrayList<>();
+        menuQuestionAndOptions.addAll(menuOptions);
+        menuQuestionAndOptions.add(menuTopQuestion); // add the Menu question in case it's longer than the options.
+
+        int msgRows = menuOptions.size();
+
+        int longestWordInMsg = menuQuestionAndOptions.stream().map(String::length).max(Integer::compareTo).get();
         int spacesAroundOnEachSide = 5;
 
         int numSymbolsTopBottom = longestWordInMsg + spacesAroundOnEachSide * 2 + 2;
@@ -170,7 +176,7 @@ public class Main {
         // Print the menu options surrounded by "====" on the top and bottom and "|" on both sides.
         System.out.println(getColoredMsg(topAndBottom, ANSI_color));
         for (int i = 0; i < msgRows; i++) {
-            String msgRow = menuOptions.split("\n")[i];
+            String msgRow = menuOptions.get(i);
 
             System.out.print(getColoredMsg("|" + " ".repeat(spacesAroundOnEachSide), ANSI_color));
             System.out.print(msgRow);
@@ -197,7 +203,8 @@ public class Main {
             case 2 -> printCSVFormatted(getDbDataToArrayListWithDescription());
             case 3 -> getAllUserDataAndWriteToDB();
             case 4 -> printDataForTimePeriod();
-            case 5 -> {
+            case 5 -> printAllEmptyLocations();
+            case 6 -> {
                 return false;
             }
         }
@@ -205,12 +212,12 @@ public class Main {
     }
 
     public static int printMenuOptions() {
-        String[] menuOptions = new String[]{"List all items", "List all items(Formatted)", "Add new delivery", "List deliveries for time period", "Exit"};
+        String[] menuOptions = new String[]{"List all items", "List all items(Formatted)", "Add new delivery", "List deliveries for time period", "Print all empty locations", "Exit"};
 
-        // Add all questions to a single string with numbers for the options
-        String menuOptionsWithNumbers = "";
+        // Add all questions to a List with numbers for the options
+        List<String> menuOptionsWithNumbers = new ArrayList<>();
         for (int i = 1; i <= menuOptions.length; i++) {
-            menuOptionsWithNumbers += i + " - " + menuOptions[i - 1] + "\n";
+            menuOptionsWithNumbers.add(i + " - " + menuOptions[i - 1]);
         }
 
         printMenuOptionsInFrame("Please choose what to do:", menuOptionsWithNumbers, ANSI_GREEN);
@@ -224,7 +231,7 @@ public class Main {
 
         // Keep printing the error msg if ans is less than 1 or greater than the highest option number
         while (ans < 1 || ans > numOptions) {
-            System.out.println("Wrong answer. Please choose a number between 1 and " + numOptions);
+            printError("Please choose a number between 1 and " + numOptions);
             ans = scanner.nextInt();
             scanner.nextLine();
         }
@@ -274,7 +281,15 @@ public class Main {
         return result;
     }
 
-    public static String getFirstLocationThatDoeNotHaveAnyItems() throws IOException {
+    public static String getFirstLocationThatDoesntHaveAnyItems() throws IOException {
+        List<String> allEmptyLocations = getAllEmptyLocations();
+
+        // Sort the list to get the first position
+        Collections.sort(allEmptyLocations);
+
+        return allEmptyLocations.get(0);
+    }
+    public static List<String> getAllEmptyLocations() throws IOException {
         List<String> allPositions = getAllPossibleLocations();
         List<String> usedPositions = getAllLocationsThatHaveAtLeastOneItem();
 
@@ -283,14 +298,22 @@ public class Main {
             allPositions.remove(usedPosition);
         }
 
-        // Sort the list to get the first position
-        java.util.Collections.sort(allPositions);
-
         if (allPositions.size() == 0) {
             throw new RuntimeException("DB file/Warehouse is full.");
         }
 
-        return allPositions.get(0);
+        return allPositions;
+    }
+
+    public static void printAllEmptyLocations() throws IOException {
+        List<String> allEmptyLocations = getAllEmptyLocations();
+        int numEmptyLocations = allEmptyLocations.size();
+
+//        System.out.println("Number of empty locations: " + numEmptyLocations);
+//        for (String location: allEmptyLocations) {
+//            System.out.println(location);
+//        }
+        printMenuOptionsInFrame("Number of empty locations: " + numEmptyLocations, allEmptyLocations,ANSI_GREEN);
     }
 
     public static int getFreeSpaceAtLocationIfAtLeastOneItem(String location) throws IOException {
@@ -330,7 +353,7 @@ public class Main {
                 // this will not return the same location
                 for (String loc : TEMP_USED_LOCATIONS_NOT_IN_DB) {
                     if (loc.equals(location)) {
-                        return getFirstLocationThatDoeNotHaveAnyItems();
+                        return getFirstLocationThatDoesntHaveAnyItems();
                     }
                 }
 
@@ -339,7 +362,7 @@ public class Main {
         }
 
         // If item not in DB or in DB but all locations are full - get the next free location.
-        return getFirstLocationThatDoeNotHaveAnyItems();
+        return getFirstLocationThatDoesntHaveAnyItems();
     }
 
     public static boolean isDateValid(String date) {
