@@ -6,9 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
-// todo - color output
-// todo - print in the middle
-
 // todo - add error printing in data validation --> what's wrong as a parameter
 // todo - don't allow separator to be used in the data... maybe and "
 
@@ -23,8 +20,6 @@ import java.util.*;
 // todo if entry date is after today - not possible - try again
 
 // todo - menu option - print stock that expires soon - sort ? 1 week ?
-
-// todo Enter available stock: --> Enter available stock(unit): -> Enter available stock(kg):
 
 // todo option - print units and amount that can be fit on shelf
 // todo - move units to a config file
@@ -71,28 +66,33 @@ public class Main {
     public static final String ANSI_GREEN = "\u001B[32m";
 
     public static void main(String[] args) throws IOException, ParseException {
-//        System.out.println(getFirstLocationThatDoesntHaveAnyItems());
-//        printAllEmptyLocations();
+        // printMenuOptions takeMenuAction
+
         runApp();
-//        printMenuOptionsInFrame("tes \ntesla 22343a", ANSI_GREEN, false, true);
-//        printMenuOptionsInFrame("speaker", ANSI_GREEN, false, true);
-//        printMenuOptionsInFrame("kola", ANSI_GREEN, false, false);
-//        printWarning("test");
-//        printError("test");
-//        printMenuOptions();
-//        createDBfileIfMissing();
-//        printCSVFormatted(getDbDataToArrayListWithDescription());
-//        getDbDataToArrayListWithDescription();
+
     }
 
-    public static void printCSVFormatted(ArrayList<ArrayList<String>> rows){
+    public static void tests() {
+        System.out.println(isDateValid("33113.20"));
+        System.out.println(isDateValid("33.12.2020.3"));
+        System.out.println(isDateValid("33.13.20"));
+        System.out.println(isDateValid("33.12.20"));
+        System.out.println(isDateValid("33.12.2020"));
+        System.out.println(isDateValid("33.02.2020"));
+        System.out.println(isDateValid("33.02.1900"));
+        System.out.println(isDateValid("0.02.1900"));
+        System.out.println(isDateValid("-10.2.1900"));
+        System.out.println(isDateValid("10.1.1900"));
+    }
+
+    public static void printCSVFormatted(ArrayList<ArrayList<String>> rows) {
 
         if (rows.size() == 0)
             throw new RuntimeException("DB file " + DB_FILE_NAME + " is empty.");
 
         // Make sure all rows are same length - some don't have comments and will be 8, other 9 --> all 9.
-        for (List<String> row : rows){
-            while (row.size() < DESCRIPTION_NO_NAME.length + 1){
+        for (List<String> row : rows) {
+            while (row.size() < DESCRIPTION_NO_NAME.length + 1) {
                 row.add("");
             }
         }
@@ -101,10 +101,10 @@ public class Main {
         // Will be something like [9, 23, 22, 18, 10, 11, 20, 30, 18]
         int[] maxColumn = new int[DESCRIPTION_NO_NAME.length + 1];
 
-        for (int i = 0; i < rows.size(); i++){
+        for (int i = 0; i < rows.size(); i++) {
             // rows.get(i).size() <==> DESCRIPTION_NO_NAME.length + 1 <==> 9
             for (int j = 0; j < rows.get(i).size(); j++) {
-                if (maxColumn[j] < rows.get(i).get(j).length()){
+                if (maxColumn[j] < rows.get(i).get(j).length()) {
                     maxColumn[j] = rows.get(i).get(j).length();
                 }
             }
@@ -120,7 +120,7 @@ public class Main {
                 // "%" + numberOfSpaces + "s", "text To Print");
                 // The formatString will be something like "%-25s | "
                 // "-" is used for left alignment
-                String formatString = "%-" + maxColumn[j] +  "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, ANSI_GREEN);
+                String formatString = "%-" + maxColumn[j] + "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, ANSI_GREEN);
 
                 System.out.printf(formatString, rows.get(i).get(j));
             }
@@ -141,17 +141,6 @@ public class Main {
 
     public static String getColoredMsg(String msg, String ANSI_color) {
         return ANSI_color + msg + ANSI_RESET;
-    }
-
-    public static int getLongestWord(String word) {
-        int n = 0;
-        for (int i = 0; i < word.split("\n").length; i++) {
-            int currentWordLen = word.split("\n")[i].length();
-            if (currentWordLen > n) {
-                n = currentWordLen;
-            }
-        }
-        return n;
     }
 
     public static void printMenuOptionsInFrame(String menuTopQuestion, List<String> menuOptions, String ANSI_color) {
@@ -289,6 +278,7 @@ public class Main {
 
         return allEmptyLocations.get(0);
     }
+
     public static List<String> getAllEmptyLocations() throws IOException {
         List<String> allPositions = getAllPossibleLocations();
         List<String> usedPositions = getAllLocationsThatHaveAtLeastOneItem();
@@ -309,11 +299,7 @@ public class Main {
         List<String> allEmptyLocations = getAllEmptyLocations();
         int numEmptyLocations = allEmptyLocations.size();
 
-//        System.out.println("Number of empty locations: " + numEmptyLocations);
-//        for (String location: allEmptyLocations) {
-//            System.out.println(location);
-//        }
-        printMenuOptionsInFrame("Number of empty locations: " + numEmptyLocations, allEmptyLocations,ANSI_GREEN);
+        printMenuOptionsInFrame("Number of empty locations: " + numEmptyLocations, allEmptyLocations, ANSI_GREEN);
     }
 
     public static int getFreeSpaceAtLocationIfAtLeastOneItem(String location) throws IOException {
@@ -323,6 +309,10 @@ public class Main {
         returns number of items that can be added to the location.
         returns 0 - if location not in DB.
          */
+        List<String> allEmptyLocations = getAllEmptyLocations();
+        if (allEmptyLocations.contains(location)) {
+            throw new RuntimeException("Location " + location + " is empty and will fit different amount depending on the type of units.");
+        }
 
         String[][] DB = getAllDataFromDB();
         int numItems = 0;
@@ -377,6 +367,7 @@ public class Main {
 
         // Check if the formatting is correct - 2 dots -> xx.yy.zzzz
         if (parts.length != 3) {
+            printError("The date is not split by 2 dots. Needs to be dd.mm.yyyy");
             return false;
         }
 
@@ -385,10 +376,11 @@ public class Main {
             try {
                 int num = Integer.parseInt(parts[i]);
                 if (num < 1) {
+                    printError("Every calendar Day and Month start from 1.");
                     return false;
                 }
             } catch (Exception e) {
-                System.out.println(parts[i] + " cannot be converted to integer");
+                printError(parts[i] + " cannot be converted to integer");
                 return false;
             }
         }
@@ -399,11 +391,13 @@ public class Main {
 
         // Month should be 1-12
         if (numMonth > 12) {
+            printError("The month needs to be in the range 1-12.");
             return false;
         }
 
         // Year should be 4 digits long - ex. 2021
         if (parts[2].length() != 4) {
+            printError("The year needs to be exactly 4 digits.");
             return false;
         }
 
@@ -411,10 +405,42 @@ public class Main {
 
         // Check if the month has that date.
         if (numDay > daysInCurrentMonth) {
+            printError(getMonthNameFromNumber(numMonth) + " " + numYear + "y. has " + daysInCurrentMonth + " days. Invalid entry: " + numDay);
             return false;
         }
 
         return true;
+    }
+
+    public static String getMonthNameFromNumber(int n) {
+        switch (n) {
+            case 1:
+                return "January";
+            case 2:
+                return "February";
+            case 3:
+                return "March";
+            case 4:
+                return "April";
+            case 5:
+                return "May";
+            case 6:
+                return "June";
+            case 7:
+                return "July";
+            case 8:
+                return "August";
+            case 9:
+                return "September";
+            case 10:
+                return "October";
+            case 11:
+                return "November";
+            case 12:
+                return "December";
+            default:
+                return "No such month";
+        }
     }
 
     public static boolean isLeapYear(int year) {
@@ -514,7 +540,7 @@ public class Main {
         // Allow empty/blank input if the question is optional. Require an input if not.
         else if (!question.contains("optional")) {
             while (ans.isEmpty()) {
-                System.out.println("Empty answer. Please enter " + question + ": ");
+                printError("Empty answer. Please enter " + question + ": ");
                 ans = scanner.nextLine();
                 // no need for reset! check as it will be returned anyway if entered.
             }
@@ -528,7 +554,7 @@ public class Main {
         boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
 
         while (!(isValid || ans.equalsIgnoreCase("n/a"))) {
-            System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
+            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
             ans = scanner.nextLine();
 
             if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
@@ -538,7 +564,7 @@ public class Main {
             isValid = isDateValid(convertDateFromUKtoEUType(ans));
         }
 
-        return ans.strip();
+        return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(ans).strip());
     }
 
     public static String getDate(String ans) {
@@ -549,7 +575,7 @@ public class Main {
         boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
 
         while (!isValid) {
-            System.out.println("Error! Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
+            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
             ans = scanner.nextLine();
             if (ans.equalsIgnoreCase("today")) {
                 ans = getToday();
@@ -558,7 +584,7 @@ public class Main {
             }
             isValid = isDateValid(convertDateFromUKtoEUType(ans));
         }
-        return ans;
+        return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(ans));
     }
 
     public static String getUnit(String ans) {
@@ -567,7 +593,7 @@ public class Main {
 
         while (!isValid) {
             String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
-            System.out.println("Error! Please Enter a valid option for Unit: " + availableOptions + ".");
+            printError("Please Enter a valid option for Unit: " + availableOptions + ".");
             ans = scanner.nextLine().toLowerCase();
 
             if (ans.strip().equals(RESET_CMD)) {
@@ -592,6 +618,19 @@ public class Main {
             return date.replace("/", ".");
         }
         return date;
+    }
+    public static String addLeadingZeroToDayMonth(String date) {
+        // date needs to be in the format dd.mm.yyyy - already checked.
+        String d = date.split("\\.")[0];
+        String m = date.split("\\.")[1];
+        String y = date.split("\\.")[2];
+
+        String dateFormatted = "";
+        dateFormatted += String.format("%02d", Integer.parseInt(d)) + ".";
+        dateFormatted += String.format("%02d", Integer.parseInt(m)) + ".";
+        dateFormatted += y;
+
+        return dateFormatted;
     }
 
     public static String[] getAllValidUserInput() {
@@ -621,6 +660,7 @@ public class Main {
          returns: {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", ""}
          */
 
+        // todo - print with a frame - add reset! and stop!... etc.
         System.out.println("\nEnter the data for the items that you want to add.\nUse \"reset!\" to reset the data input.");
 
         for (int i = 0; i < USER_QUESTIONS.length; i++) {
@@ -767,7 +807,7 @@ public class Main {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Error! Empty row in " + DB_FILE_NAME + " file.");
+                printError("Empty row in " + DB_FILE_NAME + " file.");
             }
         }
 
@@ -911,7 +951,7 @@ public class Main {
     public static void createDBfileIfMissing() throws IOException {
         File f = new File(DB_FILE_NAME);
         if (!f.exists()) {
-            System.out.println("DB file \"" + DB_FILE_NAME + "\" not found and will be created.");
+            printWarning("DB file \"" + DB_FILE_NAME + "\" not found and will be created.");
             f.createNewFile();
         }
     }
@@ -950,7 +990,7 @@ public class Main {
                 row.add(rowCSV.split(SEPARATOR)[0]);
                 for (int j = 1; j < rowCSV.split(SEPARATOR).length; j++) {
                     String val = rowCSV.split(SEPARATOR)[j];
-                    String desc = DESCRIPTION_NO_NAME[j-1];
+                    String desc = DESCRIPTION_NO_NAME[j - 1];
                     row.add(desc + ": " + val);
                 }
             }
@@ -971,7 +1011,7 @@ public class Main {
 
             writer.close();
         } catch (IOException e) {
-            System.out.println("An error occurred while writing " + row);
+            printError("An error occurred while writing " + row);
             e.printStackTrace();
         }
     }
