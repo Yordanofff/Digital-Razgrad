@@ -72,11 +72,12 @@ public class Main {
 
     public static void main(String[] args) throws IOException, ParseException {
 //        runApp();
-        printSurroundedBy("tes \ntesla 22343a", ANSI_GREEN, false, true);
-        printSurroundedBy("speaker", ANSI_GREEN, false, true);
-        printSurroundedBy("kola", ANSI_GREEN, false, false);
+//        printSurroundedBy("tes \ntesla 22343a", ANSI_GREEN, false, true);
+//        printSurroundedBy("speaker", ANSI_GREEN, false, true);
+//        printSurroundedBy("kola", ANSI_GREEN, false, false);
 //        printWarning("test");
 //        printError("test");
+        printMenuOptions();
     }
 
     public static void printWarning(String msg) {
@@ -102,30 +103,29 @@ public class Main {
         return n;
     }
 
-    public static void printSurroundedBy(String msg, String ANSI_color, boolean printMidSeparator, boolean printTextWhite) {
-        int msgRows = msg.split("\n").length;
-        int longestWordInMsg = getLongestWord(msg);
-        int spacesAroundOnEachSide = 3;
+    public static void printSurroundedBy(String menuTopQuestion, String menuOptions, String ANSI_color) {
+        String msgg = menuTopQuestion + "\n" + menuOptions;  // add the Menu question in case it's longer than the options.
+        int msgRows = menuOptions.split("\n").length;
+        int longestWordInMsg = getLongestWord(msgg);
+        int spacesAroundOnEachSide = 5;
 
         int numSymbolsTopBottom = longestWordInMsg + spacesAroundOnEachSide * 2 + 2;
         String topAndBottom = "=".repeat(numSymbolsTopBottom);
 
+        // Print the top menu question with "====" on top and "|" on both sides.
+        System.out.println(getColoredMsg(topAndBottom, ANSI_color));
+        System.out.print(getColoredMsg("|" + " ".repeat(spacesAroundOnEachSide), ANSI_color));
+        System.out.print(menuTopQuestion);
+        System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom - (menuTopQuestion.length() + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
+
+        // Print the menu options surrounded by "====" on the top and bottom and "|" on both sides.
         System.out.println(getColoredMsg(topAndBottom, ANSI_color));
         for (int i = 0; i < msgRows; i++) {
-            String msgRow = msg.split("\n")[i];
+            String msgRow = menuOptions.split("\n")[i];
 
             System.out.print(getColoredMsg("|" + " ".repeat(spacesAroundOnEachSide), ANSI_color));
-
-            if (printTextWhite) {
-                System.out.print(msgRow);
-            } else {
-                System.out.print(getColoredMsg(msgRow, ANSI_color));
-            }
-
-            System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom - msgRow.length() - spacesAroundOnEachSide*2 + 1) + "|", ANSI_color));
-            if (printMidSeparator && i != msgRows-1) {
-                System.out.println(getColoredMsg("-".repeat(numSymbolsTopBottom), ANSI_color));
-            }
+            System.out.print(msgRow);
+            System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom - (msgRow.length() + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
         }
         System.out.println(getColoredMsg(topAndBottom, ANSI_color));
     }
@@ -157,13 +157,15 @@ public class Main {
     public static int printMenuOptions() {
         String[] menuOptions = new String[]{"List all items", "Add new delivery", "List deliveries for time period", "Exit"};
 
-        System.out.println("Please choose what to do:");
+        // Add all questions to a single string with numbers for the options
+        String menuOptionsWithNumbers = "";
         for (int i = 1; i <= menuOptions.length; i++) {
-            System.out.println(i + " - " + menuOptions[i - 1]);
+            menuOptionsWithNumbers += i + " - " + menuOptions[i - 1] + "\n";
         }
 
-        return getMenuAnswer(menuOptions.length);
+        printSurroundedBy("Please choose what to do:", menuOptionsWithNumbers, ANSI_GREEN);
 
+        return getMenuAnswer(menuOptions.length);
     }
 
     public static int getMenuAnswer(int numOptions) {
