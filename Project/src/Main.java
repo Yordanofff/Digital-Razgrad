@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
-// todo - add error printing in data validation --> what's wrong as a parameter
 // todo - don't allow separator to be used in the data... maybe and "
 
 // todo - items per shelf - ako produkta ve4e go ima - da izpishe kolko se sybirat na edin raft.
@@ -67,7 +66,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException, ParseException {
         // printMenuOptions takeMenuAction
-
         runApp();
 
     }
@@ -557,6 +555,7 @@ public class Main {
 
         String ans = scanner.nextLine();
 
+
         if (ans.strip().equalsIgnoreCase(RESET_CMD)) {
             return RESET_CMD;
         }
@@ -699,12 +698,20 @@ public class Main {
          "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock", "comment (optional)"
          returns: {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", ""}
          */
-
+        // todo - without ANSWERS being in the Class.
+        // No need to clear the ANSWERS, as they will be re-assigned anyway.
         // todo - print with a frame - add reset! and stop!... etc.
         System.out.println("\nEnter the data for the items that you want to add.\nUse \"reset!\" to reset the data input.");
 
         for (int i = 0; i < USER_QUESTIONS.length; i++) {
+
             String ans = getValidUserInput(USER_QUESTIONS[i]);
+
+            // Don't allow ; to be added in the ans string as this is used in the CSV file and will mess things up.
+            while (isSeparatorInAns(ans)){
+                printError("The symbol \"" + SEPARATOR + "\" can't be used. ");
+                ans = getValidUserInput(USER_QUESTIONS[i]);
+            }
 
             // Call itself if reset! is entered at any point on any question.
             if (ans.equalsIgnoreCase(RESET_CMD)) {
@@ -715,8 +722,17 @@ public class Main {
 
             ANSWERS[i] = ans;
         }
-        // todo - ANSWERS clear?
+
         return ANSWERS;
+    }
+
+    public static boolean isSeparatorInAns(String ans) {
+        for (int i = 0; i < ans.length(); i++) {
+            if (ans.split("")[i].equals(SEPARATOR)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static List<List<String>> getAllData(String[] allValidUserInput) throws IOException {
