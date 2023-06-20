@@ -71,15 +71,15 @@ public class Main {
     public static final String ANSI_GREEN = "\u001B[32m";
 
     public static void main(String[] args) throws IOException, ParseException {
-//        runApp();
-//        printSurroundedBy("tes \ntesla 22343a", ANSI_GREEN, false, true);
-//        printSurroundedBy("speaker", ANSI_GREEN, false, true);
-//        printSurroundedBy("kola", ANSI_GREEN, false, false);
+        runApp();
+//        printMenuOptionsInFrame("tes \ntesla 22343a", ANSI_GREEN, false, true);
+//        printMenuOptionsInFrame("speaker", ANSI_GREEN, false, true);
+//        printMenuOptionsInFrame("kola", ANSI_GREEN, false, false);
 //        printWarning("test");
 //        printError("test");
 //        printMenuOptions();
 //        createDBfileIfMissing();
-        printCSVFormatted(getDbDataToArrayListWithDescription());
+//        printCSVFormatted(getDbDataToArrayListWithDescription());
 //        getDbDataToArrayListWithDescription();
     }
 
@@ -108,22 +108,24 @@ public class Main {
             }
         }
 
+        int numTopBottom = Arrays.stream(maxColumn).sum() + SEPARATOR_WHEN_PRINTING.length() * (DESCRIPTION_NO_NAME.length + 2) - 2;
+
+
+        System.out.println("\n" + getColoredMsg("=".repeat(numTopBottom), ANSI_GREEN));
         for (int i = 0; i < rows.size(); i++) {
+            System.out.print(getColoredMsg(SEPARATOR_WHEN_PRINTING.strip() + " ", ANSI_GREEN));
             for (int j = 0; j < maxColumn.length; j++) {
                 // "%" + numberOfSpaces + "s", "text To Print");
                 // The formatString will be something like "%-25s | "
                 // "-" is used for left alignment
-
-                // Don't print Separator at the end.
-                String formatString = "%-" + maxColumn[j]+ "s";
-                if (j != maxColumn.length - 1){
-                    formatString = "%-" + maxColumn[j]+ "s" + SEPARATOR_WHEN_PRINTING;
-                }
+                String formatString = "%-" + maxColumn[j] +  "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, ANSI_GREEN);
 
                 System.out.printf(formatString, rows.get(i).get(j));
             }
             System.out.println();
         }
+
+        System.out.println(getColoredMsg("=".repeat(numTopBottom), ANSI_GREEN) + "\n");
 
     }
 
@@ -150,7 +152,7 @@ public class Main {
         return n;
     }
 
-    public static void printSurroundedBy(String menuTopQuestion, String menuOptions, String ANSI_color) {
+    public static void printMenuOptionsInFrame(String menuTopQuestion, String menuOptions, String ANSI_color) {
         String msgg = menuTopQuestion + "\n" + menuOptions;  // add the Menu question in case it's longer than the options.
         int msgRows = menuOptions.split("\n").length;
         int longestWordInMsg = getLongestWord(msgg);
@@ -192,9 +194,10 @@ public class Main {
     public static boolean takeMenuAction(int selectedOption) throws IOException, ParseException {
         switch (selectedOption) {
             case 1 -> printAllDataFromDB();
-            case 2 -> getAllUserDataAndWriteToDB();
-            case 3 -> printDataForTimePeriod();
-            case 4 -> {
+            case 2 -> printCSVFormatted(getDbDataToArrayListWithDescription());
+            case 3 -> getAllUserDataAndWriteToDB();
+            case 4 -> printDataForTimePeriod();
+            case 5 -> {
                 return false;
             }
         }
@@ -202,7 +205,7 @@ public class Main {
     }
 
     public static int printMenuOptions() {
-        String[] menuOptions = new String[]{"List all items", "Add new delivery", "List deliveries for time period", "Exit"};
+        String[] menuOptions = new String[]{"List all items", "List all items(Formatted)", "Add new delivery", "List deliveries for time period", "Exit"};
 
         // Add all questions to a single string with numbers for the options
         String menuOptionsWithNumbers = "";
@@ -210,7 +213,7 @@ public class Main {
             menuOptionsWithNumbers += i + " - " + menuOptions[i - 1] + "\n";
         }
 
-        printSurroundedBy("Please choose what to do:", menuOptionsWithNumbers, ANSI_GREEN);
+        printMenuOptionsInFrame("Please choose what to do:", menuOptionsWithNumbers, ANSI_GREEN);
 
         return getMenuAnswer(menuOptions.length);
     }
@@ -910,7 +913,7 @@ public class Main {
 
         return rowsData;
     }
-    
+
     public static ArrayList<ArrayList<String>> getDbDataToArrayListWithDescription() throws IOException {
         ArrayList<ArrayList<String>> rows = new ArrayList<>();
         File file = new File(DB_FILE_NAME);
