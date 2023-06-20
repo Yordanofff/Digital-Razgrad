@@ -16,7 +16,6 @@ import java.util.*;
 // todo if expiry date is earlier than today - expired.
 // todo if entry date is before today - not possible - try again (maybe should be possible - stock entered yesterday - in db today)
 
-// todo - menu option - print stock that expires soon - sort ? 1 week ?
 
 // todo option - print units and amount that can be fit on shelf
 // todo - move units to a config file
@@ -126,8 +125,30 @@ public class Main {
             }
         }
 
+        // Check length of DESCRIPTION TOO
+        String[] DESCRIPTION_WITH_NAME = new String[DESCRIPTION_NO_NAME.length + 1];
+        DESCRIPTION_WITH_NAME[0] = "Name";
+        for (int i = 0; i < DESCRIPTION_NO_NAME.length; i++) {
+            DESCRIPTION_WITH_NAME[i+1] = DESCRIPTION_NO_NAME[i];
+        }
+        for (int i = 0; i < DESCRIPTION_WITH_NAME.length; i++) {
+            if (maxColumn[i] < DESCRIPTION_WITH_NAME[i].length()) {
+                maxColumn[i] = DESCRIPTION_WITH_NAME[i].length();
+            }
+        }
+
         int numTopBottom = Arrays.stream(maxColumn).sum() + SEPARATOR_WHEN_PRINTING.length() * (DESCRIPTION_NO_NAME.length + 2) - 2;
 
+        // print description for each column
+        System.out.println("\n" + getColoredMsg("=".repeat(numTopBottom), colorANSI));
+
+        // print just "| " in the beginning - before name.
+        System.out.print(getColoredMsg(SEPARATOR_WHEN_PRINTING.strip() + " ", colorANSI));
+
+        for (int i = 0; i < maxColumn.length; i++) {
+            String formatString = "%-" + maxColumn[i] + "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, colorANSI);
+            System.out.printf(formatString, DESCRIPTION_WITH_NAME[i].toUpperCase());
+        }
 
         System.out.println("\n" + getColoredMsg("=".repeat(numTopBottom), colorANSI));
         for (int i = 0; i < rows.size(); i++) {
