@@ -1115,11 +1115,26 @@ public class Main {
         return results;
     }
 
-    public static String[] getUserInputFromToDates() {
+    public static String[] getUserInputFromToDates() throws IOException, ParseException {
         String[] result = new String[2];
 
         String fromDate = getValidUserInput("From date");
+        // SPECIAL_CMDS - take action
+        if (fromDate.equalsIgnoreCase("reset!")) {
+            System.out.println();
+            return getUserInputFromToDates();
+        } else if (fromDate.equalsIgnoreCase("stop!")) {
+            runApp();
+        }
+
         String toDate = getValidUserInput("To date");
+        // SPECIAL_CMDS - take action
+        if (toDate.equalsIgnoreCase("reset!")) {
+            System.out.println();
+            return getUserInputFromToDates();
+        } else if (toDate.equalsIgnoreCase("stop!")) {
+            runApp();
+        }
 
         result[0] = fromDate;
         result[1] = toDate;
