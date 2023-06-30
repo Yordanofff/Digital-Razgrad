@@ -40,6 +40,7 @@ public class Main {
     // Starting at the second element - "Name" not printed.
     static String[] DESCRIPTION_NO_NAME = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
 
+    @SuppressWarnings("FieldMayBeFinal")
     private static List<String> TEMP_USED_LOCATIONS_NOT_IN_DB = new ArrayList<>();
 
     static String[] ANSWERS = new String[USER_QUESTIONS.length];
@@ -272,7 +273,7 @@ public class Main {
 
             String expiryDate = row.get(1);
 
-            int diff = getDaysDifferenceFromToday(expiryDate);
+            int diff = getNumberOfDaysDifferenceFromToday(expiryDate);
             ArrayList<String> rowExpired = new ArrayList<>();
             ArrayList<String> rowNotExpired = new ArrayList<>();
             if (diff < 1) {
@@ -290,46 +291,59 @@ public class Main {
         printCSVFormatted(rowsNotExpired, ANSI_YELLOW);
     }
 
-    public static int getDaysDifferenceFromToday(String dateToCheck) {
-        // if tomorrow --> 1, if yesterday --> -1
+    /**
+     * Get the difference in days between a date and today.
+     * if tomorrow --> 1, if yesterday --> -1
+     * @param dateToCheck - date in format dd.mm.yyyy or d.m.yyyy
+     * @return 0 if dateToCheck=today, positive number if the day is in the future, negative number if an older date.
+     */
+    public static int getNumberOfDaysDifferenceFromToday(String dateToCheck) {
         String today = getToday();
-        int todaysDateIndays = convertDateToDays(today);
-        int dateToCheckInDays = convertDateToDays(dateToCheck);
-        return dateToCheckInDays - todaysDateIndays;
+        int todaysDateInDays = getNumberOfDaysToDate(today);
+        int dateToCheckInDays = getNumberOfDaysToDate(dateToCheck);
+        return dateToCheckInDays - todaysDateInDays;
     }
 
-    public static int convertDateToDays(String date) {
-        // date in format dd.mm.yyyy - will not take in account
-
+    /**
+     * Used to compare dates
+     * @param date - date in format dd.mm.yyyy or d.m.yyyy
+     * @return number of days since year 1.
+     */
+    public static int getNumberOfDaysToDate(String date) {
         int year = Integer.parseInt(date.split("\\.")[2]);
         int month = Integer.parseInt(date.split("\\.")[1]);
         int day = Integer.parseInt(date.split("\\.")[0]);
 
-        int totalYearsInDays = 0;
+        int numDaysInAllYears = 0;
+        // Without the current year because it hasn't passed.
         for (int i = 1; i < year; i++) {
-            // without the current year because it hasn't passed.
             if (isLeapYear(i)) {
-                totalYearsInDays += 366;
+                numDaysInAllYears += 366;
             } else {
-                totalYearsInDays += 365;
+                numDaysInAllYears += 365;
             }
         }
 
-        int totalMonthsInDays = 0;
+        int numDaysInAllMonths = 0;
+        // Without the current month because it hasn't passed.
         for (int i = 1; i < month; i++) {
-            // without the current month because it hasn't passed.
             int m_days = i * getDaysInMonth(year, month);
-            totalMonthsInDays += m_days;
+            numDaysInAllMonths += m_days;
         }
 
-        return totalYearsInDays + totalMonthsInDays + day;
+        return numDaysInAllYears + numDaysInAllMonths + day;
     }
 
+    /**
+     * Loops until the entered value is a possible option in the menu.
+     * @param numOptions - the biggest available option number
+     * @return A valid option in the menu.
+     */
     public static int getMenuAnswer(int numOptions) {
         int ans = scanner.nextInt();
         scanner.nextLine();
 
-        // Keep printing the error msg if ans is less than 1 or greater than the highest option number
+        // Keep printing the error msg if answer is less than 1 or greater than the highest option number
         while (ans < 1 || ans > numOptions) {
             printError("Please choose a number between 1 and " + numOptions);
             ans = scanner.nextInt();
@@ -340,7 +354,6 @@ public class Main {
     }
 
     public static List<String> getAllPossibleLocations() {
-
         List<String> result = new ArrayList<>();
 
         // Rows/shelves/numbers start at 1.
@@ -465,6 +478,7 @@ public class Main {
         String[][] DB = getAllDataFromDB();
         int numItems = 0;
         int maxNumItems = 0;
+
         for (String[] row : DB) {
             if (row[6].equalsIgnoreCase(location)) {
                 int currentRowStock = Integer.parseInt(row[5]);
@@ -473,6 +487,7 @@ public class Main {
                 maxNumItems = Integer.parseInt(row[7]);
             }
         }
+
         return maxNumItems - numItems;
     }
 
@@ -503,14 +518,19 @@ public class Main {
         return getFirstLocationThatDoesntHaveAnyItems();
     }
 
+    // todo
+    /**
+     * Checks if a date is valid. Valid date is a date split by 2 dots and exists.
+     * Will print an error message if the date is not valid.
+     * Example of valid dates:
+     * 01.01.2020
+     * 30.10.2022
+     * 1.1.2020
+     *
+     * @param date - date formatted  "dd.mm.yyyy" or "d.m.yyyy"
+     * @return true is valid, false if not.
+     */
     public static boolean isDateValid(String date) {
-        /*
-        Valid date needs to be in format "dd.mm.yyyy".
-        Example of valid dates:
-        01.01.2020
-        30.10.2022
-         */
-
         String[] parts = date.split("\\.");
 
         // Check if the formatting is correct - 2 dots -> xx.yy.zzzz
@@ -561,34 +581,21 @@ public class Main {
     }
 
     public static String getMonthNameFromNumber(int n) {
-        switch (n) {
-            case 1:
-                return "January";
-            case 2:
-                return "February";
-            case 3:
-                return "March";
-            case 4:
-                return "April";
-            case 5:
-                return "May";
-            case 6:
-                return "June";
-            case 7:
-                return "July";
-            case 8:
-                return "August";
-            case 9:
-                return "September";
-            case 10:
-                return "October";
-            case 11:
-                return "November";
-            case 12:
-                return "December";
-            default:
-                return "No such month";
-        }
+        return switch (n) {
+            case 1 -> "January";
+            case 2 -> "February";
+            case 3 -> "March";
+            case 4 -> "April";
+            case 5 -> "May";
+            case 6 -> "June";
+            case 7 -> "July";
+            case 8 -> "August";
+            case 9 -> "September";
+            case 10 -> "October";
+            case 11 -> "November";
+            case 12 -> "December";
+            default -> "No such month";
+        };
     }
 
     public static boolean isLeapYear(int year) {
@@ -635,26 +642,29 @@ public class Main {
         return false;
     }
 
+    /**
+     * Check if the unit entered by the user is a valid unit that the app accepts.
+     */
     public static boolean isUnitValid(String unit) {
-        // Check if the string unit is in the UNIT_OPTIONS
-
         for (String unitOption : UNIT_OPTIONS.keySet()) {
             if (unit.strip().equalsIgnoreCase(unitOption)) {
                 return true;
             }
         }
-
         return false;
     }
 
-    public static String getValidUserInput(String question) {
-        /*
-        This method will be called for every user input.
-        Every answer needs to have some input, except the ones that have "optional" in the question.
-        keyword "reset!" can be used to restart the questions if wrong data has been added
-        returns a valid answer
-         */
+    /**
+     This is the "main" validator method. It will be called for every user input.
 
+     Will loop until an input has been entered for every question except the ones that have "optional" in them. They can be empty.
+
+     If any of the commands in SPECIAL_CMDS is being entered it will return it. Example - "reset!" can be used
+     to restart the questions if wrong data has been entered.
+
+     @return a validated answer depending on the question.
+     */
+    public static String getValidUserInput(String question) {
         // Modify the question "Enter available stock" to include the unit type and values on shelf
         if (question.contains("stock")) {
             String unitType = ANSWERS[4];
@@ -700,47 +710,62 @@ public class Main {
         return ans.strip();
     }
 
-    public static String getExpiryDate(String ans) {
+    /**
+     * Will keep asking for a date until the answer is "n/a" or a valid date.
+     * @param dateInputFromUser - "n/a" or a date in the format dd.mm.yyyy or d.m.yyyy. The date can be separated by "." or "/".
+     * @return String date with leading zeros for the day and month (if single digits) and separated by "." no matter how it was entered by the user.
+     * Example:
+     * 1/2/2020  -> 01.02.2020
+     * 01.2.2020 -> 01.02.2020
+     * N/A -> n/a (will always return lower case n/a)
+     */
+    public static String getExpiryDate(String dateInputFromUser) {
 
-        if (ans.equalsIgnoreCase("n/a")) {
+        // Expiry date can be n/a
+        if (dateInputFromUser.equalsIgnoreCase("n/a")) {
             return "n/a";
         }
 
-        boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
+        boolean isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(dateInputFromUser));
         boolean isNotExpired = false;
 
-        if (isValid) {
-            isNotExpired = !isExpired(ans);
+        if (isCurrentDateValid) {
+            isNotExpired = !isDateExpired(dateInputFromUser);
         }
 
-        while (!((isValid && isNotExpired) || ans.equalsIgnoreCase("n/a"))) {
+        while (!((isCurrentDateValid && isNotExpired) || dateInputFromUser.equalsIgnoreCase("n/a"))) {
             printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
-            ans = scanner.nextLine();
+            dateInputFromUser = scanner.nextLine();
 
-            if (ans.equalsIgnoreCase("n/a")) {
+            if (dateInputFromUser.equalsIgnoreCase("n/a")) {
                 return "n/a";
             }
 
             for (String specialCmd : SPECIAL_CMDS) {
-                if (ans.strip().equalsIgnoreCase(specialCmd)) {
+                if (dateInputFromUser.strip().equalsIgnoreCase(specialCmd)) {
                     return specialCmd;
                 }
             }
 
-            isValid = isDateValid(convertDateFromUKtoEUType(ans));
-            if (isValid) {
-                isNotExpired = !isExpired(ans);
+            isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(dateInputFromUser));
+            if (isCurrentDateValid) {
+                isNotExpired = !isDateExpired(dateInputFromUser);
             }
         }
 
-        return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(ans).strip());
+        return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(dateInputFromUser).strip());
     }
 
-    public static boolean isExpired(String date) {
-        if (getDaysDifferenceFromToday(date) < 0) {
+    /**
+     * Prints an error or a warning message if (item) date is expired or expires today.
+     * @param date - date in format dd.mm.yyyy or d.m.yyyy
+     * @return true if date is expired, false if not expired or expires today.
+     */
+    public static boolean isDateExpired(String date) {
+        if (getNumberOfDaysDifferenceFromToday(date) < 0) {
             printError("The item has already expired!");
             return true;
-        } else if (getDaysDifferenceFromToday(date) == 0) {
+        } else if (getNumberOfDaysDifferenceFromToday(date) == 0) {
             printWarning("The item expires today!");
         }
         return false;
@@ -751,19 +776,19 @@ public class Main {
             return getToday();
         }
 
-        boolean isValid = isDateValid(convertDateFromUKtoEUType(ans));
+        boolean isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(ans));
         boolean isEntryDateLaterThanExpiryDate = false;
 
         // Check if the items entered the WH are already expired at the day of entry
-        if (isValid) {
+        if (isCurrentDateValid) {
             String currentExpiryDate = ANSWERS[1];
-            if (convertDateToDays(ans) >= convertDateToDays(currentExpiryDate)) {
+            if (getNumberOfDaysToDate(ans) >= getNumberOfDaysToDate(currentExpiryDate)) {
                 printError("Something is wrong. Entry date(" + ans + ") is after expiry date(" + currentExpiryDate + ")");
                 isEntryDateLaterThanExpiryDate = true;
             }
         }
 
-        while (!(isValid && !isEntryDateLaterThanExpiryDate)) {
+        while (!(isCurrentDateValid && !isEntryDateLaterThanExpiryDate)) {
             printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
             ans = scanner.nextLine();
             if (ans.equalsIgnoreCase("today")) {
@@ -776,12 +801,12 @@ public class Main {
                 }
             }
 
-            isValid = isDateValid(convertDateFromUKtoEUType(ans));
+            isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(ans));
 
             // Check if the items entered the WH are already expired at the day of entry
-            if (isValid) {
+            if (isCurrentDateValid) {
                 String currentExpiryDate = ANSWERS[1];
-                if (convertDateToDays(ans) > convertDateToDays(currentExpiryDate)) {
+                if (getNumberOfDaysToDate(ans) > getNumberOfDaysToDate(currentExpiryDate)) {
                     printError("Something is wrong. Entry date(" + addLeadingZeroToDayMonth(ans) + ") is after expiry date(" + currentExpiryDate + ").");
                     isEntryDateLaterThanExpiryDate = true;
                 } else {
@@ -1102,7 +1127,7 @@ public class Main {
         // Populate a list with the rows in the range
         List<List<String>> dataBetweenTwoDates = getDataForTimePeriod(fromDate, toDate);
 
-        // Add the results to an ArrayList so it can be printed
+        // Add the results to an ArrayList, so it can be printed
         ArrayList<ArrayList<String>> results = new ArrayList<>();
         for (List<String> row : dataBetweenTwoDates) {
             ArrayList<String> result = new ArrayList<>();
