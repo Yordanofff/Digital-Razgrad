@@ -38,6 +38,7 @@ public class Main {
             "available stock", "comment (optional)"};
 
     // Starting at the second element - "Name" not printed.
+    static String[] DESCRIPTION = new String[]{"Name", "Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
     static String[] DESCRIPTION_NO_NAME = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
 
     @SuppressWarnings("FieldMayBeFinal")
@@ -53,16 +54,16 @@ public class Main {
     public static final String ANSI_BOLD = "\u001B[1m";
 
     static final String[] SPECIAL_CMDS = new String[]{"reset!", "stop!"};
-    static final List<String> specialOptions = Arrays.asList("Use \"" + getBoldYellow("reset!") + "\" to reset the data input.",
-            "Use \"" + getBoldYellow("stop!") + "\" to go back to the menu.",
+    static final List<String> specialOptions = Arrays.asList("Use \"" + getBoldYellowMsg("reset!") + "\" to reset the data input.",
+            "Use \"" + getBoldYellowMsg("stop!") + "\" to go back to the menu.",
             "Dates need to be formatted as " +
-                    getBoldYellow("dd.mm.yyyy") + " or " +
-                    getBoldYellow("d.m.yyyy") + " and can be separated by " +
-                    getBoldYellow(".") + " or " + getBoldYellow("/"),
-            "Expiry date can be " + getBoldYellow("n/a"),
-            "Entry date can be " + getBoldYellow("today"),
-            "Units can be: " + getBoldYellow(UNIT_OPTIONS.keySet().toString()),
-            "Forbidden character: " + getBoldYellow(SEPARATOR));
+                    getBoldYellowMsg("dd.mm.yyyy") + " or " +
+                    getBoldYellowMsg("d.m.yyyy") + " and can be separated by " +
+                    getBoldYellowMsg(".") + " or " + getBoldYellowMsg("/"),
+            "Expiry date can be " + getBoldYellowMsg("n/a"),
+            "Entry date can be " + getBoldYellowMsg("today"),
+            "Units can be: " + getBoldYellowMsg(UNIT_OPTIONS.keySet().toString()),
+            "Forbidden character: " + getBoldYellowMsg(SEPARATOR));
 
     public static void main(String[] args) throws IOException, ParseException {
 //        System.out.println(getExpiryDate("n/a"));
@@ -82,72 +83,80 @@ public class Main {
         System.out.println(isDateValid("10.1.1900"));
     }
 
+    /**
+     * This method will print the description + the information from the DB in a colored frame.
+     * ======================================================================================================================================
+     * | NAME      | EXPIRY DATE | ENTRY DATE | MANUFACTURER          | UNIT  | STOCK | POSITION   | AVAILABLE ITEMS AT SHELF | COMMENT     |
+     * ======================================================================================================================================
+     * | Milk      | 02.03.1234  | 03.04.4231 | Alfatar               | unit  | 200   | b1 / 1 / 3 | 1000                     | 3%          |
+     * ...
+     *
+     * @param rows      - information from DB
+     * @param colorANSI - color of the frame.
+     */
     public static void printCSVFormatted(ArrayList<ArrayList<String>> rows, String colorANSI) {
-
         if (rows.size() == 0)
             throw new RuntimeException("DB file " + DB_FILE_NAME + " is empty.");
 
         // Make sure all rows are same length - some don't have comments and will be 8, other 9 --> all 9.
         for (List<String> row : rows) {
-            while (row.size() < DESCRIPTION_NO_NAME.length + 1) {
+            while (row.size() < DESCRIPTION.length) {
                 row.add("");
             }
         }
 
         // Get the maximum word length of every column
         // Will be something like [9, 23, 22, 18, 10, 11, 20, 30, 18]
-        int[] maxColumn = new int[DESCRIPTION_NO_NAME.length + 1];
-
-        for (int i = 0; i < rows.size(); i++) {
-            // rows.get(i).size() <==> DESCRIPTION_NO_NAME.length + 1 <==> 9
-            for (int j = 0; j < rows.get(i).size(); j++) {
-                if (maxColumn[j] < rows.get(i).get(j).length()) {
-                    maxColumn[j] = rows.get(i).get(j).length();
+        int[] arrayWithMaxLengths = new int[DESCRIPTION.length];
+        for (ArrayList<String> row : rows) {
+            for (int i = 0; i < row.size(); i++) {
+                // rows.size() == DESCRIPTION_WITH_NAME.length == 9
+                if (arrayWithMaxLengths[i] < row.get(i).length()) {
+                    arrayWithMaxLengths[i] = row.get(i).length();
                 }
             }
         }
-
-        // Check length of DESCRIPTION TOO
-        String[] DESCRIPTION_WITH_NAME = new String[DESCRIPTION_NO_NAME.length + 1];
-        DESCRIPTION_WITH_NAME[0] = "Name";
-        for (int i = 0; i < DESCRIPTION_NO_NAME.length; i++) {
-            DESCRIPTION_WITH_NAME[i + 1] = DESCRIPTION_NO_NAME[i];
-        }
-        for (int i = 0; i < DESCRIPTION_WITH_NAME.length; i++) {
-            if (maxColumn[i] < DESCRIPTION_WITH_NAME[i].length()) {
-                maxColumn[i] = DESCRIPTION_WITH_NAME[i].length();
+        // Check the length of the description in case it has more symbols than the data field
+        for (int i = 0; i < DESCRIPTION.length; i++) {
+            if (arrayWithMaxLengths[i] < DESCRIPTION[i].length()) {
+                arrayWithMaxLengths[i] = DESCRIPTION[i].length();
             }
         }
 
-        int numTopBottom = Arrays.stream(maxColumn).sum() + SEPARATOR_WHEN_PRINTING.length() * (DESCRIPTION_NO_NAME.length + 2) - 2;
+        int numSymbolsTopBottom = Arrays.stream(arrayWithMaxLengths).sum() +
+                SEPARATOR_WHEN_PRINTING.length() * (DESCRIPTION.length + 1) - 2;
 
-        // print description for each column
-        System.out.println("\n" + getColoredMsg("=".repeat(numTopBottom), colorANSI));
+        String colored_frame = getColoredMsg("=".repeat(numSymbolsTopBottom), colorANSI);
+        String colored_separator_no_space_in_front = getColoredMsg(SEPARATOR_WHEN_PRINTING.strip() + " ", colorANSI);
 
-        // print just "| " in the beginning - before name.
-        System.out.print(getColoredMsg(SEPARATOR_WHEN_PRINTING.strip() + " ", colorANSI));
+        // Print frame above description
+        System.out.println("\n" + colored_frame);
 
-        for (int i = 0; i < maxColumn.length; i++) {
-            String formatString = "%-" + maxColumn[i] + "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, colorANSI);
-            System.out.printf(formatString, DESCRIPTION_WITH_NAME[i].toUpperCase());
+        // Print description for each column
+        System.out.print(colored_separator_no_space_in_front);
+        for (int i = 0; i < arrayWithMaxLengths.length; i++) {
+            String formatString = "%-" + arrayWithMaxLengths[i] + "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, colorANSI);
+            System.out.printf(formatString, DESCRIPTION[i].toUpperCase());
         }
 
-        System.out.println("\n" + getColoredMsg("=".repeat(numTopBottom), colorANSI));
-        for (int i = 0; i < rows.size(); i++) {
-            System.out.print(getColoredMsg(SEPARATOR_WHEN_PRINTING.strip() + " ", colorANSI));
-            for (int j = 0; j < maxColumn.length; j++) {
-                // "%" + numberOfSpaces + "s", "text To Print");
-                // The formatString will be something like "%-25s | "
-                // "-" is used for left alignment
-                String formatString = "%-" + maxColumn[j] + "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, colorANSI);
+        // Print frame below description
+        System.out.println("\n" + colored_frame);
 
-                System.out.printf(formatString, rows.get(i).get(j));
+        // Print all rows with data from the DB
+        for (ArrayList<String> row : rows) {
+            System.out.print(colored_separator_no_space_in_front);
+            for (int i = 0; i < arrayWithMaxLengths.length; i++) {
+                // "%" + numberOfSpaces + "s", "text To Print"
+                // The formatString will be something like "%-25s | ". The "-" is used for left alignment
+                String formatString = "%-" + arrayWithMaxLengths[i] + "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, colorANSI);
+
+                System.out.printf(formatString, row.get(i));
             }
             System.out.println();
         }
 
-        System.out.println(getColoredMsg("=".repeat(numTopBottom), colorANSI) + "\n");
-
+        // print frame at the bottom
+        System.out.println(colored_frame + "\n");
     }
 
     public static void printWarning(String msg) {
@@ -158,7 +167,7 @@ public class Main {
         System.out.println(getColoredMsg("Error: " + msg, ANSI_RED));
     }
 
-    public static String getBoldYellow(String msg) {
+    public static String getBoldYellowMsg(String msg) {
         return getBoldMsg(getColoredMsg(msg, ANSI_YELLOW));
     }
 
@@ -195,9 +204,10 @@ public class Main {
      * |     2 - menuOptions 2                       |
      * |     3 - menuOptions 3 ...                   |
      * ===============================================
-     * @param menuTopQuestion - surrounded by a thick frame
-     * @param menuOptions - list of items to be printed
-     * @param ANSI_color - color to use to print the menu
+     *
+     * @param menuTopQuestion - will be surrounded by a thick frame
+     * @param menuOptions     - list of items to be printed
+     * @param ANSI_color      - color to use to print the menu
      */
     public static void printMenuOptionsInFrame(String menuTopQuestion, List<String> menuOptions, String ANSI_color) {
         List<String> menuQuestionAndOptions = new ArrayList<>();
@@ -205,31 +215,32 @@ public class Main {
         menuQuestionAndOptions.add(menuTopQuestion); // add the Menu question in case it's longer than the options.
 
         // Dates need to be formatted as dd.mm.yyyy or d.m.yyyy and can be separated by . or /
-        int msgRows = menuOptions.size();
+        int numQuestionsInMenu = menuOptions.size();
 
         int longestWordInMsg = getLengthOfTheLongestWordInList(menuQuestionAndOptions);
         int spacesAroundOnEachSide = 5;
 
         int numSymbolsTopBottom = longestWordInMsg + spacesAroundOnEachSide * 2 + 2;
-        String topAndBottom = "=".repeat(numSymbolsTopBottom);
+        String colored_frame = getColoredMsg("=".repeat(numSymbolsTopBottom), ANSI_color);
+        String colored_start_row = getColoredMsg("|" + " ".repeat(spacesAroundOnEachSide), ANSI_color);
 
-        // Print the top menu question with "====" on top and "|" on both sides.
-        System.out.println(getColoredMsg(topAndBottom, ANSI_color));
-        System.out.print(getColoredMsg("|" + " ".repeat(spacesAroundOnEachSide), ANSI_color));
-        System.out.print(menuTopQuestion);
-        System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom - (menuTopQuestion.length() + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
+        System.out.println(colored_frame);
 
-        // Print the menu options surrounded by "====" on the top and bottom and "|" on both sides.
-        System.out.println(getColoredMsg(topAndBottom, ANSI_color));
-        for (int i = 0; i < msgRows; i++) {
-            String msgRow = menuOptions.get(i);
+        System.out.print(colored_start_row + menuTopQuestion);
+        System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom -
+                (menuTopQuestion.length() + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
 
-            System.out.print(getColoredMsg("|" + " ".repeat(spacesAroundOnEachSide), ANSI_color));
-            System.out.print(msgRow);
-            //msgRow.lines().toList() - used to escape the ANSI symbols
-            System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom - (getLengthOfTheLongestWordInList(msgRow.lines().toList()) + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
+        System.out.println(colored_frame);
+
+        for (int i = 0; i < numQuestionsInMenu; i++) {
+            String currentQuestion = menuOptions.get(i);
+
+            System.out.print(colored_start_row + currentQuestion);
+            System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom -
+                    (getLengthOfTheLongestWordInList(currentQuestion.lines().toList()) + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
         }
-        System.out.println(getColoredMsg(topAndBottom, ANSI_color));
+
+        System.out.println(colored_frame);
     }
 
     public static void runApp() throws IOException, ParseException {
@@ -246,14 +257,13 @@ public class Main {
 
     public static boolean takeMenuAction(int selectedOption) throws IOException, ParseException {
         switch (selectedOption) {
-            case 1 -> printAllDataFromDB();
-            case 2 -> printCSVFormatted(getDbDataToArrayListWithDescription(), ANSI_GREEN);
-            case 3 -> getAllUserDataAndWriteToDB();
-            case 4 -> printDataForTimePeriod();
-            case 5 -> printAllEmptyLocations();
-            case 6 -> printStockExpiringSoon();
-            case 7 -> printWarehouseInfo();
-            case 8 -> {
+            case 1 -> printCSVFormatted(getDbDataToArrayList(), ANSI_GREEN);
+            case 2 -> getAllUserDataAndWriteToDB();
+            case 3 -> printDataForTimePeriod();
+            case 4 -> printAllEmptyLocations();
+            case 5 -> printStockExpiringSoon();
+            case 6 -> printWarehouseInfo();
+            case 7 -> {
                 return false;
             }
         }
@@ -265,7 +275,7 @@ public class Main {
      * @return valid answer, depending on the number of questions
      */
     public static int printMenuOptions() {
-        String[] menuOptions = new String[]{"List all items", "List all items(Formatted)", "Add new delivery",
+        String[] menuOptions = new String[]{"List all items", "Add new delivery",
                 "List deliveries for time period", "Print all empty locations", "Print stock expiring soon", "Print Warehouse Info", "Exit"};
 
         // Add all questions to a List with numbers for the options
@@ -309,7 +319,7 @@ public class Main {
             }
         }
 
-        if (rowsExpired.size() > 0){
+        if (rowsExpired.size() > 0) {
             System.out.print(getColoredMsg("ALREADY EXPIRED STOCK:", ANSI_RED));
             printCSVFormatted(rowsExpired, ANSI_RED);
         } else {
@@ -327,6 +337,7 @@ public class Main {
     /**
      * Get the difference in days between a date and today.
      * if tomorrow --> 1, if yesterday --> -1
+     *
      * @param dateToCheck - date in format dd.mm.yyyy or d.m.yyyy
      * @return 0 if dateToCheck=today, positive number if the day is in the future, negative number if an older date.
      */
@@ -339,6 +350,7 @@ public class Main {
 
     /**
      * Used to compare dates
+     *
      * @param date - date in format dd.mm.yyyy or d.m.yyyy
      * @return number of days since year 1.
      */
@@ -369,6 +381,7 @@ public class Main {
 
     /**
      * Loops until the entered value is a possible option in the menu.
+     *
      * @param numOptions - the biggest available option number
      * @return A valid option in the menu.
      */
@@ -389,6 +402,7 @@ public class Main {
     /**
      * Loops over all static values to get all possible warehouse positions.
      * Used to get the next free position/location to place items.
+     *
      * @return list with all warehouse positions/locations
      */
     public static List<String> getAllPossibleLocations() {
@@ -507,18 +521,13 @@ public class Main {
     }
 
     /**
-
-
-         */
-
-    /**
      * * Need to check all rows that have the same Position and calculate total number of Items added to that location
      * By design - only same item names + expiry date will be added to 1 location, so no need to check if they match.
      *
-     * @return number of items that can be added to the specified location.
      * @param location - location to check
+     * @return number of items that can be added to the specified location.
      * @throws IOException - if the location is empty (Number of items depends on the type of item) or if the location
-     * doesn't exist in the DB (Wrong location/typo)
+     *                     doesn't exist in the DB (Wrong location/typo)
      */
     public static int getFreeSpaceAtLocationIfAtLeastOneItem(String location) throws IOException {
         List<String> allEmptyLocations = getAllEmptyLocations();
@@ -526,7 +535,7 @@ public class Main {
             throw new RuntimeException("Location " + location + " is empty and will fit different amount depending on the type of units.");
         }
 
-        List<String> allLocations =  getAllPossibleLocations();
+        List<String> allLocations = getAllPossibleLocations();
         if (!allLocations.contains(location)) {
             throw new RuntimeException("Location " + location + " doesn't exist in the warehouse.");
         }
@@ -553,7 +562,8 @@ public class Main {
      * that shelf and if there are - return the cell location.
      * If item not in DB or no free space on shelf - returns the next free cell/position/location (if any) or throws
      * an error that the warehouse is full.
-     * @param itemName - name of the item trying to add
+     *
+     * @param itemName   - name of the item trying to add
      * @param expiryDate - expiry date of the item (needed because same expiry date items can be on the same place)
      * @throws IOException - if warehouse is full.
      */
@@ -778,9 +788,9 @@ public class Main {
      * Will keep asking for a date until the input is "n/a" or a valid date in the format dd.mm.yyyy or d.m.yyyy.
      * The date can be separated by "." or "/".
      * Example input -> output:
-     *     1/2/2020  -> 01.02.2020
-     *     01.2.2020 -> 01.02.2020
-     *     N/A       -> n/a (will always return lower case n/a)
+     * 1/2/2020  -> 01.02.2020
+     * 01.2.2020 -> 01.02.2020
+     * N/A       -> n/a (will always return lower case n/a)
      *
      * @param userInput - initial user input
      * @return String date with leading zeros for the day and month (if single digits) and separated by "." no matter
@@ -826,6 +836,7 @@ public class Main {
     /**
      * Checks if date is expired or expires today.
      * Prints an error or a warning message if (item) date is expired or expires today.
+     *
      * @param date - date in format dd.mm.yyyy or d.m.yyyy
      * @return - true if date is expired, false if not expired or expires today.
      */
@@ -896,6 +907,7 @@ public class Main {
 
     /**
      * Loops until a valid Unit option is entered.
+     *
      * @param userInput - initial user input
      * @return - valid option.
      */
@@ -971,6 +983,7 @@ public class Main {
 
     /**
      * Gets all valid options from the user and takes action if any of the SPECIAL_CMDS are called.
+     *
      * @return - an array of all valid answers. "Optional" answers can be empty.
      */
     public static String[] getAllValidUserInput() throws IOException, ParseException {
@@ -1060,7 +1073,6 @@ public class Main {
      * @return a String Array that will be written in the DB file.
      * Example:
      * "Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", "Some comment"
-     *
      * @throws IOException - if DB/Warehouse locations/positions are full (no free space left)
      */
     public static List<List<String>> getAllData(String[] allValidUserInput) throws IOException {
@@ -1143,6 +1155,7 @@ public class Main {
 
     /**
      * Will return every UNIQUE location for an itemName with specified expiryDate including those that are full.
+     *
      * @return something like {A3 / 5 / 10, A3 / 7 / 10}
      */
     public static List<String> getAllUniqueLocationsForItem(String itemName, String expiryDate) throws IOException {
@@ -1170,15 +1183,9 @@ public class Main {
         return positions;
     }
 
-    //todo - description until here. 
-    public static void printAllDataFromDB() throws IOException {
-        String[][] DB = getAllDataFromDB();
-        printResults(DB);
-    }
-
     public static String[][] getAllDataFromDB() throws IOException {
         int numRowsWithDataInDB = getLenOfFile(false);
-        String[][] result = new String[numRowsWithDataInDB][DESCRIPTION_NO_NAME.length + 1];
+        String[][] result = new String[numRowsWithDataInDB][DESCRIPTION.length];
         String[] DB = getDbDataToStringArray();
 
         for (int i = 0; i < numRowsWithDataInDB; i++) {
@@ -1187,39 +1194,6 @@ public class Main {
         }
 
         return result;
-    }
-
-    public static void printResults(String[][] rows) {
-        // Light bulb - LED 75W | Expiry date: n/a | Entry date: 05.05.2021 | Manufacturer: Philips | Unit: Item
-        // | Stock: 104 | Position: A3 / 4 / 10 | Available items at shelf: 500 | Comment:
-
-        for (int i = 0; i < rows.length; i++) {
-            int printingDescriptionLength = rows[i].length;
-
-            // print the name of the item - and a separator on the back - "Light bulb - LED 75W | "
-            System.out.print(rows[i][0] + SEPARATOR_WHEN_PRINTING);
-
-            // Print every other description: value |
-            for (int j = 1; j < printingDescriptionLength; j++) {
-                String currentVal = rows[i][j];
-                if (j == printingDescriptionLength - 1) {
-
-                    // When converting from List to Array - and there is no comment - the value becomes null.
-                    // Don't print null in the Comment section if empty.
-                    if (currentVal == null) {
-                        currentVal = "";
-                    }
-
-                    // Don't print separator at the end.
-                    System.out.print(DESCRIPTION_NO_NAME[j - 1] + ": " + currentVal);
-                    continue;
-                }
-                System.out.print(DESCRIPTION_NO_NAME[j - 1] + ": " + currentVal + SEPARATOR_WHEN_PRINTING);
-
-            }
-
-            System.out.println();
-        }
     }
 
     public static void printDataForTimePeriod() throws IOException, ParseException {
@@ -1239,20 +1213,6 @@ public class Main {
         }
         System.out.print(getColoredMsg("STOCK ADDED IN THE PERIOD " + fromDate + " TO " + toDate + ":", ANSI_GREEN));
         printCSVFormatted(results, ANSI_GREEN);
-
-    }
-
-    public static String[][] convertListToArray(List<List<String>> listOfListsToConvert) {
-        String[][] arr = new String[listOfListsToConvert.size()][DESCRIPTION_NO_NAME.length + 1];
-
-        for (int i = 0; i < listOfListsToConvert.size(); i++) {
-            for (int j = 0; j < listOfListsToConvert.get(i).size(); j++) {
-                String currentElement = listOfListsToConvert.get(i).get(j);
-                arr[i][j] = currentElement;
-            }
-        }
-
-        return arr;
     }
 
     public static List<List<String>> getDataForTimePeriod(String fromDate, String toDate) throws IOException, ParseException {
@@ -1299,6 +1259,7 @@ public class Main {
     }
 
     public static boolean isDateBetweenTwoDates(String dateToCheck, String startDate, String endDate) throws ParseException {
+        // All dates need to be in the format dd.mm.yyyy
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
         Date date = sdf.parse(dateToCheck);
         Date start = sdf.parse(startDate);
@@ -1307,8 +1268,6 @@ public class Main {
     }
 
     public static int getLenOfFile(boolean countEmptyRows) throws IOException {
-        // Count all rows in a file with/without the empty rows.
-
         BufferedReader reader = new BufferedReader(new FileReader(DB_FILE_NAME));
         int lines = 0;
         String row = reader.readLine();
@@ -1322,7 +1281,6 @@ public class Main {
         }
         reader.close();
         return lines;
-
     }
 
     public static void createDBfileIfMissing() throws IOException {
@@ -1352,29 +1310,6 @@ public class Main {
         }
 
         return rowsData;
-    }
-
-    public static ArrayList<ArrayList<String>> getDbDataToArrayListWithDescription() throws IOException {
-        ArrayList<ArrayList<String>> rows = new ArrayList<>();
-        File file = new File(DB_FILE_NAME);
-        Scanner sc = new Scanner(file);
-
-        int numRowsInFileIncludingEmpty = getLenOfFile(true);
-        for (int i = 0; i < numRowsInFileIncludingEmpty; i++) {
-            ArrayList<String> row = new ArrayList<>();
-            String rowCSV = sc.nextLine();
-            if (!rowCSV.equals("")) {
-                row.add(rowCSV.split(SEPARATOR)[0]);
-                for (int j = 1; j < rowCSV.split(SEPARATOR).length; j++) {
-                    String val = rowCSV.split(SEPARATOR)[j];
-                    String desc = DESCRIPTION_NO_NAME[j - 1];
-                    row.add(desc + ": " + val);
-                }
-            }
-            rows.add(row);
-        }
-
-        return rows;
     }
 
     public static ArrayList<ArrayList<String>> getDbDataToArrayList() throws IOException {
@@ -1414,5 +1349,4 @@ public class Main {
             e.printStackTrace();
         }
     }
-
 }
