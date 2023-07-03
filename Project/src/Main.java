@@ -1,9 +1,11 @@
+import java.awt.*;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 
 // todo - write tests
@@ -39,7 +41,6 @@ public class Main {
 
     // Starting at the second element - "Name" not printed.
     static String[] DESCRIPTION = new String[]{"Name", "Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
-    static String[] DESCRIPTION_NO_NAME = new String[]{"Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
 
     @SuppressWarnings("FieldMayBeFinal")
     private static List<String> TEMP_USED_LOCATIONS_NOT_IN_DB = new ArrayList<>();
@@ -65,9 +66,12 @@ public class Main {
             "Units can be: " + getBoldYellowMsg(UNIT_OPTIONS.keySet().toString()),
             "Forbidden character: " + getBoldYellowMsg(SEPARATOR));
 
+    static final int MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU = 5;
+
     public static void main(String[] args) throws IOException, ParseException {
 //        System.out.println(getExpiryDate("n/a"));
-        runApp();
+//        runApp();
+
     }
 
     public static void tests() {
@@ -81,6 +85,17 @@ public class Main {
         System.out.println(isDateValid("0.02.1900"));
         System.out.println(isDateValid("-10.2.1900"));
         System.out.println(isDateValid("10.1.1900"));
+        System.out.println(getNumberOfDaysFromTodayToDate("20.02.2022"));
+        System.out.println(getNumberOfDaysFromTodayToDate("20.02.2023"));
+        System.out.println(getNumberOfDaysFromTodayToDate("20.06.2023"));
+        System.out.println(getNumberOfDaysFromTodayToDate("20.07.2023"));
+        System.out.println(getNumberOfDaysFromTodayToDate("20.02.2024"));
+        System.out.println(getNumberOfDaysFromTodayToDate("20.02.2025"));
+        System.out.println(isNumber("205"));
+        System.out.println(isNumber("205.245"));
+        System.out.println(isNumber("2"));
+        System.out.println(isNumber("d"));
+        System.out.println(isNumber("dadsad"));
     }
 
     /**
@@ -91,8 +106,8 @@ public class Main {
      * | Milk      | 02.03.1234  | 03.04.4231 | Alfatar               | unit  | 200   | b1 / 1 / 3 | 1000                     | 3%          |
      * ...
      *
-     * @param rows      - information from DB
-     * @param colorANSI - color of the frame.
+     * @param rows      - product information from DB
+     * @param colorANSI - color of the frame
      */
     public static void printCSVFormatted(ArrayList<ArrayList<String>> rows, String colorANSI) {
         if (rows.size() == 0)
@@ -159,40 +174,6 @@ public class Main {
         System.out.println(colored_frame + "\n");
     }
 
-    public static void printWarning(String msg) {
-        System.out.println(getColoredMsg("Warning: " + msg, ANSI_YELLOW));
-    }
-
-    public static void printError(String msg) {
-        System.out.println(getColoredMsg("Error: " + msg, ANSI_RED));
-    }
-
-    public static String getBoldYellowMsg(String msg) {
-        return getBoldMsg(getColoredMsg(msg, ANSI_YELLOW));
-    }
-
-    public static String getColoredMsg(String msg, String ANSI_color) {
-        return ANSI_color + msg + ANSI_RESET;
-    }
-
-    public static String getBoldMsg(String msg) {
-        return ANSI_BOLD + msg + ANSI_RESET;
-    }
-
-    public static int getStringLengthWithoutANSI(String str) {
-        return str.replaceAll("\u001B\\[[;\\d]*m", "").length();
-    }
-
-    public static int getLengthOfTheLongestWordInList(List<String> list) {
-        int longest = 0;
-        for (String row : list) {
-            int currentLength = getStringLengthWithoutANSI(row);
-            if (currentLength > longest) {
-                longest = currentLength;
-            }
-        }
-        return longest;
-    }
 
     /**
      * This method will be used to print the menu options. Adds a frame and prints the words
@@ -207,40 +188,35 @@ public class Main {
      *
      * @param menuTopQuestion - will be surrounded by a thick frame
      * @param menuOptions     - list of items to be printed
-     * @param ANSI_color      - color to use to print the menu
+     * @param ANSI_color      - color of the frame
      */
     public static void printMenuOptionsInFrame(String menuTopQuestion, List<String> menuOptions, String ANSI_color) {
-        List<String> menuQuestionAndOptions = new ArrayList<>();
-        menuQuestionAndOptions.addAll(menuOptions);
-        menuQuestionAndOptions.add(menuTopQuestion); // add the Menu question in case it's longer than the options.
+        // Create a new list using (menuOptions + menuTopQuestion) and find the longest row from both.
+        // Checking menuTopQuestion too, in case it's longer than the options below.
+        List<String> menuQuestionAndOptions = new ArrayList<>(menuOptions);
+        menuQuestionAndOptions.add(menuTopQuestion);
+        int longestRowInMsg = getLengthOfTheLongestRowInList(menuQuestionAndOptions);
 
-        // Dates need to be formatted as dd.mm.yyyy or d.m.yyyy and can be separated by . or /
-        int numQuestionsInMenu = menuOptions.size();
+        int frameLength = longestRowInMsg + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU * 2 + 2;
 
-        int longestWordInMsg = getLengthOfTheLongestWordInList(menuQuestionAndOptions);
-        int spacesAroundOnEachSide = 5;
+        String coloredFrameHorizontal = getColoredMsg("=".repeat(frameLength), ANSI_color);
+        String coloredFrameAndSpacesBeginningOfRow = getColoredMsg("|" + " ".repeat(MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU), ANSI_color);
 
-        int numSymbolsTopBottom = longestWordInMsg + spacesAroundOnEachSide * 2 + 2;
-        String colored_frame = getColoredMsg("=".repeat(numSymbolsTopBottom), ANSI_color);
-        String colored_start_row = getColoredMsg("|" + " ".repeat(spacesAroundOnEachSide), ANSI_color);
+        System.out.println(coloredFrameHorizontal);
 
-        System.out.println(colored_frame);
+        System.out.print(coloredFrameAndSpacesBeginningOfRow + menuTopQuestion);
+        System.out.println(getColoredMsg(" ".repeat(frameLength -
+                (menuTopQuestion.length() + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2)) + "|", ANSI_color));
 
-        System.out.print(colored_start_row + menuTopQuestion);
-        System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom -
-                (menuTopQuestion.length() + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
+        System.out.println(coloredFrameHorizontal);
 
-        System.out.println(colored_frame);
-
-        for (int i = 0; i < numQuestionsInMenu; i++) {
-            String currentQuestion = menuOptions.get(i);
-
-            System.out.print(colored_start_row + currentQuestion);
-            System.out.println(getColoredMsg(" ".repeat(numSymbolsTopBottom -
-                    (getLengthOfTheLongestWordInList(currentQuestion.lines().toList()) + spacesAroundOnEachSide + 2)) + "|", ANSI_color));
+        for (String currentQuestion : menuOptions) {
+            System.out.print(coloredFrameAndSpacesBeginningOfRow + currentQuestion);
+            System.out.println(getColoredMsg(" ".repeat(frameLength -
+                    (getLengthOfTheLongestRowInList(Collections.singletonList(currentQuestion)) + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2)) + "|", ANSI_color));
         }
 
-        System.out.println(colored_frame);
+        System.out.println(coloredFrameHorizontal);
     }
 
     public static void runApp() throws IOException, ParseException {
@@ -290,6 +266,27 @@ public class Main {
     }
 
     /**
+     * Loops until the entered value is a possible option in the menu.
+     *
+     * @param numOptions - the biggest available option number
+     * @return A valid option in the menu.
+     */
+    public static int getMenuAnswer(int numOptions) {
+        int ans = scanner.nextInt();
+        scanner.nextLine();
+
+        // Keep printing the error msg if answer is less than 1 or greater than the highest option number
+        while (ans < 1 || ans > numOptions) {
+            printError("Please choose a number between 1 and " + numOptions);
+            ans = scanner.nextInt();
+            scanner.nextLine();
+        }
+
+        return ans;
+    }
+
+    /**
+     * todo
      * This method does it all - asks the user for the number of days to check.
      * Checks items that have already expired and prints the result.
      * Checks items that will expire in the next N days and prints the result.
@@ -297,6 +294,7 @@ public class Main {
     public static void printStockExpiringSoon() throws IOException {
         System.out.println("Enter number of days to check: ");
         int daysToCheck = scanner.nextInt();
+        scanner.nextLine();
 
         ArrayList<ArrayList<String>> rowsExpired = new ArrayList<>();
         ArrayList<ArrayList<String>> rowsNotExpired = new ArrayList<>();
@@ -306,7 +304,7 @@ public class Main {
 
             String expiryDate = row.get(1);
 
-            int diff = getNumberOfDaysDifferenceFromToday(expiryDate);
+            int diff = getNumberOfDaysFromTodayToDate(expiryDate);
             ArrayList<String> rowExpired = new ArrayList<>();
             ArrayList<String> rowNotExpired = new ArrayList<>();
             if (diff < 1) {
@@ -341,7 +339,7 @@ public class Main {
      * @param dateToCheck - date in format dd.mm.yyyy or d.m.yyyy
      * @return 0 if dateToCheck=today, positive number if the day is in the future, negative number if an older date.
      */
-    public static int getNumberOfDaysDifferenceFromToday(String dateToCheck) {
+    public static int getNumberOfDaysFromTodayToDate(String dateToCheck) {
         String today = getToday();
         int todaysDateInDays = getNumberOfDaysToDate(today);
         int dateToCheckInDays = getNumberOfDaysToDate(dateToCheck);
@@ -372,31 +370,11 @@ public class Main {
         int numDaysInAllMonths = 0;
         // Without the current month because it hasn't passed.
         for (int i = 1; i < month; i++) {
-            int m_days = i * getDaysInMonth(year, month);
+            int m_days = getDaysInMonth(year, i);
             numDaysInAllMonths += m_days;
         }
 
         return numDaysInAllYears + numDaysInAllMonths + day;
-    }
-
-    /**
-     * Loops until the entered value is a possible option in the menu.
-     *
-     * @param numOptions - the biggest available option number
-     * @return A valid option in the menu.
-     */
-    public static int getMenuAnswer(int numOptions) {
-        int ans = scanner.nextInt();
-        scanner.nextLine();
-
-        // Keep printing the error msg if answer is less than 1 or greater than the highest option number
-        while (ans < 1 || ans > numOptions) {
-            printError("Please choose a number between 1 and " + numOptions);
-            ans = scanner.nextInt();
-            scanner.nextLine();
-        }
-
-        return ans;
     }
 
     /**
@@ -435,8 +413,7 @@ public class Main {
         List<String> results = new ArrayList<>();
 
         int numAllLocations = getWarehouseSize();
-        List<String> allEmptyLocations = getAllEmptyLocations();
-        int numEmptyLocations = allEmptyLocations.size();
+        int numEmptyLocations = getAllEmptyLocations().size();
         int numUsed = numAllLocations - numEmptyLocations;
         float percentageUsed = ((float) numUsed / numAllLocations) * 100;
         String percentageUsedFormatted = String.format("%.2f%%", percentageUsed);
@@ -487,8 +464,12 @@ public class Main {
         return result;
     }
 
-    public static String getFirstLocationThatDoesntHaveAnyItems() throws IOException {
+    public static String getFirstEmptyLocation() throws IOException {
         List<String> allEmptyLocations = getAllEmptyLocations();
+
+        if (allEmptyLocations.size() == 0) {
+            throw new RuntimeException("DB file/Warehouse is full.");
+        }
 
         // Sort the list to get the first position
         Collections.sort(allEmptyLocations);
@@ -505,11 +486,6 @@ public class Main {
             allPositions.remove(usedPosition);
         }
 
-        // todo - no throw ?
-        if (allPositions.size() == 0) {
-            throw new RuntimeException("DB file/Warehouse is full.");
-        }
-
         return allPositions;
     }
 
@@ -521,7 +497,7 @@ public class Main {
     }
 
     /**
-     * * Need to check all rows that have the same Position and calculate total number of Items added to that location
+     * Need to check all rows that have the same Location/Position and calculate total number of Items added to that location
      * By design - only same item names + expiry date will be added to 1 location, so no need to check if they match.
      *
      * @param location - location to check
@@ -535,6 +511,7 @@ public class Main {
             throw new RuntimeException("Location " + location + " is empty and will fit different amount depending on the type of units.");
         }
 
+        // This should never happen.
         List<String> allLocations = getAllPossibleLocations();
         if (!allLocations.contains(location)) {
             throw new RuntimeException("Location " + location + " doesn't exist in the warehouse.");
@@ -574,11 +551,11 @@ public class Main {
         for (String location : locations) {
             if (getFreeSpaceAtLocationIfAtLeastOneItem(location) > 0) {
 
-                // Check if the location has been filled in, so that on the second iteration in getAllData() while loop
+                // Check if the location has been filled in, so that on the second iteration in addPositionAndMaxNumberToAllValidUserInput() while loop
                 // this will not return the same location
                 for (String loc : TEMP_USED_LOCATIONS_NOT_IN_DB) {
                     if (loc.equals(location)) {
-                        return getFirstLocationThatDoesntHaveAnyItems();
+                        return getFirstEmptyLocation();
                     }
                 }
 
@@ -587,7 +564,7 @@ public class Main {
         }
 
         // If item not in DB or in DB but all locations are full - get the next free location.
-        return getFirstLocationThatDoesntHaveAnyItems();
+        return getFirstEmptyLocation();
     }
 
     /**
@@ -728,6 +705,128 @@ public class Main {
     }
 
     /**
+     * Write the validated user data + extra two columns (method addPositionAndMaxNumberToAllValidUserInput) in the DB file.
+     */
+    public static void getAllUserDataAndWriteToDB() throws IOException, ParseException {
+        String[] allValidUserInput = getAllValidUserInput();
+        List<List<String>> allData = addPositionAndMaxNumberToAllValidUserInput(allValidUserInput);
+
+        for (List<String> row : allData) {
+            writeDataToDB(row);
+        }
+        System.out.println("Product was added successfully!");
+    }
+
+    /**
+     * This method gets the validated answers of the used input and adds the remaining information that is needed before
+     * the data is stored in the DB.
+     * -
+     * The data that the user will add will be something like:
+     * "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock", "comment (optional)"
+     * -
+     * Entered data will be something like:
+     * {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", ""}
+     * *
+     * We need to add two more things:
+     * - position where the items will be located in the warehouse (First possible place or another place where it
+     * already exists and has the same expiry date.)
+     * - number of items that can fit on a single shelf (from map)
+     * * "Position" and "Max number of items on shelf" will be placed between "Stock" and "Comment".
+     *
+     * @param allValidUserInput - Array of all validated user inputs.
+     * @return a String Array that will be written in the DB file.
+     * Example:
+     * "Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", "Some comment"
+     * @throws IOException - if DB/Warehouse locations/positions are full (no free space left)
+     */
+    public static List<List<String>> addPositionAndMaxNumberToAllValidUserInput(String[] allValidUserInput) throws IOException {
+        // Get the max number of items per shelf depending on the type of item
+        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]);
+        String totalNumberOfItemsThatCanFitOnShelfString = String.valueOf(numberOfItemsThatCanFitOnShelf);
+
+        List<List<String>> newRowsToAdd = new ArrayList<>();
+
+        String itemName = allValidUserInput[0];
+        String expiryDate = allValidUserInput[1];
+        int numItemsRemainingToAdd = Integer.parseInt(allValidUserInput[5]);  // Stock from user input
+        while (numItemsRemainingToAdd > 0) {
+
+            // Because we want to return a List, items won't be recorded in the DB on every iteration.
+            // that's why there is a temp variable to store the locations that are already used but not written.
+            String positionToPlaceItem = getPositionToPlaceItem(itemName, expiryDate);
+            TEMP_USED_LOCATIONS_NOT_IN_DB.add(positionToPlaceItem);
+
+            // If item is in DB - get free space in location
+            int numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
+            if (isAtLeastOneItemInLocation(positionToPlaceItem)) {
+                numItemsThatWillFitInLocation = getFreeSpaceAtLocationIfAtLeastOneItem(positionToPlaceItem);
+            }
+
+            // There might be 100 free spaces but only 10 items need to be added
+            int numItemsThatWillBeAddedToLocation = numItemsThatWillFitInLocation;
+            if (numItemsRemainingToAdd < numItemsThatWillFitInLocation) {
+                numItemsThatWillBeAddedToLocation = numItemsRemainingToAdd;
+            }
+
+            // List initialization is inside the loop, so that it stores the data in different memory
+            List<String> allValidUserInputList = new ArrayList<>();
+            for (String element : allValidUserInput) {
+                allValidUserInputList.add(element);
+            }
+            allValidUserInputList.set(5, String.valueOf(numItemsThatWillBeAddedToLocation));
+            allValidUserInputList.add(6, positionToPlaceItem);
+            allValidUserInputList.add(7, totalNumberOfItemsThatCanFitOnShelfString);
+
+            newRowsToAdd.add(allValidUserInputList);
+
+            numItemsRemainingToAdd -= numItemsThatWillBeAddedToLocation;
+        }
+
+        // This can be added to a Finally block in writeDataToDB() but will work as good here too.
+        // Even if it fails to write the data - it will start over and the list needs to be empty.
+        TEMP_USED_LOCATIONS_NOT_IN_DB.clear();
+
+        return newRowsToAdd;
+    }
+
+    /**
+     * Gets all valid options from the user and takes action if any of the SPECIAL_CMDS are called.
+     *
+     * @return - an array of all valid answers. "Optional" answers can be empty. - will be written in the DB file.
+     */
+    public static String[] getAllValidUserInput() throws IOException, ParseException {
+        // Clear ANSWERS - not necessary but better to have it.
+        Arrays.fill(ANSWERS, null);
+
+        System.out.println();
+        printMenuOptionsInFrame("Enter the data for the items that you want to add:", specialOptions, ANSI_GREEN);
+        for (int i = 0; i < USER_QUESTIONS.length; i++) {
+
+            String ans = getValidUserInput(USER_QUESTIONS[i]);
+
+            // Don't allow ; to be added in the ans string as this is used in the CSV file and will mess things up.
+            while (isSeparatorInAns(ans)) {
+                printError("The symbol \"" + SEPARATOR + "\" can't be used. ");
+                ans = getValidUserInput(USER_QUESTIONS[i]);
+            }
+
+            // SPECIAL_CMDS - take action
+            if (ans.equalsIgnoreCase("reset!")) {
+                System.out.println();
+                Arrays.fill(ANSWERS, null);
+                return getAllValidUserInput();
+            } else if (ans.equalsIgnoreCase("stop!")) {
+                Arrays.fill(ANSWERS, null);
+                runApp();
+            }
+
+            ANSWERS[i] = ans;
+        }
+
+        return ANSWERS;
+    }
+
+    /**
      * This is the "main" validator method. It will be called for every user input.
      * Inner methods will loop until a valid input is entered for every question.
      * An answer is required for every question except the ones that have "optional" in them. They can be empty.
@@ -750,7 +849,6 @@ public class Main {
 
         String ans = scanner.nextLine();
 
-
         for (String specialCmd : SPECIAL_CMDS) {
             if (ans.strip().equalsIgnoreCase(specialCmd)) {
                 return specialCmd;
@@ -767,9 +865,17 @@ public class Main {
             return getExpiryDate(ans);
         }
 
+        else if ((question.equalsIgnoreCase("from date")) || (question.equalsIgnoreCase("to date"))) {
+            return getEntryDate(ans, false);
+        }
+
         // entry date - needs to be a date. Can't be "n/a". Will also work for other "date"(s).
         else if (question.contains("date")) {
-            return getDate(ans);
+            return getEntryDate(ans, true);
+        }
+
+        else if (question.contains("stock")) {
+            return getStock(ans);
         }
 
         // Allow empty/blank input if the question is optional. Require an input if not.
@@ -798,25 +904,7 @@ public class Main {
      */
     public static String getExpiryDate(String userInput) {
 
-        // Expiry date can be n/a
-        if (userInput.equalsIgnoreCase("n/a")) {
-            return "n/a";
-        }
-
-        boolean isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(userInput));
-        boolean isNotExpired = false;
-
-        if (isCurrentDateValid) {
-            isNotExpired = !isDateExpired(userInput);
-        }
-
-        while (!((isCurrentDateValid && isNotExpired) || userInput.equalsIgnoreCase("n/a"))) {
-            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
-            userInput = scanner.nextLine();
-
-            if (userInput.equalsIgnoreCase("n/a")) {
-                return "n/a";
-            }
+        while (true) {
 
             for (String specialCmd : SPECIAL_CMDS) {
                 if (userInput.strip().equalsIgnoreCase(specialCmd)) {
@@ -824,13 +912,27 @@ public class Main {
                 }
             }
 
-            isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(userInput));
-            if (isCurrentDateValid) {
-                isNotExpired = !isDateExpired(userInput);
+            // Expiry date can be n/a
+            if (userInput.equalsIgnoreCase("n/a")) {
+                return "n/a";
             }
+
+            boolean isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(userInput));
+
+            boolean isExpired = true;
+            if (isCurrentDateValid) {
+                isExpired = isDateExpired(userInput);
+            }
+
+            if (!isExpired) {
+                return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(userInput).strip());
+            }
+
+            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
+            userInput = scanner.nextLine();
         }
 
-        return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(userInput).strip());
+//        return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(userInput).strip());
     }
 
     /**
@@ -841,10 +943,10 @@ public class Main {
      * @return - true if date is expired, false if not expired or expires today.
      */
     public static boolean isDateExpired(String date) {
-        if (getNumberOfDaysDifferenceFromToday(date) < 0) {
+        if (getNumberOfDaysFromTodayToDate(date) < 0) {
             printError("The item has already expired!");
             return true;
-        } else if (getNumberOfDaysDifferenceFromToday(date) == 0) {
+        } else if (getNumberOfDaysFromTodayToDate(date) == 0) {
             printWarning("The item expires today!");
         }
         return false;
@@ -859,7 +961,7 @@ public class Main {
      * @return String date with leading zeros for the day and month (if single digits) and separated by "." no matter
      * how it was entered by the user.
      */
-    public static String getDate(String userInput) {
+    public static String getEntryDate(String userInput, boolean checkExpired) {
         if (userInput.equalsIgnoreCase("today")) {
             return getToday();  // no checks needed.
         }
@@ -867,8 +969,9 @@ public class Main {
         boolean isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(userInput));
         boolean isEntryDateLaterThanExpiryDate = false;
 
+        // todo - check only when adding data
         // Check if the items entered the WH are already expired at the day of entry
-        if (isCurrentDateValid) {
+        if (isCurrentDateValid && checkExpired) {
             String currentExpiryDate = ANSWERS[1];
             if (getNumberOfDaysToDate(userInput) >= getNumberOfDaysToDate(currentExpiryDate)) {
                 printError("Something is wrong. Entry date(" + userInput + ") is after expiry date(" + currentExpiryDate + ")");
@@ -892,7 +995,7 @@ public class Main {
             isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(userInput));
 
             // Check if the items entered the WH are already expired at the day of entry
-            if (isCurrentDateValid) {
+            if (isCurrentDateValid && checkExpired) {
                 String currentExpiryDate = ANSWERS[1];
                 if (getNumberOfDaysToDate(userInput) > getNumberOfDaysToDate(currentExpiryDate)) {
                     printError("Something is wrong. Entry date(" + addLeadingZeroToDayMonth(userInput) + ") is after expiry date(" + currentExpiryDate + ").");
@@ -930,6 +1033,35 @@ public class Main {
         }
 
         return userInput;
+    }
+
+    public static String getStock(String userInput) {
+        boolean isNumber = isNumber(userInput);
+
+        while (!isNumber) {
+            printError("Please Enter a valid option for Stock (needs to be a number): ");
+            userInput = scanner.nextLine();
+
+            for (String specialCmd : SPECIAL_CMDS) {
+                if (userInput.strip().equalsIgnoreCase(specialCmd)) {
+                    return specialCmd;
+                }
+            }
+
+            isNumber = isNumber(userInput);
+        }
+
+        return userInput;
+    }
+
+    public static boolean isNumber(String strToCheck) {
+        // todo - 2d is accepted -> fix no letters
+        try {
+            Double.parseDouble(strToCheck);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 
     public static String getToday() {
@@ -981,69 +1113,6 @@ public class Main {
         return dateFormatted;
     }
 
-    /**
-     * Gets all valid options from the user and takes action if any of the SPECIAL_CMDS are called.
-     *
-     * @return - an array of all valid answers. "Optional" answers can be empty.
-     */
-    public static String[] getAllValidUserInput() throws IOException, ParseException {
-        /*
-        Enter product name:
-        << Battery CR32
-
-        Enter expiry date:
-        <<24.11.2025
-
-        Enter entry date:
-        << 02.06.2021
-
-        Enter manufacturer:
-        << Varta
-
-        Enter unit:
-        << Item
-
-        Enter available stock:
-        << 900
-
-        Enter comment (optional):
-        <<
-
-         "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock", "comment (optional)"
-         returns: {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", ""}
-         */
-
-        // Clear ANSWERS - not necessary but better to have it.
-        Arrays.fill(ANSWERS, null);
-
-        System.out.println();
-        printMenuOptionsInFrame("Enter the data for the items that you want to add:", specialOptions, ANSI_GREEN);
-        for (int i = 0; i < USER_QUESTIONS.length; i++) {
-
-            String ans = getValidUserInput(USER_QUESTIONS[i]);
-
-            // Don't allow ; to be added in the ans string as this is used in the CSV file and will mess things up.
-            while (isSeparatorInAns(ans)) {
-                printError("The symbol \"" + SEPARATOR + "\" can't be used. ");
-                ans = getValidUserInput(USER_QUESTIONS[i]);
-            }
-
-            // SPECIAL_CMDS - take action
-            if (ans.equalsIgnoreCase("reset!")) {
-                System.out.println();
-                Arrays.fill(ANSWERS, null);
-                return getAllValidUserInput();
-            } else if (ans.equalsIgnoreCase("stop!")) {
-                Arrays.fill(ANSWERS, null);
-                runApp();
-            }
-
-            ANSWERS[i] = ans;
-        }
-
-        return ANSWERS;
-    }
-
     public static boolean isSeparatorInAns(String ans) {
         for (int i = 0; i < ans.length(); i++) {
             if (ans.split("")[i].equals(SEPARATOR)) {
@@ -1053,103 +1122,13 @@ public class Main {
         return false;
     }
 
-    /**
-     * This method gets the validated answers of the used input and adds the remaining information that is needed before
-     * the data is stored in the DB.
-     * -
-     * The data that the user will add will be something like:
-     * "product name", "expiry date", "entry date", "manufacturer", "unit", "available stock", "comment (optional)"
-     * -
-     * Entered data will be something like:
-     * {"Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", ""}
-     * *
-     * We need to add two more things:
-     * - position where the items will be located in the warehouse (First possible place or another place where it
-     * already exists and has the same expiry date.)
-     * - number of items that can fit on a single shelf (from map)
-     * * "Position" and "Max number of items on shelf" will be placed between "Stock" and "Comment".
-     *
-     * @param allValidUserInput - Array of all validated user inputs.
-     * @return a String Array that will be written in the DB file.
-     * Example:
-     * "Battery CR32", "24.11.2025", "02.06.2021", "Varta", "Item", "900", "A3 / 4 / 10", "10000", "Some comment"
-     * @throws IOException - if DB/Warehouse locations/positions are full (no free space left)
-     */
-    public static List<List<String>> getAllData(String[] allValidUserInput) throws IOException {
-        // Get the max number of items per shelf depending on the type of item
-        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]);
-        String totalNumberOfItemsThatCanFitOnShelfString = String.valueOf(numberOfItemsThatCanFitOnShelf);
-
-        List<List<String>> newRowsToAdd = new ArrayList<>();
-
-        String itemName = allValidUserInput[0];
-        String expiryDate = allValidUserInput[1];
-        int numItemsRemainingToAdd = Integer.parseInt(allValidUserInput[5]);  // Stock from user input
-        while (numItemsRemainingToAdd > 0) {
-
-            // Because we want to return a List, items won't be recorded in the DB on every iteration.
-            // that's why there is a temp variable to store the locations that are already used but not written.
-            String positionToPlaceItem = getPositionToPlaceItem(itemName, expiryDate);
-            TEMP_USED_LOCATIONS_NOT_IN_DB.add(positionToPlaceItem);
-
-            // If item is in DB - get free space in location
-            int numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
-            if (isAtLeastOneItemInLocation(positionToPlaceItem)) {
-                numItemsThatWillFitInLocation = getFreeSpaceAtLocationIfAtLeastOneItem(positionToPlaceItem);
-            }
-
-            // There might be 100 free spaces but only 10 items need to be added
-            int numItemsThatWillBeAddedToLocation = numItemsThatWillFitInLocation;
-            if (numItemsRemainingToAdd < numItemsThatWillFitInLocation) {
-                numItemsThatWillBeAddedToLocation = numItemsRemainingToAdd;
-            }
-
-            // List initialization is inside the loop, so that it stores the data in different memory
-            List<String> allValidUserInputList = new ArrayList<>();
-            for (String element : allValidUserInput) {
-                allValidUserInputList.add(element);
-            }
-            allValidUserInputList.set(5, String.valueOf(numItemsThatWillBeAddedToLocation));
-            allValidUserInputList.add(6, positionToPlaceItem);
-            allValidUserInputList.add(7, totalNumberOfItemsThatCanFitOnShelfString);
-
-            newRowsToAdd.add(allValidUserInputList);
-
-            numItemsRemainingToAdd -= numItemsThatWillBeAddedToLocation;
-        }
-
-        // This can be added to a Finally block in writeDataToDB() but will work as good here too.
-        // Even if it fails to write the data - it will start over and the list needs to be empty.
-        TEMP_USED_LOCATIONS_NOT_IN_DB.clear();
-
-        return newRowsToAdd;
-    }
-
-    /**
-     * Write the validated user data + extra two columns (method getAllData) in the DB file.
-     */
-    public static void getAllUserDataAndWriteToDB() throws IOException, ParseException {
-        String[] allValidUserInput = getAllValidUserInput();
-        List<List<String>> allData = getAllData(allValidUserInput);
-
-        for (List<String> row : allData) {
-            writeDataToDB(row);
-        }
-        System.out.println("Product was added successfully!");
-    }
-
-    /**
-     * Checks if location is not empty and has at least one item.
-     */
     public static boolean isAtLeastOneItemInLocation(String location) throws IOException {
         String[][] DB = getAllDataFromDB();
-
         for (String[] row : DB) {
             if (row[6].equalsIgnoreCase(location)) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -1204,15 +1183,19 @@ public class Main {
         // Populate a list with the rows in the range
         List<List<String>> dataBetweenTwoDates = getDataForTimePeriod(fromDate, toDate);
 
-        // Add the results to an ArrayList, so it can be printed
-        ArrayList<ArrayList<String>> results = new ArrayList<>();
-        for (List<String> row : dataBetweenTwoDates) {
-            ArrayList<String> result = new ArrayList<>();
-            result.addAll(row);
-            results.add(result);
+        if (dataBetweenTwoDates.size() == 0) {
+            System.out.println(getColoredMsg("NO STOCK FOUND IN THE PERIOD " + fromDate + " TO " + toDate, ANSI_GREEN));
+        } else {
+            // Add the results to an ArrayList, so it can be printed
+            ArrayList<ArrayList<String>> results = new ArrayList<>();
+            for (List<String> row : dataBetweenTwoDates) {
+                ArrayList<String> result = new ArrayList<>();
+                result.addAll(row);
+                results.add(result);
+            }
+            System.out.print(getColoredMsg("STOCK ADDED IN THE PERIOD " + fromDate + " TO " + toDate + ":", ANSI_GREEN));
+            printCSVFormatted(results, ANSI_GREEN);
         }
-        System.out.print(getColoredMsg("STOCK ADDED IN THE PERIOD " + fromDate + " TO " + toDate + ":", ANSI_GREEN));
-        printCSVFormatted(results, ANSI_GREEN);
     }
 
     public static List<List<String>> getDataForTimePeriod(String fromDate, String toDate) throws IOException, ParseException {
@@ -1254,6 +1237,13 @@ public class Main {
 
         result[0] = fromDate;
         result[1] = toDate;
+
+        // Flip the values if needed.
+        if (getNumberOfDaysToDate(fromDate) > getNumberOfDaysToDate(toDate)) {
+            printWarning("\"To date\" is before \"From date\". Flipping the numbers.");
+            result[0] = toDate;
+            result[1] = fromDate;
+        }
 
         return result;
     }
@@ -1348,5 +1338,44 @@ public class Main {
             printError("An error occurred while writing " + row);
             e.printStackTrace();
         }
+    }
+
+
+
+    // =============
+
+    public static void printWarning(String msg) {
+        System.out.println(getColoredMsg("Warning: " + msg, ANSI_YELLOW));
+    }
+
+    public static void printError(String msg) {
+        System.out.println(getColoredMsg("Error: " + msg, ANSI_RED));
+    }
+
+    public static String getBoldYellowMsg(String msg) {
+        return getBoldMsg(getColoredMsg(msg, ANSI_YELLOW));
+    }
+
+    public static String getColoredMsg(String msg, String ANSI_color) {
+        return ANSI_color + msg + ANSI_RESET;
+    }
+
+    public static String getBoldMsg(String msg) {
+        return ANSI_BOLD + msg + ANSI_RESET;
+    }
+
+    public static int getStringLengthWithoutANSI(String str) {
+        return str.replaceAll("\u001B\\[[;\\d]*m", "").length();
+    }
+
+    public static int getLengthOfTheLongestRowInList(List<String> list) {
+        int longest = 0;
+        for (String row : list) {
+            int currentLength = getStringLengthWithoutANSI(row);
+            if (currentLength > longest) {
+                longest = currentLength;
+            }
+        }
+        return longest;
     }
 }
