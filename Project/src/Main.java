@@ -1,5 +1,5 @@
-import java.awt.*;
 import java.io.*;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -68,36 +68,12 @@ public class Main {
 
     static final int MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU = 5;
 
+    private static final DecimalFormat df = new DecimalFormat("0.0");
+
     public static void main(String[] args) throws IOException, ParseException {
-//        System.out.println(getExpiryDate("n/a"));
-//        runApp();
-
+        runApp();
     }
-
-    public static void tests() {
-        System.out.println(isDateValid("33113.20"));
-        System.out.println(isDateValid("33.12.2020.3"));
-        System.out.println(isDateValid("33.13.20"));
-        System.out.println(isDateValid("33.12.20"));
-        System.out.println(isDateValid("33.12.2020"));
-        System.out.println(isDateValid("33.02.2020"));
-        System.out.println(isDateValid("33.02.1900"));
-        System.out.println(isDateValid("0.02.1900"));
-        System.out.println(isDateValid("-10.2.1900"));
-        System.out.println(isDateValid("10.1.1900"));
-        System.out.println(getNumberOfDaysFromTodayToDate("20.02.2022"));
-        System.out.println(getNumberOfDaysFromTodayToDate("20.02.2023"));
-        System.out.println(getNumberOfDaysFromTodayToDate("20.06.2023"));
-        System.out.println(getNumberOfDaysFromTodayToDate("20.07.2023"));
-        System.out.println(getNumberOfDaysFromTodayToDate("20.02.2024"));
-        System.out.println(getNumberOfDaysFromTodayToDate("20.02.2025"));
-        System.out.println(isNumber("205"));
-        System.out.println(isNumber("205.245"));
-        System.out.println(isNumber("2"));
-        System.out.println(isNumber("d"));
-        System.out.println(isNumber("dadsad"));
-    }
-
+    
     /**
      * This method will print the description + the information from the DB in a colored frame.
      * ======================================================================================================================================
@@ -109,7 +85,7 @@ public class Main {
      * @param rows      - product information from DB
      * @param colorANSI - color of the frame
      */
-    public static void printCSVFormatted(ArrayList<ArrayList<String>> rows, String colorANSI) {
+    public static void printDBInFrameWithDescription(ArrayList<ArrayList<String>> rows, String colorANSI) {
         if (rows.size() == 0)
             throw new RuntimeException("DB file " + DB_FILE_NAME + " is empty.");
 
@@ -233,7 +209,7 @@ public class Main {
 
     public static boolean takeMenuAction(int selectedOption) throws IOException, ParseException {
         switch (selectedOption) {
-            case 1 -> printCSVFormatted(getDbDataToArrayList(), ANSI_GREEN);
+            case 1 -> printDBInFrameWithDescription(getDbDataToArrayList(), ANSI_GREEN);
             case 2 -> getAllUserDataAndWriteToDB();
             case 3 -> printDataForTimePeriod();
             case 4 -> printAllEmptyLocations();
@@ -319,14 +295,14 @@ public class Main {
 
         if (rowsExpired.size() > 0) {
             System.out.print(getColoredMsg("ALREADY EXPIRED STOCK:", ANSI_RED));
-            printCSVFormatted(rowsExpired, ANSI_RED);
+            printDBInFrameWithDescription(rowsExpired, ANSI_RED);
         } else {
             System.out.print(getColoredMsg("NO EXPIRED STOCK:", ANSI_GREEN));
         }
 
         if (rowsNotExpired.size() > 0) {
             System.out.print(getColoredMsg("STOCK THAT WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_YELLOW));
-            printCSVFormatted(rowsNotExpired, ANSI_YELLOW);
+            printDBInFrameWithDescription(rowsNotExpired, ANSI_YELLOW);
         } else {
             System.out.print(getColoredMsg("NO STOCK WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_GREEN));
         }
@@ -505,7 +481,7 @@ public class Main {
      * @throws IOException - if the location is empty (Number of items depends on the type of item) or if the location
      *                     doesn't exist in the DB (Wrong location/typo)
      */
-    public static int getFreeSpaceAtLocationIfAtLeastOneItem(String location) throws IOException {
+    public static double getFreeSpaceAtLocationIfAtLeastOneItem(String location) throws IOException {
         List<String> allEmptyLocations = getAllEmptyLocations();
         if (allEmptyLocations.contains(location)) {
             throw new RuntimeException("Location " + location + " is empty and will fit different amount depending on the type of units.");
@@ -518,19 +494,19 @@ public class Main {
         }
 
         String[][] DB = getAllDataFromDB();
-        int numItems = 0;
-        int maxNumItems = 0;
+        double numItems = 0;
+        double maxNumItems = 0;
 
         for (String[] row : DB) {
             if (row[6].equalsIgnoreCase(location)) {
-                int currentRowStock = Integer.parseInt(row[5]);
+                double currentRowStock = Double.parseDouble(row[5]);
                 numItems += currentRowStock;
 
-                maxNumItems = Integer.parseInt(row[7]);
+                maxNumItems = Double.parseDouble(row[7]);
             }
         }
-
-        return maxNumItems - numItems;
+        // format to single digit, so it doesn't return "26.200000000000003"
+        return Double.parseDouble(df.format(maxNumItems - numItems));
     }
 
     /**
@@ -717,6 +693,32 @@ public class Main {
         System.out.println("Product was added successfully!");
     }
 
+    public static String removeDecimalIfEndsOnZero(String decimalNumber) {
+        // .0 -> 0
+        // .2 -> 0.2
+        // 10.0 -> 10
+        // 10.2 -> 10.2
+        // 10 -> 10
+
+        try {
+            String firstPart = decimalNumber.split("\\.")[0];
+            if (firstPart.equals("")) {
+                firstPart = "0";
+            }
+            String secondPart = decimalNumber.split("\\.")[1];
+
+            if (secondPart.equals("0")) {
+                return firstPart;
+            }
+
+            // build it before returning it, so it adds 0 in front of to .2 -> 0.2
+            return firstPart + "." + secondPart;
+        } catch (RuntimeException e) {
+            // the above will fail if num is integer
+            return decimalNumber;
+        }
+    }
+
     /**
      * This method gets the validated answers of the used input and adds the remaining information that is needed before
      * the data is stored in the DB.
@@ -741,14 +743,14 @@ public class Main {
      */
     public static List<List<String>> addPositionAndMaxNumberToAllValidUserInput(String[] allValidUserInput) throws IOException {
         // Get the max number of items per shelf depending on the type of item
-        int numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]);
+        double numberOfItemsThatCanFitOnShelf = UNIT_OPTIONS.get(allValidUserInput[4]);
         String totalNumberOfItemsThatCanFitOnShelfString = String.valueOf(numberOfItemsThatCanFitOnShelf);
 
         List<List<String>> newRowsToAdd = new ArrayList<>();
 
         String itemName = allValidUserInput[0];
         String expiryDate = allValidUserInput[1];
-        int numItemsRemainingToAdd = Integer.parseInt(allValidUserInput[5]);  // Stock from user input
+        double numItemsRemainingToAdd = Double.parseDouble(allValidUserInput[5]);  // Stock from user input
         while (numItemsRemainingToAdd > 0) {
 
             // Because we want to return a List, items won't be recorded in the DB on every iteration.
@@ -757,13 +759,13 @@ public class Main {
             TEMP_USED_LOCATIONS_NOT_IN_DB.add(positionToPlaceItem);
 
             // If item is in DB - get free space in location
-            int numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
+            double numItemsThatWillFitInLocation = numberOfItemsThatCanFitOnShelf;
             if (isAtLeastOneItemInLocation(positionToPlaceItem)) {
                 numItemsThatWillFitInLocation = getFreeSpaceAtLocationIfAtLeastOneItem(positionToPlaceItem);
             }
 
             // There might be 100 free spaces but only 10 items need to be added
-            int numItemsThatWillBeAddedToLocation = numItemsThatWillFitInLocation;
+            double numItemsThatWillBeAddedToLocation = numItemsThatWillFitInLocation;
             if (numItemsRemainingToAdd < numItemsThatWillFitInLocation) {
                 numItemsThatWillBeAddedToLocation = numItemsRemainingToAdd;
             }
@@ -773,9 +775,10 @@ public class Main {
             for (String element : allValidUserInput) {
                 allValidUserInputList.add(element);
             }
-            allValidUserInputList.set(5, String.valueOf(numItemsThatWillBeAddedToLocation));
+//            allValidUserInputList.set(5, removeDecimalIfEndsOnZero(String.valueOf(numItemsThatWillBeAddedToLocation)));
+            allValidUserInputList.set(5, removeDecimalIfEndsOnZero(df.format(numItemsThatWillBeAddedToLocation)));
             allValidUserInputList.add(6, positionToPlaceItem);
-            allValidUserInputList.add(7, totalNumberOfItemsThatCanFitOnShelfString);
+            allValidUserInputList.add(7, removeDecimalIfEndsOnZero(totalNumberOfItemsThatCanFitOnShelfString));
 
             newRowsToAdd.add(allValidUserInputList);
 
@@ -916,8 +919,9 @@ public class Main {
             if (userInput.equalsIgnoreCase("n/a")) {
                 return "n/a";
             }
+            userInput = convertDateFromUKtoEUType(userInput);
 
-            boolean isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(userInput));
+            boolean isCurrentDateValid = isDateValid(userInput);
 
             boolean isExpired = true;
             if (isCurrentDateValid) {
@@ -925,7 +929,7 @@ public class Main {
             }
 
             if (!isExpired) {
-                return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(userInput).strip());
+                return addLeadingZeroToDayMonth(userInput.strip());
             }
 
             printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
@@ -965,15 +969,16 @@ public class Main {
         if (userInput.equalsIgnoreCase("today")) {
             return getToday();  // no checks needed.
         }
+        userInput = convertDateFromUKtoEUType(userInput);
 
-        boolean isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(userInput));
+        boolean isCurrentDateValid = isDateValid(userInput);
         boolean isEntryDateLaterThanExpiryDate = false;
 
         // todo - check only when adding data
         // Check if the items entered the WH are already expired at the day of entry
         if (isCurrentDateValid && checkExpired) {
             String currentExpiryDate = ANSWERS[1];
-            if (getNumberOfDaysToDate(userInput) >= getNumberOfDaysToDate(currentExpiryDate)) {
+            if (getNumberOfDaysToDate(userInput) > getNumberOfDaysToDate(currentExpiryDate)) {
                 printError("Something is wrong. Entry date(" + userInput + ") is after expiry date(" + currentExpiryDate + ")");
                 isEntryDateLaterThanExpiryDate = true;
             }
@@ -1055,13 +1060,8 @@ public class Main {
     }
 
     public static boolean isNumber(String strToCheck) {
-        // todo - 2d is accepted -> fix no letters
-        try {
-            Double.parseDouble(strToCheck);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
+        // Will match integers + optional single decimal place digit
+        return strToCheck.matches("\\d+(\\.\\d)?");
     }
 
     public static String getToday() {
@@ -1194,7 +1194,7 @@ public class Main {
                 results.add(result);
             }
             System.out.print(getColoredMsg("STOCK ADDED IN THE PERIOD " + fromDate + " TO " + toDate + ":", ANSI_GREEN));
-            printCSVFormatted(results, ANSI_GREEN);
+            printDBInFrameWithDescription(results, ANSI_GREEN);
         }
     }
 
