@@ -71,8 +71,8 @@ public class Main {
     private static final DecimalFormat df = new DecimalFormat("0.0");
 
     public static void main(String[] args) throws IOException, ParseException {
-//        printFullLocations();
-        runApp();
+//        printAllLocationsColoredFullPartlyEmpty();
+    runApp();
     }
 
     /**
@@ -182,8 +182,10 @@ public class Main {
         System.out.println(coloredFrameHorizontal);
 
         System.out.print(coloredFrameAndSpacesBeginningOfRow + menuTopQuestion);
+//        System.out.println(getColoredMsg(" ".repeat(frameLength -
+//                (menuTopQuestion.length() + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2)) + "|", ANSI_color));
         System.out.println(getColoredMsg(" ".repeat(frameLength -
-                (menuTopQuestion.length() + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2)) + "|", ANSI_color));
+                (getLengthOfTheLongestRowInList(Collections.singletonList(menuTopQuestion)) + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2)) + "|", ANSI_color));
 
         System.out.println(coloredFrameHorizontal);
 
@@ -215,10 +217,11 @@ public class Main {
             case 3 -> printDataForTimePeriod();
             case 4 -> printAllEmptyLocations();
             case 5 -> printFullLocations();
-            case 6 -> printStockExpiringSoon();
-            case 7 -> printExpiredStock();
-            case 8 -> printWarehouseInfo();
-            case 9 -> {
+            case 6 -> printAllLocationsColoredFullPartlyEmpty();
+            case 7 -> printStockExpiringSoon();
+            case 8 -> printExpiredStock();
+            case 9 -> printWarehouseInfo();
+            case 10 -> {
                 return false;
             }
         }
@@ -231,7 +234,7 @@ public class Main {
      */
     public static int printMenuOptions() {
         String[] menuOptions = new String[]{"List all items", "Add new delivery",
-                "List deliveries for time period", "Print all empty locations", "Print all full locations",
+                "List deliveries for time period", "Print all empty locations", "Print all full locations", "Print color-coded locations",
                 "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Exit"};
 
         // Add all questions to a List with numbers for the options
@@ -440,6 +443,34 @@ public class Main {
         // print the data - formatted in a frame
         printMenuOptionsInFrame("WAREHOUSE INFO", results, ANSI_GREEN);
     }
+
+    public static void printAllLocationsColoredFullPartlyEmpty() throws IOException {
+        // Full locations - red
+        // Partly full locations - yellow
+        // Empty locations - green
+
+        List<String> allLocations = getAllPossibleLocations();
+        List<String> emptyLocations = getAllEmptyLocations();
+        List<String> fullLocations = getFullLocations();
+
+        List<String> resultToPrint = new ArrayList<>();
+
+        for (String location: allLocations) {
+            if (emptyLocations.contains(location)) {
+                resultToPrint.add(location);
+            } else if (fullLocations.contains(location)) {
+                resultToPrint.add(getColoredMsg(location, ANSI_RED));
+            } else {
+                resultToPrint.add(getColoredMsg(location, ANSI_YELLOW));
+            }
+        }
+
+        String msg = getColoredMsg("Empty     ", ANSI_GREEN) + getColoredMsg("Partly full", ANSI_YELLOW) +
+                getColoredMsg("     Full", ANSI_RED);
+
+        printMenuOptionsInFrame(msg, resultToPrint, ANSI_GREEN);
+    }
+
     public static List<String> getFullLocations() throws IOException {
         List<String> fullLocations = new ArrayList<>();
         List<String> usedLocations = getAllLocationsThatHaveAtLeastOneItem();
