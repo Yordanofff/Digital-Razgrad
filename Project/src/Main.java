@@ -24,7 +24,7 @@ public class Main {
 //    static char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
 
     static char[] LETTER_SECTION = "ab".toCharArray();
-    static int NUM_SECTION = 2;
+    static int NUM_SECTION = 3;
     static int NUM_SHELVES = 3;
     static int NUM_NUMBERS = 4;
 
@@ -71,6 +71,7 @@ public class Main {
     private static final DecimalFormat df = new DecimalFormat("0.0");
 
     public static void main(String[] args) throws IOException, ParseException {
+//        printFullLocations();
         runApp();
     }
 
@@ -213,10 +214,11 @@ public class Main {
             case 2 -> getAllUserDataAndWriteToDB();
             case 3 -> printDataForTimePeriod();
             case 4 -> printAllEmptyLocations();
-            case 5 -> printStockExpiringSoon();
-            case 6 -> printExpiredStock();
-            case 7 -> printWarehouseInfo();
-            case 8 -> {
+            case 5 -> printFullLocations();
+            case 6 -> printStockExpiringSoon();
+            case 7 -> printExpiredStock();
+            case 8 -> printWarehouseInfo();
+            case 9 -> {
                 return false;
             }
         }
@@ -229,7 +231,8 @@ public class Main {
      */
     public static int printMenuOptions() {
         String[] menuOptions = new String[]{"List all items", "Add new delivery",
-                "List deliveries for time period", "Print all empty locations", "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Exit"};
+                "List deliveries for time period", "Print all empty locations", "Print all full locations",
+                "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Exit"};
 
         // Add all questions to a List with numbers for the options
         List<String> menuOptionsWithNumbers = new ArrayList<>();
@@ -434,6 +437,25 @@ public class Main {
         // print the data - formatted in a frame
         printMenuOptionsInFrame("WAREHOUSE INFO", results, ANSI_GREEN);
     }
+    public static List<String> getFullLocations() throws IOException {
+        List<String> fullLocations = new ArrayList<>();
+        List<String> usedLocations = getAllLocationsThatHaveAtLeastOneItem();
+        for (String usedLocation: usedLocations) {
+            if (getFreeSpaceAtLocationIfAtLeastOneItem(usedLocation) == 0) {
+                fullLocations.add(usedLocation);
+            }
+        }
+        return fullLocations;
+    }
+
+    public static void printFullLocations() throws IOException {
+        List<String> fullLocations = getFullLocations();
+        Collections.sort(fullLocations);
+
+        int numFullLocations = fullLocations.size();
+
+        printMenuOptionsInFrame("Number of full locations: " + numFullLocations, fullLocations, ANSI_GREEN);
+    }
 
     public static List<String> getAllLocationsThatHaveAtLeastOneItem() throws IOException {
         List<String> result = new ArrayList<>();
@@ -485,6 +507,7 @@ public class Main {
 
     public static void printAllEmptyLocations() throws IOException {
         List<String> allEmptyLocations = getAllEmptyLocations();
+        Collections.sort(allEmptyLocations);
         int numEmptyLocations = allEmptyLocations.size();
 
         printMenuOptionsInFrame("Number of empty locations: " + numEmptyLocations, allEmptyLocations, ANSI_GREEN);
