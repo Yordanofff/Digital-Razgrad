@@ -420,15 +420,15 @@ public class Main {
         // Sum up all different UNIT types and store the data to be used later on
         ArrayList<ArrayList<String>> data = getDbDataToArrayList();
         for (String unit : UNIT_OPTIONS.keySet()) {
-            int total = 0;
+            double total = 0;
             for (ArrayList<String> row : data) {
                 if (!row.isEmpty()) {
                     if (row.get(4).equalsIgnoreCase(unit)) {
-                        total += Integer.parseInt(row.get(5));
+                        total += Double.parseDouble(row.get(5));
                     }
                 }
             }
-            results.add("Total number of " + unit + "(s): " + total);
+            results.add("Total number of " + unit + "(s): " + removeDecimalIfEndsOnZero(String.valueOf(total)));
         }
 
         // print the data - formatted in a frame
