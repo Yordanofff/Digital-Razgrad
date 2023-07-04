@@ -411,12 +411,15 @@ public class Main {
 
         int numAllLocations = getWarehouseSize();
         int numEmptyLocations = getAllEmptyLocations().size();
+        int numFullLocations = getFullLocations().size();
         int numUsed = numAllLocations - numEmptyLocations;
         float percentageUsed = ((float) numUsed / numAllLocations) * 100;
         String percentageUsedFormatted = String.format("%.2f%%", percentageUsed);
 
         results.add("Warehouse size: " + numAllLocations);
         results.add("Used locations: " + numUsed);
+        results.add("Full locations: " + numFullLocations);
+        results.add("Partly full locations: " + (numUsed - numFullLocations));
         results.add("Empty locations: " + numEmptyLocations);
         results.add("Percentage used: " + percentageUsedFormatted);
 
