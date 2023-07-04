@@ -73,7 +73,7 @@ public class Main {
     public static void main(String[] args) throws IOException, ParseException {
         runApp();
     }
-    
+
     /**
      * This method will print the description + the information from the DB in a colored frame.
      * ======================================================================================================================================
@@ -214,8 +214,9 @@ public class Main {
             case 3 -> printDataForTimePeriod();
             case 4 -> printAllEmptyLocations();
             case 5 -> printStockExpiringSoon();
-            case 6 -> printWarehouseInfo();
-            case 7 -> {
+            case 6 -> printExpiredStock();
+            case 7 -> printWarehouseInfo();
+            case 8 -> {
                 return false;
             }
         }
@@ -228,7 +229,7 @@ public class Main {
      */
     public static int printMenuOptions() {
         String[] menuOptions = new String[]{"List all items", "Add new delivery",
-                "List deliveries for time period", "Print all empty locations", "Print stock expiring soon", "Print Warehouse Info", "Exit"};
+                "List deliveries for time period", "Print all empty locations", "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Exit"};
 
         // Add all questions to a List with numbers for the options
         List<String> menuOptionsWithNumbers = new ArrayList<>();
@@ -261,18 +262,51 @@ public class Main {
         return ans;
     }
 
-    /**
-     * todo
-     * This method does it all - asks the user for the number of days to check.
-     * Checks items that have already expired and prints the result.
-     * Checks items that will expire in the next N days and prints the result.
-     */
     public static void printStockExpiringSoon() throws IOException {
         System.out.println("Enter number of days to check: ");
         int daysToCheck = scanner.nextInt();
         scanner.nextLine();
 
+        ArrayList<ArrayList<String>> rowsNotExpired = getStockExpiringSoon(daysToCheck);
+
+        if (rowsNotExpired.size() > 0) {
+            System.out.print(getColoredMsg("STOCK THAT WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_YELLOW));
+            printDBInFrameWithDescription(rowsNotExpired, ANSI_YELLOW);
+        } else {
+            System.out.print(getColoredMsg("NO STOCK WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_GREEN));
+        }
+    }
+
+    public static void printExpiredStock() throws IOException {
+        ArrayList<ArrayList<String>> rowsExpired = getExpiredStock();
+
+        if (rowsExpired.size() > 0) {
+            System.out.print(getColoredMsg("ALREADY EXPIRED STOCK:", ANSI_RED));
+            printDBInFrameWithDescription(rowsExpired, ANSI_RED);
+        } else {
+            System.out.print(getColoredMsg("NO EXPIRED STOCK:", ANSI_GREEN));
+        }
+    }
+
+    public static ArrayList<ArrayList<String>> getExpiredStock() throws IOException {
         ArrayList<ArrayList<String>> rowsExpired = new ArrayList<>();
+        ArrayList<ArrayList<String>> data = getDbDataToArrayList();
+        for (ArrayList<String> row : data) {
+
+            String expiryDate = row.get(1);
+
+            int diff = getNumberOfDaysFromTodayToDate(expiryDate);
+
+            ArrayList<String> rowExpired = new ArrayList<>();
+            if (diff < 0) {
+                rowExpired.addAll(row);
+                rowsExpired.add(rowExpired);
+            }
+        }
+        return  rowsExpired;
+    }
+
+    public static ArrayList<ArrayList<String>> getStockExpiringSoon(int numDays) throws IOException {
         ArrayList<ArrayList<String>> rowsNotExpired = new ArrayList<>();
 
         ArrayList<ArrayList<String>> data = getDbDataToArrayList();
@@ -283,30 +317,14 @@ public class Main {
             int diff = getNumberOfDaysFromTodayToDate(expiryDate);
             ArrayList<String> rowExpired = new ArrayList<>();
             ArrayList<String> rowNotExpired = new ArrayList<>();
-            if (diff < 1) {
-                rowExpired.addAll(row);
-                rowsExpired.add(rowExpired);
-
-            } else if (daysToCheck >= diff) {
+            if (numDays >= diff && diff >= 0) {
                 rowNotExpired.addAll(row);
                 rowsNotExpired.add(rowNotExpired);
             }
         }
-
-        if (rowsExpired.size() > 0) {
-            System.out.print(getColoredMsg("ALREADY EXPIRED STOCK:", ANSI_RED));
-            printDBInFrameWithDescription(rowsExpired, ANSI_RED);
-        } else {
-            System.out.print(getColoredMsg("NO EXPIRED STOCK:", ANSI_GREEN));
-        }
-
-        if (rowsNotExpired.size() > 0) {
-            System.out.print(getColoredMsg("STOCK THAT WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_YELLOW));
-            printDBInFrameWithDescription(rowsNotExpired, ANSI_YELLOW);
-        } else {
-            System.out.print(getColoredMsg("NO STOCK WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_GREEN));
-        }
+        return rowsNotExpired;
     }
+
 
     /**
      * Get the difference in days between a date and today.
