@@ -55,7 +55,7 @@ public class Main {
     public static final String ANSI_BOLD = "\u001B[1m";
 
     static final String[] SPECIAL_CMDS = new String[]{"reset!", "stop!"};
-    static final List<String> specialOptions = Arrays.asList("Use \"" + getBoldYellowMsg("reset!") + "\" to reset the data input.",
+    static final List<String> INPUT_INFO = Arrays.asList("Use \"" + getBoldYellowMsg("reset!") + "\" to reset the data input.",
             "Use \"" + getBoldYellowMsg("stop!") + "\" to go back to the menu.",
             "Dates need to be formatted as " +
                     getBoldYellowMsg("dd.mm.yyyy") + " or " +
@@ -72,7 +72,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException, ParseException {
 //        printAllLocationsColoredFullPartlyEmpty();
-    runApp();
+//    runApp();
+        System.out.println(getUnit("uNit"));
     }
 
     /**
@@ -877,7 +878,7 @@ public class Main {
         Arrays.fill(ANSWERS, null);
 
         System.out.println();
-        printMenuOptionsInFrame("Enter the data for the items that you want to add:", specialOptions, ANSI_GREEN);
+        printMenuOptionsInFrame("Enter the data for the items that you want to add:", INPUT_INFO, ANSI_GREEN);
         for (int i = 0; i < USER_QUESTIONS.length; i++) {
 
             String ans = getValidUserInput(USER_QUESTIONS[i]);
@@ -925,17 +926,17 @@ public class Main {
             System.out.println("Enter " + question + ": ");
         }
 
-        String ans = scanner.nextLine();
+        String ans = scanner.nextLine().strip();
 
         for (String specialCmd : SPECIAL_CMDS) {
-            if (ans.strip().equalsIgnoreCase(specialCmd)) {
+            if (ans.equalsIgnoreCase(specialCmd)) {
                 return specialCmd;
             }
         }
 
         // Make sure that the unit question returns a valid answer
         if (question.contains("unit")) {
-            return getUnit(ans);
+            return getUnit(ans.toLowerCase());
         }
 
         // expiry date - can be a date or "n/a" for products that don't expire.
@@ -965,7 +966,7 @@ public class Main {
             }
         }
 
-        return ans.strip();
+        return ans;
     }
 
     /**
@@ -1094,25 +1095,26 @@ public class Main {
      * @param userInput - initial user input
      * @return - valid option.
      */
+    
     public static String getUnit(String userInput) {
-        userInput = userInput.toLowerCase();
-        boolean isValid = isUnitValid(userInput);
+        String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
 
-        while (!isValid) {
-            String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
+        while (true) {
+            boolean isValid = isUnitValid(userInput);
+
+            if (isValid) {
+                return userInput;
+            }
+
             printError("Please Enter a valid option for Unit: " + availableOptions + ".");
-            userInput = scanner.nextLine().toLowerCase();
+            userInput = scanner.nextLine().strip().toLowerCase();
 
             for (String specialCmd : SPECIAL_CMDS) {
-                if (userInput.strip().equalsIgnoreCase(specialCmd)) {
+                if (userInput.equalsIgnoreCase(specialCmd)) {
                     return specialCmd;
                 }
             }
-
-            isValid = isUnitValid(userInput);
         }
-
-        return userInput;
     }
 
     public static String getStock(String userInput) {
