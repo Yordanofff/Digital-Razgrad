@@ -427,14 +427,12 @@ public class Main {
         results.add("Percentage used: " + percentageUsedFormatted);
 
         // Sum up all different UNIT types and store the data to be used later on
-        ArrayList<ArrayList<String>> data = getDbDataToArrayList();
+        String[][] DB = getAllDataFromDB();
         for (String unit : UNIT_OPTIONS.keySet()) {
             double total = 0;
-            for (ArrayList<String> row : data) {
-                if (!row.isEmpty()) {
-                    if (row.get(4).equalsIgnoreCase(unit)) {
-                        total += Double.parseDouble(row.get(5));
-                    }
+            for (String[] row : DB) {
+                if (row[4].equalsIgnoreCase(unit)) {
+                    total += Double.parseDouble(row[5]);
                 }
             }
             results.add("Total number of " + unit + "(s): " + removeDecimalIfEndsOnZero(String.valueOf(total)));
