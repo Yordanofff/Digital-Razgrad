@@ -61,7 +61,7 @@ public class Main {
                     getBoldYellowMsg("dd.mm.yyyy") + " or " +
                     getBoldYellowMsg("d.m.yyyy") + " and can be separated by " +
                     getBoldYellowMsg(".") + " or " + getBoldYellowMsg("/"),
-            "Expiry date can be " + getBoldYellowMsg("n/a"),
+            "Expiry date can be " + getBoldYellowMsg("today") + ", " + getBoldYellowMsg("tomorrow") + " or " + getBoldYellowMsg("n/a"),
             "Entry date can be " + getBoldYellowMsg("today"),
             "Units can be: " + getBoldYellowMsg(UNIT_OPTIONS.keySet().toString()),
             "Forbidden character: " + getBoldYellowMsg(SEPARATOR));
@@ -71,10 +71,7 @@ public class Main {
     private static final DecimalFormat df = new DecimalFormat("0.0");
 
     public static void main(String[] args) throws IOException, ParseException {
-//        printAllLocationsColoredFullPartlyEmpty();
-//    runApp();
-//        System.out.println(getUnit("uNit"));
-        System.out.println(getStock("523.523"));
+        runApp();
     }
 
     /**
@@ -355,6 +352,7 @@ public class Main {
      * @return number of days since year 1.
      */
     public static int getNumberOfDaysToDate(String date) {
+        date = date.replaceAll("\\s", "");
         int year = Integer.parseInt(date.split("\\.")[2]);
         int month = Integer.parseInt(date.split("\\.")[1]);
         int day = Integer.parseInt(date.split("\\.")[0]);
@@ -632,11 +630,13 @@ public class Main {
      * 01.01.2020
      * 30.10.2022
      * 1.1.2020
+     * " 1. 2 .   2010  "
      *
      * @param date - date formatted  "dd.mm.yyyy" or "d.m.yyyy". Will return false if not.
      * @return true if the date is valid, false if not.
      */
     public static boolean isDateValid(String date) {
+        date = date.replaceAll("\\s", "");
         String[] parts = date.split("\\.");
 
         // Check if the formatting is correct - 2 dots -> xx.yy.zzzz
@@ -931,18 +931,17 @@ public class Main {
             return getUnit(ans.toLowerCase());
         }
 
-        // expiry date - can be a date or "n/a" for products that don't expire.
         else if (question.equalsIgnoreCase("expiry date")) {
             return getExpiryDate(convertDateFromUKtoEUType(ans));
         }
 
-        else if ((question.equalsIgnoreCase("from date")) || (question.equalsIgnoreCase("to date"))) {
-            return getEntryDate(ans, false);
+        else if (question.equalsIgnoreCase("Entry date")) {
+            return getEntryDate(convertDateFromUKtoEUType(ans));
         }
 
-        // entry date - needs to be a date. Can't be "n/a". Will also work for other "date"(s).
+        // "from - to" date
         else if (question.contains("date")) {
-            return getEntryDate(ans, true);
+            return getDate(convertDateFromUKtoEUType(ans));
         }
 
         else if (question.contains("stock")) {
@@ -953,95 +952,12 @@ public class Main {
         else if (!question.contains("optional")) {
             while (ans.isEmpty()) {
                 printError("Empty answer. Please enter " + question + ": ");
-                ans = scanner.nextLine();
+                ans = scanner.nextLine().strip();
                 // no need for reset! check as it will be returned anyway if entered.
             }
         }
 
         return ans;
-    }
-
-    /**
-     * Loops until the date entered is not older than today (item already expired). A valid date in the format
-     * dd.mm.yyyy or d.m.yyyy. The date can be separated by "." or "/".
-     * "today" can be used to add today's date.
-     *
-     * @param userInput - initial user input
-     * @return String date with leading zeros for the day and month (if single digits) and separated by "." no matter
-     * how it was entered by the user.
-     */
-    public static String getEntryDate(String userInput, boolean checkExpired) {
-        if (userInput.equalsIgnoreCase("today")) {
-            return getToday();  // no checks needed.
-        }
-        userInput = convertDateFromUKtoEUType(userInput);
-
-        boolean isCurrentDateValid = isDateValid(userInput);
-        boolean isEntryDateLaterThanExpiryDate = false;
-
-        // todo - check only when adding data
-        // Check if the items entered the WH are already expired at the day of entry
-        if (isCurrentDateValid && checkExpired) {
-            String currentExpiryDate = ANSWERS[1];
-            if (getNumberOfDaysToDate(userInput) > getNumberOfDaysToDate(currentExpiryDate)) {
-                printError("Something is wrong. Entry date(" + userInput + ") is after expiry date(" + currentExpiryDate + ")");
-                isEntryDateLaterThanExpiryDate = true;
-            }
-        }
-
-        while (!(isCurrentDateValid && !isEntryDateLaterThanExpiryDate)) {
-            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
-            userInput = scanner.nextLine();
-            if (userInput.equalsIgnoreCase("today")) {
-                userInput = getToday();
-            } else {
-                for (String specialCmd : SPECIAL_CMDS) {
-                    if (userInput.strip().equalsIgnoreCase(specialCmd)) {
-                        return specialCmd;
-                    }
-                }
-            }
-
-            isCurrentDateValid = isDateValid(convertDateFromUKtoEUType(userInput));
-
-            // Check if the items entered the WH are already expired at the day of entry
-            if (isCurrentDateValid && checkExpired) {
-                String currentExpiryDate = ANSWERS[1];
-                if (getNumberOfDaysToDate(userInput) > getNumberOfDaysToDate(currentExpiryDate)) {
-                    printError("Something is wrong. Entry date(" + addLeadingZeroToDayMonth(userInput) + ") is after expiry date(" + currentExpiryDate + ").");
-                    isEntryDateLaterThanExpiryDate = true;
-                } else {
-                    isEntryDateLaterThanExpiryDate = false;
-                }
-            }
-        }
-        return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(userInput));
-    }
-
-    // todo
-    /**
-     * Adds a zero ("0") to the days and months (if single digit)
-     * -
-     * Example:
-     * 1.2.2019   -> 01.02.2019
-     * 01.2.2019  -> 01.02.2019
-     * 01.02.2019 -> 01.02.2019
-     *
-     * @param date - date split by "." ("dd.mm.yyyy" or "d.m.yyyy")
-     * @return dd.mm.yyyy (2 digits for date and month and 4 digits for year)
-     */
-    public static String addLeadingZeroToDayMonth(String date) {
-        // date needs to be in the format dd.mm.yyyy - already checked.
-        String d = date.split("\\.")[0];
-        String m = date.split("\\.")[1];
-        String y = date.split("\\.")[2];
-
-        String dateFormatted = "";
-        dateFormatted += String.format("%02d", Integer.parseInt(d)) + ".";
-        dateFormatted += String.format("%02d", Integer.parseInt(m)) + ".";
-        dateFormatted += y;
-
-        return dateFormatted;
     }
 
     public static boolean isAtLeastOneItemInLocation(String location) throws IOException {
@@ -1137,37 +1053,62 @@ public class Main {
     }
 
     public static String[] getUserInputFromToDates() throws IOException, ParseException {
-        String[] result = new String[2];
-
-        String fromDate = getValidUserInput("From date");
-        // SPECIAL_CMDS - take action
-        if (fromDate.equalsIgnoreCase("reset!")) {
-            System.out.println();
-            return getUserInputFromToDates();
-        } else if (fromDate.equalsIgnoreCase("stop!")) {
-            runApp();
+        String[] results = new String[2];
+        String[] questions = {"From date", "To date"};
+        for (int i = 0; i < questions.length; i++) {
+            String result = getValidUserInput(questions[i]);
+            // SPECIAL_CMDS - take action
+            if (result.equalsIgnoreCase("reset!")) {
+                System.out.println();
+                return getUserInputFromToDates();
+            } else if (result.equalsIgnoreCase("stop!")) {
+                runApp();
+            } else {
+                results[i] = result;
+            }
         }
-
-        String toDate = getValidUserInput("To date");
-        // SPECIAL_CMDS - take action
-        if (toDate.equalsIgnoreCase("reset!")) {
-            System.out.println();
-            return getUserInputFromToDates();
-        } else if (toDate.equalsIgnoreCase("stop!")) {
-            runApp();
-        }
-
-        result[0] = fromDate;
-        result[1] = toDate;
 
         // Flip the values if needed.
-        if (getNumberOfDaysToDate(fromDate) > getNumberOfDaysToDate(toDate)) {
+        if (getNumberOfDaysToDate(results[0]) > getNumberOfDaysToDate(results[1])) {
             printWarning("\"To date\" is before \"From date\". Flipping the numbers.");
-            result[0] = toDate;
-            result[1] = fromDate;
+            String temp = results[0];
+            results[0] = results[1];
+            results[1] = temp;
         }
 
-        return result;
+        return results;
+
+//        String ans = getSingleDate("From date");
+
+//        String fromDate = getValidUserInput("From date");
+//        // SPECIAL_CMDS - take action
+//        if (fromDate.equalsIgnoreCase("reset!")) {
+//            System.out.println();
+//            return getUserInputFromToDates();
+//        } else if (fromDate.equalsIgnoreCase("stop!")) {
+//            runApp();
+//        }
+
+//        String toDate = getValidUserInput("To date");
+//        // SPECIAL_CMDS - take action
+//        if (toDate.equalsIgnoreCase("reset!")) {
+//            System.out.println();
+//            return getUserInputFromToDates();
+//        } else if (toDate.equalsIgnoreCase("stop!")) {
+//            runApp();
+//        }
+//
+//        result[0] = fromDate;
+//        result[1] = toDate;
+
+//        // Flip the values if needed.
+//        if (getNumberOfDaysToDate(fromDate) > getNumberOfDaysToDate(toDate)) {
+//            printWarning("\"To date\" is before \"From date\". Flipping the numbers.");
+//            result[0] = toDate;
+//            result[1] = fromDate;
+//        }
+//
+//        return result;
     }
 
     public static int getLenOfFile(boolean countEmptyRows) throws IOException {
@@ -1271,7 +1212,7 @@ public class Main {
                 return userInput;
             }
 
-            printError("Please Enter a valid option for Unit: " + availableOptions + ".");
+            printError("Please Enter a valid option for Unit [" + availableOptions + "]: ");
             userInput = scanner.nextLine().strip().toLowerCase();
 
             for (String specialCmd : SPECIAL_CMDS) {
@@ -1317,14 +1258,14 @@ public class Main {
         return strToCheck.matches("\\d+(\\.\\d)?");
     }
 
-    // todo - today/tomorrow ?
     /**
      * Will keep asking for a date until the input is "n/a" or a valid date in the format dd.mm.yyyy or d.m.yyyy.
-     * The date can be separated by "." or "/".
+     * The date can be separated by "." or "/". Spaces are ignored.
      * Example input -> output:
      * 1/2/2020  -> 01.02.2020
      * 01.2.2020 -> 01.02.2020
      * N/A       -> n/a (will always return lower case n/a)
+     * today/tomorrow -> formatted date.
      *
      * @param userInput - initial user input
      * @return String date with leading zeros for the day and month (if single digits) and separated by "." no matter
@@ -1334,6 +1275,14 @@ public class Main {
 
         while (true) {
 
+            if (userInput.equalsIgnoreCase("today")) {
+                return getToday();  // no checks needed.
+            }
+
+            if (userInput.equalsIgnoreCase("tomorrow")) {
+                return getTomorrow();  // no checks needed.
+            }
+
             // Expiry date can be n/a
             if (userInput.equalsIgnoreCase("n/a")) {
                 return "n/a";
@@ -1341,13 +1290,12 @@ public class Main {
 
             // Check if is date and if the product is not expired - return the date.
             if (isDateValid(userInput)) {
-                boolean isExpired = isDateExpired(userInput);
-                if (!isExpired) {
+                if (!isDateExpired(userInput)) {
                     return addLeadingZeroToDayMonth(userInput);
                 }
             }
 
-            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
+            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today / tomorrow or \"n/a\" if the product doesn't expire.");
             userInput = convertDateFromUKtoEUType(scanner.nextLine().strip());
 
             for (String specialCmd : SPECIAL_CMDS) {
@@ -1357,7 +1305,64 @@ public class Main {
             }
         }
     }
-    
+
+    /**
+     * Loops until the date entered is not older than the expiry date(item already expired). A valid date is a date in
+     * the format "dd.mm.yyyy" or "d.m.yyyy". The date can be separated by "." or "/". Spaces are ignored.
+     * "today" can be used to add today's date.
+     *
+     * @param userInput - initial user input
+     * @return String date with leading zeros for the day and month (if single digits) and separated by "." no matter
+     * how it was entered by the user.
+     */
+    public static String getEntryDate(String userInput) {
+        String currentExpiryDate = ANSWERS[1];
+        while (true) {
+            if (userInput.equalsIgnoreCase("today")) {
+                return getToday();  // no checks needed.
+            }
+
+            if (isDateValid(userInput)) {
+                if (getNumberOfDaysToDate(userInput) <= getNumberOfDaysToDate(currentExpiryDate)) {
+                    return addLeadingZeroToDayMonth(userInput);
+                }
+                // Print an Error msg if Entry date is later than the Expiry date (Item already expired when entering the warehouse)
+                printError("Something is wrong. Entry date(" + userInput + ") is after expiry date(" + currentExpiryDate + ")");
+            }
+
+            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
+            userInput = convertDateFromUKtoEUType(scanner.nextLine().strip());
+
+            for (String specialCmd : SPECIAL_CMDS) {
+                if (userInput.equalsIgnoreCase(specialCmd)) {
+                    return specialCmd;
+                }
+            }
+        }
+    }
+
+    public static String getDate(String userInput) {
+
+        while (true) {
+            if (userInput.equalsIgnoreCase("today")) {
+                return getToday();  // no checks needed.
+            }
+
+            if (isDateValid(userInput)) {
+                return addLeadingZeroToDayMonth(userInput);
+            }
+
+            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
+            userInput = convertDateFromUKtoEUType(scanner.nextLine().strip());
+
+            for (String specialCmd : SPECIAL_CMDS) {
+                if (userInput.equalsIgnoreCase(specialCmd)) {
+                    return specialCmd;
+                }
+            }
+        }
+    }
+
     // =============
 
     public static void printWarning(String msg) {
@@ -1399,6 +1404,12 @@ public class Main {
         LocalDate date = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         return date.format(formatter);
+    }
+
+    public static String getTomorrow() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        return tomorrow.format(formatter);
     }
 
     public static boolean isSeparatorInAns(String ans) {
@@ -1452,5 +1463,32 @@ public class Main {
             printWarning("The item expires today!");
         }
         return false;
+    }
+
+    /**
+     * Adds a zero ("0") to the days and months (if single digit)
+     * -
+     * Example:
+     * 1.2.2019   -> 01.02.2019
+     * 01.2.2019  -> 01.02.2019
+     * 01.02.2019 -> 01.02.2019
+     * " 01 . 2 . 2019 " -> 01.02.2019
+     *
+     * @param date - date split by "." ("dd.mm.yyyy" or "d.m.yyyy")
+     * @return dd.mm.yyyy (2 digits for date and month and 4 digits for year)
+     */
+    public static String addLeadingZeroToDayMonth(String date) {
+        date = date.replaceAll("\\s", "");
+        // date needs to be in the format dd.mm.yyyy - already checked.
+        String d = date.split("\\.")[0];
+        String m = date.split("\\.")[1];
+        String y = date.split("\\.")[2];
+
+        String dateFormatted = "";
+        dateFormatted += String.format("%02d", Integer.parseInt(d)) + ".";
+        dateFormatted += String.format("%02d", Integer.parseInt(m)) + ".";
+        dateFormatted += y;
+
+        return dateFormatted;
     }
 }
