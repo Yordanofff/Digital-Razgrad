@@ -150,7 +150,6 @@ public class Main {
         System.out.println(colored_frame + "\n");
     }
 
-
     /**
      * This method will be used to print the menu options. Adds a frame and prints the words
      * in the middle, surrounded by at least n spaces (for the longest word) and more for the rest.
@@ -272,11 +271,11 @@ public class Main {
         int daysToCheck = scanner.nextInt();
         scanner.nextLine();
 
-        ArrayList<ArrayList<String>> rowsNotExpired = getStockExpiringSoon(daysToCheck);
+        ArrayList<String[]> rowsNotExpired = getStockExpiringSoon(daysToCheck);
 
         if (rowsNotExpired.size() > 0) {
             System.out.print(getColoredMsg("STOCK THAT WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_YELLOW));
-            printDBInFrameWithDescription(rowsNotExpired, ANSI_YELLOW);
+            printDBInFrameWithDescription(rowsNotExpired, ANSI_YELLOW);  // todo
         } else {
             System.out.print(getColoredMsg("NO STOCK WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_GREEN));
         }
@@ -310,26 +309,6 @@ public class Main {
         }
         return  rowsExpired;
     }
-
-    public static ArrayList<ArrayList<String>> getStockExpiringSoon(int numDays) throws IOException {
-        ArrayList<ArrayList<String>> rowsNotExpired = new ArrayList<>();
-
-        ArrayList<ArrayList<String>> data = getDbDataToArrayList();
-        for (ArrayList<String> row : data) {
-
-            String expiryDate = row.get(1);
-
-            int diff = getNumberOfDaysFromTodayToDate(expiryDate);
-            ArrayList<String> rowExpired = new ArrayList<>();
-            ArrayList<String> rowNotExpired = new ArrayList<>();
-            if (numDays >= diff && diff >= 0) {
-                rowNotExpired.addAll(row);
-                rowsNotExpired.add(rowNotExpired);
-            }
-        }
-        return rowsNotExpired;
-    }
-
 
     /**
      * Get the difference in days between a date and today.
@@ -1133,6 +1112,20 @@ public class Main {
         }
     }
 
+    public static ArrayList<String[]> getStockExpiringSoon(int numDays) throws IOException {
+        ArrayList<String[]> rowsNotExpired = new ArrayList<>();
+        String[][] DB = getAllDataFromDB();
+
+        for (String[] row : DB) {
+            String expiryDate = row[1];
+            int diff = getNumberOfDaysFromTodayToDate(expiryDate);
+            if (numDays >= diff && diff >= 0) {
+                rowsNotExpired.add(row);
+            }
+        }
+
+        return rowsNotExpired;
+    }
 
     // =============
 
