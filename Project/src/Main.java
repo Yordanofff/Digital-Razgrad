@@ -73,7 +73,8 @@ public class Main {
     public static void main(String[] args) throws IOException, ParseException {
 //        printAllLocationsColoredFullPartlyEmpty();
 //    runApp();
-        System.out.println(getUnit("uNit"));
+//        System.out.println(getUnit("uNit"));
+        System.out.println(getStock("523.523"));
     }
 
     /**
@@ -747,15 +748,6 @@ public class Main {
         return false;
     }
 
-    public static boolean isUnitValid(String unit) {
-        for (String unitOption : UNIT_OPTIONS.keySet()) {
-            if (unit.strip().equalsIgnoreCase(unitOption)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Write the validated user data + extra two columns (method addPositionAndMaxNumberToAllValidUserInput) in the DB file.
      */
@@ -941,7 +933,7 @@ public class Main {
 
         // expiry date - can be a date or "n/a" for products that don't expire.
         else if (question.equalsIgnoreCase("expiry date")) {
-            return getExpiryDate(ans);
+            return getExpiryDate(convertDateFromUKtoEUType(ans));
         }
 
         else if ((question.equalsIgnoreCase("from date")) || (question.equalsIgnoreCase("to date"))) {
@@ -967,69 +959,6 @@ public class Main {
         }
 
         return ans;
-    }
-
-    /**
-     * Will keep asking for a date until the input is "n/a" or a valid date in the format dd.mm.yyyy or d.m.yyyy.
-     * The date can be separated by "." or "/".
-     * Example input -> output:
-     * 1/2/2020  -> 01.02.2020
-     * 01.2.2020 -> 01.02.2020
-     * N/A       -> n/a (will always return lower case n/a)
-     *
-     * @param userInput - initial user input
-     * @return String date with leading zeros for the day and month (if single digits) and separated by "." no matter
-     * how it was entered by the user.
-     */
-    public static String getExpiryDate(String userInput) {
-
-        while (true) {
-
-            for (String specialCmd : SPECIAL_CMDS) {
-                if (userInput.strip().equalsIgnoreCase(specialCmd)) {
-                    return specialCmd;
-                }
-            }
-
-            // Expiry date can be n/a
-            if (userInput.equalsIgnoreCase("n/a")) {
-                return "n/a";
-            }
-            userInput = convertDateFromUKtoEUType(userInput);
-
-            boolean isCurrentDateValid = isDateValid(userInput);
-
-            boolean isExpired = true;
-            if (isCurrentDateValid) {
-                isExpired = isDateExpired(userInput);
-            }
-
-            if (!isExpired) {
-                return addLeadingZeroToDayMonth(userInput.strip());
-            }
-
-            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
-            userInput = scanner.nextLine();
-        }
-
-//        return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(userInput).strip());
-    }
-
-    /**
-     * Checks if date is expired or expires today.
-     * Prints an error or a warning message if (item) date is expired or expires today.
-     *
-     * @param date - date in format dd.mm.yyyy or d.m.yyyy
-     * @return - true if date is expired, false if not expired or expires today.
-     */
-    public static boolean isDateExpired(String date) {
-        if (getNumberOfDaysFromTodayToDate(date) < 0) {
-            printError("The item has already expired!");
-            return true;
-        } else if (getNumberOfDaysFromTodayToDate(date) == 0) {
-            printWarning("The item expires today!");
-        }
-        return false;
     }
 
     /**
@@ -1089,82 +1018,7 @@ public class Main {
         return addLeadingZeroToDayMonth(convertDateFromUKtoEUType(userInput));
     }
 
-    /**
-     * Loops until a valid Unit option is entered.
-     *
-     * @param userInput - initial user input
-     * @return - valid option.
-     */
-    
-    public static String getUnit(String userInput) {
-        String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
-
-        while (true) {
-            boolean isValid = isUnitValid(userInput);
-
-            if (isValid) {
-                return userInput;
-            }
-
-            printError("Please Enter a valid option for Unit: " + availableOptions + ".");
-            userInput = scanner.nextLine().strip().toLowerCase();
-
-            for (String specialCmd : SPECIAL_CMDS) {
-                if (userInput.equalsIgnoreCase(specialCmd)) {
-                    return specialCmd;
-                }
-            }
-        }
-    }
-
-    public static String getStock(String userInput) {
-        boolean isNumber = isNumber(userInput);
-
-        while (!isNumber) {
-            printError("Please Enter a valid option for Stock (needs to be a number): ");
-            userInput = scanner.nextLine();
-
-            for (String specialCmd : SPECIAL_CMDS) {
-                if (userInput.strip().equalsIgnoreCase(specialCmd)) {
-                    return specialCmd;
-                }
-            }
-
-            isNumber = isNumber(userInput);
-        }
-
-        return userInput;
-    }
-
-    public static boolean isNumber(String strToCheck) {
-        // Will match integers + optional single decimal place digit
-        return strToCheck.matches("\\d+(\\.\\d)?");
-    }
-
-    public static String getToday() {
-        LocalDate date = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        return date.format(formatter);
-    }
-
-    /**
-     * If the date is split by "/" - it will convert it to ".". If split by "." - won't change it.
-     * -
-     * Example:
-     * 01/02/2019 -> 01.02.2019
-     * 01.02.2019 -> 01.02.2019
-     *
-     * @param date - date split by "." or "/"
-     * @return - date split by "." (no additional formatting) -> (01.02.2020, 1.2.2020, etc..)
-     */
-    public static String convertDateFromUKtoEUType(String date) {
-        // Allow date to be entered as dd/mm/yyyy as well as dd.mm.yyyy. Will not get triggered on n/a.
-        if (date.split("/").length == 3) {
-            return date.replace("/", ".");
-        }
-        return date;
-    }
-
+    // todo
     /**
      * Adds a zero ("0") to the days and months (if single digit)
      * -
@@ -1188,15 +1042,6 @@ public class Main {
         dateFormatted += y;
 
         return dateFormatted;
-    }
-
-    public static boolean isSeparatorInAns(String ans) {
-        for (int i = 0; i < ans.length(); i++) {
-            if (ans.split("")[i].equals(SEPARATOR)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static boolean isAtLeastOneItemInLocation(String location) throws IOException {
@@ -1325,15 +1170,6 @@ public class Main {
         return result;
     }
 
-    public static boolean isDateBetweenTwoDates(String dateToCheck, String startDate, String endDate) throws ParseException {
-        // All dates need to be in the format dd.mm.yyyy
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-        Date date = sdf.parse(dateToCheck);
-        Date start = sdf.parse(startDate);
-        Date end = sdf.parse(endDate);
-        return date.compareTo(start) >= 0 && date.compareTo(end) <= 0;
-    }
-
     public static int getLenOfFile(boolean countEmptyRows) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(DB_FILE_NAME));
         int lines = 0;
@@ -1418,7 +1254,110 @@ public class Main {
     }
 
 
+    // =============
 
+    /**
+     * Loops until a valid Unit option is entered.
+     *
+     * @param userInput - initial user input
+     * @return - valid UNIT option or a special command.
+     */
+    public static String getUnit(String userInput) {
+        String availableOptions = String.join(", ", UNIT_OPTIONS.keySet());
+
+        while (true) {
+
+            if (isUnitValid(userInput)) {
+                return userInput;
+            }
+
+            printError("Please Enter a valid option for Unit: " + availableOptions + ".");
+            userInput = scanner.nextLine().strip().toLowerCase();
+
+            for (String specialCmd : SPECIAL_CMDS) {
+                if (userInput.equalsIgnoreCase(specialCmd)) {
+                    return specialCmd;
+                }
+            }
+        }
+    }
+
+    public static boolean isUnitValid(String unit) {
+        for (String unitOption : UNIT_OPTIONS.keySet()) {
+            if (unit.strip().equalsIgnoreCase(unitOption)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String getStock(String userInput) {
+
+        while (true) {
+
+            if (isNumber(userInput)) {
+                return userInput;
+            }
+
+            printError("Please Enter a valid option for Stock (needs to be an Integer or a number with a single decimal place digit): ");
+
+            // removeDecimalIfEndsOnZero used, so it allows .2 to be entered too. Won't change anything else.
+            userInput = removeDecimalIfEndsOnZero(scanner.nextLine().strip());
+
+            for (String specialCmd : SPECIAL_CMDS) {
+                if (userInput.equalsIgnoreCase(specialCmd)) {
+                    return specialCmd;
+                }
+            }
+        }
+    }
+
+    public static boolean isNumber(String strToCheck) {
+        // Will match integers + optional single decimal place digit
+        return strToCheck.matches("\\d+(\\.\\d)?");
+    }
+
+    // todo - today/tomorrow ?
+    /**
+     * Will keep asking for a date until the input is "n/a" or a valid date in the format dd.mm.yyyy or d.m.yyyy.
+     * The date can be separated by "." or "/".
+     * Example input -> output:
+     * 1/2/2020  -> 01.02.2020
+     * 01.2.2020 -> 01.02.2020
+     * N/A       -> n/a (will always return lower case n/a)
+     *
+     * @param userInput - initial user input
+     * @return String date with leading zeros for the day and month (if single digits) and separated by "." no matter
+     * how it was entered by the user. Can return n/a or a special command too.
+     */
+    public static String getExpiryDate(String userInput) {
+
+        while (true) {
+
+            // Expiry date can be n/a
+            if (userInput.equalsIgnoreCase("n/a")) {
+                return "n/a";
+            }
+
+            // Check if is date and if the product is not expired - return the date.
+            if (isDateValid(userInput)) {
+                boolean isExpired = isDateExpired(userInput);
+                if (!isExpired) {
+                    return addLeadingZeroToDayMonth(userInput);
+                }
+            }
+
+            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" or \"n/a\" if the product doesn't expire.");
+            userInput = convertDateFromUKtoEUType(scanner.nextLine().strip());
+
+            for (String specialCmd : SPECIAL_CMDS) {
+                if (userInput.equalsIgnoreCase(specialCmd)) {
+                    return specialCmd;
+                }
+            }
+        }
+    }
+    
     // =============
 
     public static void printWarning(String msg) {
@@ -1454,5 +1393,64 @@ public class Main {
             }
         }
         return longest;
+    }
+
+    public static String getToday() {
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        return date.format(formatter);
+    }
+
+    public static boolean isSeparatorInAns(String ans) {
+        for (int i = 0; i < ans.length(); i++) {
+            if (ans.split("")[i].equals(SEPARATOR)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isDateBetweenTwoDates(String dateToCheck, String startDate, String endDate) throws ParseException {
+        // All dates need to be in the format dd.mm.yyyy
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        Date date = sdf.parse(dateToCheck);
+        Date start = sdf.parse(startDate);
+        Date end = sdf.parse(endDate);
+        return date.compareTo(start) >= 0 && date.compareTo(end) <= 0;
+    }
+
+    /**
+     * If the date is split by "/" - it will convert it to ".". If split by "." - won't change it.
+     * -
+     * Example:
+     * 01/02/2019 -> 01.02.2019
+     * 01.02.2019 -> 01.02.2019
+     *
+     * @param date - date split by "." or "/"
+     * @return - date split by "." (no additional formatting) -> (01.02.2020, 1.2.2020, etc..)
+     */
+    public static String convertDateFromUKtoEUType(String date) {
+        // Allow date to be entered as dd/mm/yyyy as well as dd.mm.yyyy. Will not get triggered on n/a.
+        if (date.split("/").length == 3) {
+            return date.replace("/", ".");
+        }
+        return date;
+    }
+
+    /**
+     * Checks if date is expired or expires today.
+     * Prints an error or a warning message if (item) date is expired or expires today.
+     *
+     * @param date - date in format dd.mm.yyyy or d.m.yyyy
+     * @return - true if date is expired, false if not expired or expires today.
+     */
+    public static boolean isDateExpired(String date) {
+        if (getNumberOfDaysFromTodayToDate(date) < 0) {
+            printError("The item has already expired!");
+            return true;
+        } else if (getNumberOfDaysFromTodayToDate(date) == 0) {
+            printWarning("The item expires today!");
+        }
+        return false;
     }
 }
