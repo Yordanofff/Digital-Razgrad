@@ -1249,19 +1249,25 @@ public class Main {
     public static String getEntryDate(String userInput) {
         String currentExpiryDate = ANSWERS[1];
         while (true) {
-            if (userInput.equalsIgnoreCase("today")) {
-                return getToday();  // no checks needed.
-            }
+            String errorMessage = "Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today";
 
-            if (isDateValid(userInput)) {
-                if (getNumberOfDaysToDate(userInput) <= getNumberOfDaysToDate(currentExpiryDate)) {
-                    return addLeadingZeroToDayMonth(userInput);
+            if (userInput.isEmpty()) {
+                errorMessage = "Empty answer. " + errorMessage;
+            } else {
+                if (userInput.equalsIgnoreCase("today")) {
+                    return getToday();  // no checks needed.
                 }
-                // Print an Error msg if Entry date is later than the Expiry date (Item already expired when entering the warehouse)
-                printError("Something is wrong. Entry date(" + userInput + ") is after expiry date(" + currentExpiryDate + ")");
+
+                if (isDateValid(userInput)) {
+                    if (getNumberOfDaysToDate(userInput) <= getNumberOfDaysToDate(currentExpiryDate)) {
+                        return addLeadingZeroToDayMonth(userInput);
+                    }
+                    // Print an Error msg if Entry date is later than the Expiry date (Item already expired when entering the warehouse)
+                    printError("Something is wrong. Entry date(" + userInput + ") is after expiry date(" + currentExpiryDate + ")");
+                }
             }
 
-            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
+            printError(errorMessage);
             userInput = convertDateFromUKtoEUType(scanner.nextLine().strip());
 
             for (String specialCmd : SPECIAL_CMDS) {
@@ -1275,15 +1281,21 @@ public class Main {
     public static String getDate(String userInput) {
 
         while (true) {
-            if (userInput.equalsIgnoreCase("today")) {
-                return getToday();  // no checks needed.
+            String errorMessage = "Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today";
+
+            if (userInput.isEmpty()) {
+                errorMessage = "Empty answer. " + errorMessage;
+            } else {
+                if (userInput.equalsIgnoreCase("today")) {
+                    return getToday();  // no checks needed.
+                }
+
+                if (isDateValid(userInput)) {
+                    return addLeadingZeroToDayMonth(userInput);
+                }
             }
 
-            if (isDateValid(userInput)) {
-                return addLeadingZeroToDayMonth(userInput);
-            }
-
-            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today");
+            printError(errorMessage);
             userInput = convertDateFromUKtoEUType(scanner.nextLine().strip());
 
             for (String specialCmd : SPECIAL_CMDS) {
