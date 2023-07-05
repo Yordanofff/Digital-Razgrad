@@ -1052,65 +1052,6 @@ public class Main {
         return results;
     }
 
-    public static String[] getUserInputFromToDates() throws IOException, ParseException {
-        String[] results = new String[2];
-        String[] questions = {"From date", "To date"};
-        for (int i = 0; i < questions.length; i++) {
-            String result = getValidUserInput(questions[i]);
-            // SPECIAL_CMDS - take action
-            if (result.equalsIgnoreCase("reset!")) {
-                System.out.println();
-                return getUserInputFromToDates();
-            } else if (result.equalsIgnoreCase("stop!")) {
-                runApp();
-            } else {
-                results[i] = result;
-            }
-        }
-
-        // Flip the values if needed.
-        if (getNumberOfDaysToDate(results[0]) > getNumberOfDaysToDate(results[1])) {
-            printWarning("\"To date\" is before \"From date\". Flipping the numbers.");
-            String temp = results[0];
-            results[0] = results[1];
-            results[1] = temp;
-        }
-
-        return results;
-
-//        String ans = getSingleDate("From date");
-
-//        String fromDate = getValidUserInput("From date");
-//        // SPECIAL_CMDS - take action
-//        if (fromDate.equalsIgnoreCase("reset!")) {
-//            System.out.println();
-//            return getUserInputFromToDates();
-//        } else if (fromDate.equalsIgnoreCase("stop!")) {
-//            runApp();
-//        }
-
-//        String toDate = getValidUserInput("To date");
-//        // SPECIAL_CMDS - take action
-//        if (toDate.equalsIgnoreCase("reset!")) {
-//            System.out.println();
-//            return getUserInputFromToDates();
-//        } else if (toDate.equalsIgnoreCase("stop!")) {
-//            runApp();
-//        }
-//
-//        result[0] = fromDate;
-//        result[1] = toDate;
-
-//        // Flip the values if needed.
-//        if (getNumberOfDaysToDate(fromDate) > getNumberOfDaysToDate(toDate)) {
-//            printWarning("\"To date\" is before \"From date\". Flipping the numbers.");
-//            result[0] = toDate;
-//            result[1] = fromDate;
-//        }
-//
-//        return result;
-    }
-
     public static int getLenOfFile(boolean countEmptyRows) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(DB_FILE_NAME));
         int lines = 0;
@@ -1223,15 +1164,6 @@ public class Main {
         }
     }
 
-    public static boolean isUnitValid(String unit) {
-        for (String unitOption : UNIT_OPTIONS.keySet()) {
-            if (unit.strip().equalsIgnoreCase(unitOption)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static String getStock(String userInput) {
 
         while (true) {
@@ -1253,11 +1185,6 @@ public class Main {
         }
     }
 
-    public static boolean isNumber(String strToCheck) {
-        // Will match integers + optional single decimal place digit
-        return strToCheck.matches("\\d+(\\.\\d)?");
-    }
-
     /**
      * Will keep asking for a date until the input is "n/a" or a valid date in the format dd.mm.yyyy or d.m.yyyy.
      * The date can be separated by "." or "/". Spaces are ignored.
@@ -1274,28 +1201,32 @@ public class Main {
     public static String getExpiryDate(String userInput) {
 
         while (true) {
+            String errorMessage = "Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today / tomorrow or \"n/a\" if the product doesn't expire.";
 
-            if (userInput.equalsIgnoreCase("today")) {
-                return getToday();  // no checks needed.
-            }
+            if (userInput.isEmpty()) {
+                errorMessage = "Empty answer. " + errorMessage;
+            } else {
+                if (userInput.equalsIgnoreCase("today")) {
+                    return getToday();  // no checks needed.
+                }
 
-            if (userInput.equalsIgnoreCase("tomorrow")) {
-                return getTomorrow();  // no checks needed.
-            }
+                if (userInput.equalsIgnoreCase("tomorrow")) {
+                    return getTomorrow();  // no checks needed.
+                }
 
-            // Expiry date can be n/a
-            if (userInput.equalsIgnoreCase("n/a")) {
-                return "n/a";
-            }
+                // Expiry date can be n/a
+                if (userInput.equalsIgnoreCase("n/a")) {
+                    return "n/a";
+                }
 
-            // Check if is date and if the product is not expired - return the date.
-            if (isDateValid(userInput)) {
-                if (!isDateExpired(userInput)) {
-                    return addLeadingZeroToDayMonth(userInput);
+                // Check if is date and if the product is not expired - return the date.
+                if (isDateValid(userInput)) {
+                    if (!isDateExpired(userInput)) {
+                        return addLeadingZeroToDayMonth(userInput);
+                    }
                 }
             }
-
-            printError("Please Enter a date in the format: \"dd.mm.yyyy\" / \"dd/mm/yyyy\" / today / tomorrow or \"n/a\" if the product doesn't expire.");
+            printError(errorMessage);
             userInput = convertDateFromUKtoEUType(scanner.nextLine().strip());
 
             for (String specialCmd : SPECIAL_CMDS) {
@@ -1361,6 +1292,33 @@ public class Main {
                 }
             }
         }
+    }
+
+    public static String[] getUserInputFromToDates() throws IOException, ParseException {
+        String[] results = new String[2];
+        String[] questions = {"From date", "To date"};
+        for (int i = 0; i < questions.length; i++) {
+            String result = getValidUserInput(questions[i]);
+            // SPECIAL_CMDS - take action
+            if (result.equalsIgnoreCase("reset!")) {
+                System.out.println();
+                return getUserInputFromToDates();
+            } else if (result.equalsIgnoreCase("stop!")) {
+                runApp();
+            } else {
+                results[i] = result;
+            }
+        }
+
+        // Flip the values if needed.
+        if (getNumberOfDaysToDate(results[0]) > getNumberOfDaysToDate(results[1])) {
+            printWarning("\"To date\" is before \"From date\". Flipping the numbers.");
+            String temp = results[0];
+            results[0] = results[1];
+            results[1] = temp;
+        }
+
+        return results;
     }
 
     // =============
@@ -1491,4 +1449,19 @@ public class Main {
 
         return dateFormatted;
     }
+
+    public static boolean isUnitValid(String unit) {
+        for (String unitOption : UNIT_OPTIONS.keySet()) {
+            if (unit.strip().equalsIgnoreCase(unitOption)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isNumber(String strToCheck) {
+        // Will match integers + optional single decimal place digit
+        return strToCheck.matches("\\d+(\\.\\d)?");
+    }
+
 }
