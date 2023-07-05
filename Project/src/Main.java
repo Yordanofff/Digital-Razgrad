@@ -1000,19 +1000,6 @@ public class Main {
         return positions;
     }
 
-    public static String[][] getAllDataFromDB() throws IOException {
-        int numRowsWithDataInDB = getLenOfFile(false);
-        String[][] result = new String[numRowsWithDataInDB][DESCRIPTION.length];
-        String[] DB = getDbDataToStringArray();
-
-        for (int i = 0; i < numRowsWithDataInDB; i++) {
-            String[] rowArray = DB[i].split(SEPARATOR);
-            result[i] = rowArray;
-        }
-
-        return result;
-    }
-
     public static void printDataForTimePeriod() throws IOException, ParseException {
         String[] fromToDates = getUserInputFromToDates();
         String fromDate = fromToDates[0];
@@ -1078,8 +1065,8 @@ public class Main {
 
     public static String[] getDbDataToStringArray() throws IOException {
         // Create an array as big as the number of rows in the file (without empty rows)
-        int numRowsInFile = getLenOfFile(false);
-        String[] rowsData = new String[numRowsInFile];
+        int numRowsWithDataInDB = getLenOfFile(false);
+        String[] rowsData = new String[numRowsWithDataInDB];
 
         File file = new File(DB_FILE_NAME);
         Scanner sc = new Scanner(file);
@@ -1095,6 +1082,19 @@ public class Main {
         }
 
         return rowsData;
+    }
+
+    public static String[][] getAllDataFromDB() throws IOException {
+        String[] DB = getDbDataToStringArray();
+        int numRowsWithDataInDB = DB.length;
+        String[][] result = new String[numRowsWithDataInDB][DESCRIPTION.length];
+
+        for (int i = 0; i < numRowsWithDataInDB; i++) {
+            String[] rowArray = DB[i].split(SEPARATOR);
+            result[i] = rowArray;
+        }
+
+        return result;
     }
 
     public static ArrayList<ArrayList<String>> getDbDataToArrayList() throws IOException {
