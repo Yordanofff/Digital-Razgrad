@@ -85,25 +85,25 @@ public class Main {
      * @param rows      - product information from DB
      * @param colorANSI - color of the frame
      */
-    public static void printDBInFrameWithDescription(ArrayList<ArrayList<String>> rows, String colorANSI) {
+    public static void printDBInFrameWithDescription(ArrayList<String[]> rows, String colorANSI) {
         if (rows.size() == 0)
             throw new RuntimeException("DB file " + DB_FILE_NAME + " is empty.");
-
-        // Make sure all rows are same length - some don't have comments and will be 8, other 9 --> all 9.
-        for (List<String> row : rows) {
-            while (row.size() < DESCRIPTION.length) {
-                row.add("");
-            }
-        }
 
         // Get the maximum word length of every column
         // Will be something like [9, 23, 22, 18, 10, 11, 20, 30, 18]
         int[] arrayWithMaxLengths = new int[DESCRIPTION.length];
-        for (ArrayList<String> row : rows) {
-            for (int i = 0; i < row.size(); i++) {
+        for (String[] row : rows) {
+            for (int i = 0; i < row.length; i++) {
                 // rows.size() == DESCRIPTION_WITH_NAME.length == 9
-                if (arrayWithMaxLengths[i] < row.get(i).length()) {
-                    arrayWithMaxLengths[i] = row.get(i).length();
+
+                // When converting from list and there's no comment - the comment becomes null (4 symbols)
+                String currentValue = row[i];
+                if (currentValue == null) {
+                    currentValue = "";
+                }
+
+                if (arrayWithMaxLengths[i] < currentValue.length()) {
+                    arrayWithMaxLengths[i] = currentValue.length();
                 }
             }
         }
@@ -134,14 +134,20 @@ public class Main {
         System.out.println("\n" + colored_frame);
 
         // Print all rows with data from the DB
-        for (ArrayList<String> row : rows) {
+        for (String[] row : rows) {
             System.out.print(colored_separator_no_space_in_front);
+
             for (int i = 0; i < arrayWithMaxLengths.length; i++) {
+                // When converting from list and there's no comment - the comment becomes null.
+                String currentValue = row[i];
+                if (currentValue == null) {
+                    currentValue = "";
+                }
+
                 // "%" + numberOfSpaces + "s", "text To Print"
                 // The formatString will be something like "%-25s | ". The "-" is used for left alignment
                 String formatString = "%-" + arrayWithMaxLengths[i] + "s" + getColoredMsg(SEPARATOR_WHEN_PRINTING, colorANSI);
-
-                System.out.printf(formatString, row.get(i));
+                System.out.printf(formatString, currentValue);
             }
             System.out.println();
         }
@@ -282,7 +288,7 @@ public class Main {
     }
 
     public static void printExpiredStock() throws IOException {
-        ArrayList<ArrayList<String>> rowsExpired = getExpiredStock();
+        ArrayList<String[]> rowsExpired = getExpiredStock();
 
         if (rowsExpired.size() > 0) {
             System.out.print(getColoredMsg("ALREADY EXPIRED STOCK:", ANSI_RED));
@@ -292,18 +298,20 @@ public class Main {
         }
     }
 
-    public static ArrayList<ArrayList<String>> getExpiredStock() throws IOException {
-        ArrayList<ArrayList<String>> rowsExpired = new ArrayList<>();
-        ArrayList<ArrayList<String>> data = getDbDataToArrayList();
-        for (ArrayList<String> row : data) {
+    public static ArrayList<String[]> getExpiredStock() throws IOException {
+        ArrayList<String[]> rowsExpired = new ArrayList<>();
+        ArrayList<String[]> DB = getDbDataToArrayList();
+        for (String[] row : DB) {
 
-            String expiryDate = row.get(1);
+            String expiryDate = row[1];
 
             int diff = getNumberOfDaysFromTodayToDate(expiryDate);
 
-            ArrayList<String> rowExpired = new ArrayList<>();
+            String[] rowExpired = new String[DESCRIPTION.length];
             if (diff < 0) {
-                rowExpired.addAll(row);
+                for (int i = 0; i < DESCRIPTION.length; i++) {
+                    rowExpired[i] = row[i];
+                }
                 rowsExpired.add(rowExpired);
             }
         }
@@ -988,11 +996,14 @@ public class Main {
         if (dataBetweenTwoDates.size() == 0) {
             System.out.println(getColoredMsg("NO STOCK FOUND IN THE PERIOD " + fromDate + " TO " + toDate, ANSI_GREEN));
         } else {
+
             // Add the results to an ArrayList, so it can be printed
-            ArrayList<ArrayList<String>> results = new ArrayList<>();
+            ArrayList<String[]> results = new ArrayList<>();
             for (List<String> row : dataBetweenTwoDates) {
-                ArrayList<String> result = new ArrayList<>();
-                result.addAll(row);
+                String[] result = new String[DESCRIPTION.length];
+                for (int i = 0; i < row.size(); i++) {
+                    result[i] = row.get(i);
+                }
                 results.add(result);
             }
             System.out.print(getColoredMsg("STOCK ADDED IN THE PERIOD " + fromDate + " TO " + toDate + ":", ANSI_GREEN));
@@ -1068,32 +1079,20 @@ public class Main {
 
         for (int i = 0; i < numRowsWithDataInDB; i++) {
             String[] rowArray = DB[i].split(SEPARATOR);
+            // Make all rows same length (applies to the ones without comment)
+            if (rowArray.length != DESCRIPTION.length) {
+                rowArray = Arrays.copyOf(rowArray, DESCRIPTION.length);
+                rowArray[DESCRIPTION.length - 1] = "";
+            }
             result[i] = rowArray;
         }
 
         return result;
     }
 
-    public static ArrayList<ArrayList<String>> getDbDataToArrayList() throws IOException {
-        ArrayList<ArrayList<String>> rows = new ArrayList<>();
-        File file = new File(DB_FILE_NAME);
-        Scanner sc = new Scanner(file);
-
-        int numRowsInFileIncludingEmpty = getLenOfFile(true);
-        for (int i = 0; i < numRowsInFileIncludingEmpty; i++) {
-            ArrayList<String> row = new ArrayList<>();
-            String rowCSV = sc.nextLine();
-            if (!rowCSV.equals("")) {
-                row.add(rowCSV.split(SEPARATOR)[0]);
-                for (int j = 1; j < rowCSV.split(SEPARATOR).length; j++) {
-                    String val = rowCSV.split(SEPARATOR)[j];
-                    row.add(val);
-                }
-            }
-            rows.add(row);
-        }
-
-        return rows;
+    public static ArrayList<String[]> getDbDataToArrayList() throws IOException {
+        String[][] DB = getAllDataFromDB();
+        return new ArrayList<>(Arrays.asList(DB));
     }
 
     public static void writeDataToDB(List<String> row) {
