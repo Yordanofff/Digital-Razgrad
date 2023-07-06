@@ -70,7 +70,8 @@ public class Main {
     private static final DecimalFormat df = new DecimalFormat("0.0");
 
     public static void main(String[] args) throws IOException, ParseException {
-        runApp();
+//        runApp();
+        printAllItemsAndAvailability();
     }
 
     /**
@@ -185,8 +186,6 @@ public class Main {
         System.out.println(coloredFrameHorizontal);
 
         System.out.print(coloredFrameAndSpacesBeginningOfRow + menuTopQuestion);
-//        System.out.println(getColoredMsg(" ".repeat(frameLength -
-//                (menuTopQuestion.length() + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2)) + "|", ANSI_color));
         System.out.println(getColoredMsg(" ".repeat(frameLength -
                 (getLengthOfTheLongestRowInList(Collections.singletonList(menuTopQuestion)) + MIN_NUMBER_OF_SPACES_ON_EACH_SIDE_OF_MENU + 2)) + "|", ANSI_color));
 
@@ -229,6 +228,31 @@ public class Main {
             }
         }
         return true;
+    }
+
+    public static HashMap<String, Double> getAllItemsAndAvailability() throws IOException {
+        String[][] DB = getAllDataFromDB();
+        HashMap<String, Double> itemAvailability = new HashMap<>();
+        for (String[] row: DB) {
+            String name = row[0];
+            double amount = Double.parseDouble(row[5]);
+
+            // If the key doesn't exist - creates it with the value. Else adds the key and the value.
+            itemAvailability.merge(name, amount, Double::sum);
+        }
+        return itemAvailability;
+    }
+
+    public static void printAllItemsAndAvailability() throws IOException {
+        HashMap<String, Double> itemAvailability = getAllItemsAndAvailability();
+        System.out.println(itemAvailability);
+        List<String> dataToPrint = new ArrayList<>();
+        for (String key: itemAvailability.keySet()) {
+            String doubleToString = String.valueOf(itemAvailability.get(key));
+            dataToPrint.add(key + ": " + removeDecimalIfEndsOnZero(doubleToString));
+        }
+
+        printMenuOptionsInFrame("Items Availability", dataToPrint, ANSI_GREEN);
     }
 
     /**
@@ -443,20 +467,20 @@ public class Main {
         String lastLocationInAllLocations = allLocations.get(allLocations.size() - 1);
         String coloredSeparator = getColoredMsg(SEPARATOR_WHEN_PRINTING, ANSI_GREEN);
 
-        String rowStartingTheSame = "";
+        StringBuilder rowStartingTheSame = new StringBuilder();
         for (String location: allLocations) {
             if (!(location.split("/")[0].strip().equalsIgnoreCase(startingLocation))){
                 resultToPrint.add(rowStartingTheSame.substring(0, rowStartingTheSame.length() - coloredSeparator.length()));
-                rowStartingTheSame = "";
+                rowStartingTheSame = new StringBuilder();
                 startingLocation = location.split("/")[0].strip();
             }
 
             if (emptyLocations.contains(location)) {
-                rowStartingTheSame += location + coloredSeparator;
+                rowStartingTheSame.append(location).append(coloredSeparator);
             } else if (fullLocations.contains(location)) {
-                rowStartingTheSame += getColoredMsg(location, ANSI_RED) + coloredSeparator;
+                rowStartingTheSame.append(getColoredMsg(location, ANSI_RED)).append(coloredSeparator);
             } else {
-                rowStartingTheSame += getColoredMsg(location, ANSI_YELLOW) + coloredSeparator;
+                rowStartingTheSame.append(getColoredMsg(location, ANSI_YELLOW)).append(coloredSeparator);
             }
 
             if (location.equalsIgnoreCase(lastLocationInAllLocations)) {
@@ -464,7 +488,7 @@ public class Main {
             }
         }
 
-        int numSpacesToCenterTheDescription = (getStringLengthWithoutANSI(rowStartingTheSame) - 30)/4;
+        int numSpacesToCenterTheDescription = (getStringLengthWithoutANSI(rowStartingTheSame.toString()) - 30)/4;
         String spaces = " ".repeat(numSpacesToCenterTheDescription);
         String msg = spaces + getColoredMsg("Empty", ANSI_GREEN) + spaces + getColoredMsg("Partly full", ANSI_YELLOW) + spaces +
                 getColoredMsg("Full", ANSI_RED) + spaces;
@@ -840,11 +864,8 @@ public class Main {
             }
 
             // List initialization is inside the loop, so that it stores the data in different memory
-            List<String> allValidUserInputList = new ArrayList<>();
-            for (String element : allValidUserInput) {
-                allValidUserInputList.add(element);
-            }
-//            allValidUserInputList.set(5, removeDecimalIfEndsOnZero(String.valueOf(numItemsThatWillBeAddedToLocation)));
+            List<String> allValidUserInputList = new ArrayList<>(Arrays.asList(allValidUserInput));
+
             allValidUserInputList.set(5, removeDecimalIfEndsOnZero(df.format(numItemsThatWillBeAddedToLocation)));
             allValidUserInputList.add(6, positionToPlaceItem);
             allValidUserInputList.add(7, removeDecimalIfEndsOnZero(totalNumberOfItemsThatCanFitOnShelfString));
