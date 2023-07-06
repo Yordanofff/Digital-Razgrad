@@ -47,7 +47,6 @@ public class Main {
 
     static String[] ANSWERS = new String[USER_QUESTIONS.length];
 
-
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_RED = "\u001B[31m";
@@ -440,18 +439,35 @@ public class Main {
 
         List<String> resultToPrint = new ArrayList<>();
 
+        String startingLocation = allLocations.get(0).split("/")[0].strip(); // a1
+        String lastLocationInAllLocations = allLocations.get(allLocations.size() - 1);
+        String coloredSeparator = getColoredMsg(SEPARATOR_WHEN_PRINTING, ANSI_GREEN);
+
+        String rowStartingTheSame = "";
         for (String location: allLocations) {
+            if (!(location.split("/")[0].strip().equalsIgnoreCase(startingLocation))){
+                resultToPrint.add(rowStartingTheSame.substring(0, rowStartingTheSame.length() - coloredSeparator.length()));
+                rowStartingTheSame = "";
+                startingLocation = location.split("/")[0].strip();
+            }
+
             if (emptyLocations.contains(location)) {
-                resultToPrint.add(location);
+                rowStartingTheSame += location + coloredSeparator;
             } else if (fullLocations.contains(location)) {
-                resultToPrint.add(getColoredMsg(location, ANSI_RED));
+                rowStartingTheSame += getColoredMsg(location, ANSI_RED) + coloredSeparator;
             } else {
-                resultToPrint.add(getColoredMsg(location, ANSI_YELLOW));
+                rowStartingTheSame += getColoredMsg(location, ANSI_YELLOW) + coloredSeparator;
+            }
+
+            if (location.equalsIgnoreCase(lastLocationInAllLocations)) {
+                resultToPrint.add(rowStartingTheSame.substring(0, rowStartingTheSame.length() - coloredSeparator.length()));
             }
         }
 
-        String msg = getColoredMsg("Empty     ", ANSI_GREEN) + getColoredMsg("Partly full", ANSI_YELLOW) +
-                getColoredMsg("     Full", ANSI_RED);
+        int numSpacesToCenterTheDescription = (getStringLengthWithoutANSI(rowStartingTheSame) - 30)/4;
+        String spaces = " ".repeat(numSpacesToCenterTheDescription);
+        String msg = spaces + getColoredMsg("Empty", ANSI_GREEN) + spaces + getColoredMsg("Partly full", ANSI_YELLOW) + spaces +
+                getColoredMsg("Full", ANSI_RED) + spaces;
 
         printMenuOptionsInFrame(msg, resultToPrint, ANSI_GREEN);
     }
