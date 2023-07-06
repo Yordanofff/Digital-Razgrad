@@ -70,8 +70,7 @@ public class Main {
     private static final DecimalFormat df = new DecimalFormat("0.0");
 
     public static void main(String[] args) throws IOException, ParseException {
-//        runApp();
-        printAllItemsAndAvailability();
+        runApp();
     }
 
     /**
@@ -223,11 +222,32 @@ public class Main {
             case 7 -> printStockExpiringSoon();
             case 8 -> printExpiredStock();
             case 9 -> printWarehouseInfo();
-            case 10 -> {
+            case 10 -> printAllItemsAndAvailability();
+            case 11 -> {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Builds the menu questions and calls the method to print them.
+     * @return valid answer, depending on the number of questions
+     */
+    public static int printMenuOptions() {
+        String[] menuOptions = new String[]{"List all items", "Add new delivery",
+                "List deliveries for time period", "Print all empty locations", "Print all full locations", "Print color-coded locations",
+                "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Print Items and Availability", "Exit"};
+
+        // Add all questions to a List with numbers for the options
+        List<String> menuOptionsWithNumbers = new ArrayList<>();
+        for (int i = 1; i <= menuOptions.length; i++) {
+            menuOptionsWithNumbers.add(i + " - " + menuOptions[i - 1]);
+        }
+
+        printMenuOptionsInFrame("Please choose what to do:", menuOptionsWithNumbers, ANSI_GREEN);
+
+        return getMenuAnswer(menuOptions.length);
     }
 
     public static HashMap<String, Double> getAllItemsAndAvailability() throws IOException {
@@ -245,34 +265,21 @@ public class Main {
 
     public static void printAllItemsAndAvailability() throws IOException {
         HashMap<String, Double> itemAvailability = getAllItemsAndAvailability();
-        System.out.println(itemAvailability);
+
         List<String> dataToPrint = new ArrayList<>();
+
+        int longestKey = getLongestWordLengthInSet(itemAvailability.keySet());
+
         for (String key: itemAvailability.keySet()) {
             String doubleToString = String.valueOf(itemAvailability.get(key));
-            dataToPrint.add(key + ": " + removeDecimalIfEndsOnZero(doubleToString));
+
+            // Format string doesn't work because will be printed normally not pritf...
+            key = addSpacesToWord(key, longestKey);
+
+            dataToPrint.add(key + getColoredMsg(": ", ANSI_GREEN) + removeDecimalIfEndsOnZero(doubleToString));
         }
 
         printMenuOptionsInFrame("Items Availability", dataToPrint, ANSI_GREEN);
-    }
-
-    /**
-     * Builds the menu questions and calls the method to print them.
-     * @return valid answer, depending on the number of questions
-     */
-    public static int printMenuOptions() {
-        String[] menuOptions = new String[]{"List all items", "Add new delivery",
-                "List deliveries for time period", "Print all empty locations", "Print all full locations", "Print color-coded locations",
-                "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Exit"};
-
-        // Add all questions to a List with numbers for the options
-        List<String> menuOptionsWithNumbers = new ArrayList<>();
-        for (int i = 1; i <= menuOptions.length; i++) {
-            menuOptionsWithNumbers.add(i + " - " + menuOptions[i - 1]);
-        }
-
-        printMenuOptionsInFrame("Please choose what to do:", menuOptionsWithNumbers, ANSI_GREEN);
-
-        return getMenuAnswer(menuOptions.length);
     }
 
     /**
@@ -1503,4 +1510,17 @@ public class Main {
         return strToCheck.matches("\\d+(\\.\\d)?");
     }
 
+    public static String addSpacesToWord(String word, int lengthOfLongestWord) {
+        return " ".repeat(lengthOfLongestWord - word.length()) + word;
+    }
+
+    public static int getLongestWordLengthInSet(Set<String> set) {
+        int longest = 0;
+        for (String word: set) {
+            if (word.length() > longest) {
+                longest = word.length();
+            }
+        }
+        return longest;
+    }
 }
