@@ -1243,7 +1243,7 @@ public class Main {
 
             return ansInt;
 
-        } catch (InputMismatchException e) {
+        } catch (RuntimeException e) {
             printError("\"" + ans + "\" is not a number! Please enter a number: ");
             return getMenuAnswer(numOptions);
         }
