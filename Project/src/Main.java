@@ -1232,17 +1232,21 @@ public class Main {
      * @return A valid option in the menu.
      */
     public static int getMenuAnswer(int numOptions) {
-        int ans = scanner.nextInt();  //todo
-        scanner.nextLine();
+        String ans = scanner.nextLine().strip();
 
-        // Keep printing the error msg if answer is less than 1 or greater than the highest option number
-        while (ans < 1 || ans > numOptions) {
-            printError("Please choose a number between 1 and " + numOptions);
-            ans = scanner.nextInt();
-            scanner.nextLine();
+        try {
+            int ansInt = Integer.parseInt(ans);
+            if (ansInt < 1 || ansInt > numOptions) {
+                printError("Please choose a number between 1 and " + numOptions);
+                return getMenuAnswer(numOptions);
+            }
+
+            return ansInt;
+
+        } catch (InputMismatchException e) {
+            printError("\"" + ans + "\" is not a number! Please enter a number: ");
+            return getMenuAnswer(numOptions);
         }
-
-        return ans;
     }
 
     public static String getValidUnit(String userInput) {
