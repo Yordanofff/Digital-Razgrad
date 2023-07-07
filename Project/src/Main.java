@@ -140,7 +140,7 @@ public class Main {
             System.out.print(getColoredMsg("STOCK THAT WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_YELLOW));
             printDBInFrameWithDescription(rowsNotExpired, ANSI_YELLOW);
         } else {
-            System.out.print(getColoredMsg("NO STOCK WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_GREEN));
+            System.out.println(getColoredMsg("NO STOCK WILL EXPIRE IN THE NEXT " + daysToCheck + " DAYS:", ANSI_GREEN));
         }
     }
 
