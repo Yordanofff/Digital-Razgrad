@@ -10,10 +10,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
-
-// todo option - allow user to modify amount units/kg + warehouse size
-
-
 public class Main {
     static Scanner scanner = new Scanner(System.in);
     static String SEPARATOR = ";";
@@ -61,10 +57,9 @@ public class Main {
 
     static final String[] menuOptions = new String[]{"List all items", "Add new delivery",
             "List deliveries for time period", "Print all empty locations", "Print all full locations", "Print color-coded locations",
-            "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Print Items and Availability", "Exit"};
+            "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Print Items and Availability", "Modify Unit Options", "Exit"};
 
-    static final String filePath = new File("").getAbsolutePath();
-    static final String UNIT_OPTIONS_FILEPATH = filePath.concat("\\unit_options.properties");
+    static final String UNIT_OPTIONS_FILEPATH = "unit_options.properties";
 
     public static void main(String[] args) throws IOException, ParseException {
         runApp();
@@ -105,6 +100,7 @@ public class Main {
             case 8 -> printExpiredStock();
             case 9 -> printWarehouseInfo();
             case 10 -> printAllItemsAndAvailability();
+            case 11 -> modifyUnitOptions();
         }
     }
 
@@ -121,20 +117,7 @@ public class Main {
     public static void printAllItemsAndAvailability() throws IOException {
         HashMap<String, Double> itemAvailability = getAllItemsAndAvailability();
 
-        List<String> dataToPrint = new ArrayList<>();
-
-        int longestKey = getLengthOfTheLongestStringInSet(itemAvailability.keySet());
-
-        for (String key : itemAvailability.keySet()) {
-            String doubleToString = String.valueOf(itemAvailability.get(key));
-
-            // Format string doesn't work because will be printed normally not pritf...
-            key = addSpacesToWord(key, longestKey);
-
-            dataToPrint.add(key + getColoredMsg(": ", ANSI_GREEN) + removeDecimalIfEndsOnZero(doubleToString));
-        }
-
-        printMenuOptionsInFrame("Items Availability", dataToPrint, ANSI_GREEN);
+        printMapKeysMiddlePointSeparatedBy(itemAvailability, "Items Availability", ": ");
     }
 
     public static void printStockExpiringSoon() throws IOException {
@@ -345,6 +328,104 @@ public class Main {
         if (numDay > numDaysInCurrentMonth) {
             printError(getMonthNameFromNumber(numMonth) + " " + numYear + "y. has " + numDaysInCurrentMonth + " days. Invalid entry: " + numDay);
         }
+    }
+
+    public static void modifyUnitOptions() throws IOException, ParseException {
+        Map<String, Integer> current_setting_in_file = getUnitOptionsFromFile();
+
+        printMapKeysMiddlePointSeparatedBy((HashMap<String, Integer>) current_setting_in_file, "Current Values", " = ");
+
+        System.out.print("\nWhich value would you like to change? ");
+        String userInput = scanner.nextLine().strip();
+
+        if (isSpecialCmd(userInput)) {
+            return;
+        }
+
+        String validatedKeyOrSpecialCmd = getValidUnit(userInput);
+
+        if (isSpecialCmd(validatedKeyOrSpecialCmd)) {
+            return;
+        }
+
+        int newValue = getNewUnitOptionsValue(validatedKeyOrSpecialCmd);
+
+        // Special case where the user entered a special cmd. 0 Won't be accepted as a standard input.
+        if (newValue == 0) {
+            return;
+        }
+
+        int oldValue = current_setting_in_file.get(validatedKeyOrSpecialCmd);
+
+        if (newValue == oldValue) {
+            printError("The old and the new values are the same. Going back to the main menu.");
+            return;
+        }
+
+        System.out.println("Changing the value of " + getColoredMsg(validatedKeyOrSpecialCmd, ANSI_GREEN) + " from " +
+                getColoredMsg(String.valueOf(oldValue), ANSI_GREEN) + " to " +
+                getColoredMsg(String.valueOf(newValue), ANSI_GREEN) + " ...");
+
+        current_setting_in_file.replace(validatedKeyOrSpecialCmd, newValue);
+
+        System.out.println("Value changed successfully.");
+
+        populateUnitOptionsFileWithValues(current_setting_in_file);
+        UNIT_OPTIONS = current_setting_in_file;
+
+        printMapKeysMiddlePointSeparatedBy((HashMap<String, Integer>) current_setting_in_file, "New Values", " = ");
+
+        System.out.println("\nUpdating the DB...");
+
+        int num_changed = changeUnitValuesInDBandGetNumberOfRowsChanged(validatedKeyOrSpecialCmd, newValue);
+
+        System.out.println("All [" + getColoredMsg(String.valueOf(num_changed), ANSI_GREEN) + "] rows changed.");
+    }
+
+    public static int getNewUnitOptionsValue(String key) {
+        System.out.print("Please enter the new value for [" + getColoredMsg(key, ANSI_GREEN) + "]: ");
+
+        while (true) {
+            String ansValue = scanner.nextLine().strip();
+
+            if (isSpecialCmd(ansValue)) {
+                return 0;
+            }
+
+            try {
+                int ansInt = Integer.parseInt(ansValue);
+                if (ansInt < 1) {
+                    printError("Please choose a number bigger than 1");
+                } else {
+                    return ansInt;
+                }
+            } catch (RuntimeException e) {
+                if (ansValue.isEmpty()) {
+                    printError("Empty input! Please enter a number: ");
+                } else {
+                    printError("\"" + ansValue + "\" is not a number! Please enter a number: ");
+                }
+            }
+        }
+    }
+
+    public static int changeUnitValuesInDBandGetNumberOfRowsChanged(String unitName, int newValue) throws IOException {
+        // In order to do just one thing I need to create another method that just counts the number of unitNames and
+        // return that instead. Will keep it as is for now.
+
+        int numItemsChanged = 0;
+        String[][] DB = getAllDataFromDB();
+
+        for (String[] row : DB) {
+            if (row[4].equalsIgnoreCase(unitName.strip())) {
+                row[7] = String.valueOf(newValue).strip();
+                numItemsChanged += 1;
+            }
+        }
+
+        rewriteDBfileWithNewData(DB);
+
+        return numItemsChanged;
     }
 
     public static ArrayList<String[]> getExpiredStock() throws IOException {
@@ -777,6 +858,15 @@ public class Main {
 
     // ============= Read/Write to DB -- DB operations:
 
+    public static void rewriteDBfileWithNewData(String[][] newData) throws IOException {
+        FileWriter writer = new FileWriter(DB_FILE_NAME);
+        for (String[] row : newData) {
+            writer.write(String.join(SEPARATOR, row));
+            writer.write("\n");
+        }
+        writer.close();
+    }
+
     public static int getLenOfDBFile(boolean countEmptyRows) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(DB_FILE_NAME));
         int lines = 0;
@@ -797,12 +887,12 @@ public class Main {
         createFileIfNotExists(DB_FILE_NAME);
     }
 
-    public static void populateUnitOptionsFileWithDefaultValues() {
+    public static void populateUnitOptionsFileWithValues(Map<String, Integer> newValues) {
         Properties props = new Properties();
 
         // Convert every value to a String - because it fails when it's an Integer
-        for (String key : UNIT_OPTIONS_DEFAULTS.keySet()) {
-            props.setProperty(key, UNIT_OPTIONS_DEFAULTS.get(key).toString());
+        for (String key : newValues.keySet()) {
+            props.setProperty(key, newValues.get(key).toString());
         }
 
         try (OutputStream outputStream = new FileOutputStream(UNIT_OPTIONS_FILEPATH)) {
@@ -817,7 +907,7 @@ public class Main {
 
             createFileIfNotExists(UNIT_OPTIONS_FILEPATH);
 
-            populateUnitOptionsFileWithDefaultValues();
+            populateUnitOptionsFileWithValues(UNIT_OPTIONS_DEFAULTS);
 
             printWarning("File \"" + UNIT_OPTIONS_FILEPATH + "\" is populated with default data: " + getUnitOptionsFromFile());
         }
@@ -918,7 +1008,33 @@ public class Main {
         }
     }
 
-    // ============= Two methods that are used to print the data on the screen - formatted - surrounded by a frame
+    // ============= Methods that are used to print the data on the screen - formatted - surrounded by a frame
+
+    /**
+     * ==============================
+     * |     Items Availability     |
+     * ==============================
+     * |        flowers: 1300       |
+     * |          bread: 400        |
+     * ==============================
+     *
+     * @param separator - symbol between key and value. Will be colored. Ex. ": "
+     */
+    public static void printMapKeysMiddlePointSeparatedBy(HashMap<String, ?> hashMap, String menuTopMessage, String separator) {
+        List<String> dataToPrint = new ArrayList<>();
+
+        int longestKey = getLengthOfTheLongestStringInSet(hashMap.keySet());
+
+        for (String key : hashMap.keySet()) {
+            String doubleToString = String.valueOf(hashMap.get(key));
+
+            // Format string doesn't work because will be printed normally not pritf...
+            key = addSpacesToWord(key, longestKey);
+
+            dataToPrint.add(key + getColoredMsg(separator, ANSI_GREEN) + removeDecimalIfEndsOnZero(doubleToString));
+        }
+        printMenuOptionsInFrame(menuTopMessage, dataToPrint, ANSI_GREEN);
+    }
 
     /**
      * This method will print the description + the information from the DB in a colored frame.
@@ -1627,5 +1743,14 @@ public class Main {
         } else if (year % 400 == 0) {
             return true;
         } else return year % 100 != 0;
+    }
+
+    public static boolean isSpecialCmd(String text) {
+        for (String cmd : SPECIAL_CMDS) {
+            if (text.strip().equalsIgnoreCase(cmd)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
