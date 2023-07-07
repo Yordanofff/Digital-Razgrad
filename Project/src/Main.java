@@ -294,6 +294,54 @@ public class Main {
         printMenuOptionsInFrame("Enter the data for the items that you want to add:", inputInfo, ANSI_GREEN);
     }
 
+    public static void printErrorsEUDateValid(String date) {
+        date = date.replaceAll("\\s", "");
+        String[] parts = date.split("\\.");
+
+        // Check if the formatting is correct - 2 dots -> dd.mm.yyyy
+        if (parts.length != 3) {
+            printError("The date is not split by 2 dots/slashes. Needs to be dd.mm.yyyy or dd/mm/yyyy.");
+            return;
+        }
+
+        // Check if all parts can be converted to integers and all are bigger than 1. Day, month and year can't be 0.
+        for (String part : parts) {
+            try {
+                if (Integer.parseInt(part) < 1) {
+                    printError("Every calendar Day and Month start from 1.");
+                    return;
+                }
+            } catch (Exception e) {
+                printError(part + " cannot be converted to integer");
+                return;
+            }
+        }
+
+        int numDay = Integer.parseInt(parts[0]);
+        int numMonth = Integer.parseInt(parts[1]);
+        int numYear = Integer.parseInt(parts[2]);
+
+        // Month should be 1-12
+        if (numMonth > 12) {
+            printError("The month needs to be in the range 1-12.");
+            return;
+        }
+
+
+        // Year should be 4 digits long - ex. 2021
+        if (parts[2].length() != 4) {
+            printError("The year needs to be exactly 4 digits.");
+            return;
+        }
+
+        int numDaysInCurrentMonth = getNumberOfDaysInMonth(numYear, numMonth);
+
+        // Check if the month has that date.
+        if (numDay > numDaysInCurrentMonth) {
+            printError(getMonthNameFromNumber(numMonth) + " " + numYear + "y. has " + numDaysInCurrentMonth + " days. Invalid entry: " + numDay);
+        }
+    }
+
     public static ArrayList<String[]> getExpiredStock() throws IOException {
         ArrayList<String[]> rowsExpired = new ArrayList<>();
         ArrayList<String[]> DB = getDbDataToArrayList();
@@ -1083,7 +1131,7 @@ public class Main {
             case 10 -> "October";
             case 11 -> "November";
             case 12 -> "December";
-            default -> "No such month";
+            default -> "No such month!";
         };
     }
 
@@ -1128,11 +1176,16 @@ public class Main {
         }
 
         // February has 29 days if leap year and 28 if not.
-        if (isLeapYear(year)) {
-            return 29;
-        } else {
-            return 28;
+        if (month == 2) {
+            if (isLeapYear(year)) {
+                return 29;
+            } else {
+                return 28;
+            }
         }
+
+        // if month doesn't exist
+        return 0;
     }
 
     public static int getWarehouseSize() {
@@ -1268,7 +1321,7 @@ public class Main {
                 }
 
                 // Check if is date and if the product is not expired - return the date.
-                if (isDateValid(userInput)) {
+                if (isEUDateValid(userInput)) {
                     if (!isDateExpired(userInput)) {
                         if (isDateExpiringToday(userInput)) {
                             printWarning("The item expires today!");
@@ -1277,6 +1330,8 @@ public class Main {
                     } else {
                         printError("The item has already expired!");
                     }
+                } else {
+                    printErrorsEUDateValid(userInput);
                 }
             }
             printError(errorMessage);
@@ -1311,12 +1366,14 @@ public class Main {
                     return getToday();  // no checks needed.
                 }
 
-                if (isDateValid(userInput)) {
+                if (isEUDateValid(userInput)) {
                     if (getNumberOfDaysInADate(userInput) <= getNumberOfDaysInADate(currentExpiryDate)) {
                         return addLeadingZeroToDayMonth(userInput);
                     }
                     // Print an Error msg if Entry date is later than the Expiry date (Item already expired when entering the warehouse)
                     printError("Something is wrong. Entry date(" + userInput + ") is after expiry date(" + currentExpiryDate + ")");
+                } else {
+                    printErrorsEUDateValid(userInput);
                 }
             }
 
@@ -1343,8 +1400,10 @@ public class Main {
                     return getToday();  // no checks needed.
                 }
 
-                if (isDateValid(userInput)) {
+                if (isEUDateValid(userInput)) {
                     return addLeadingZeroToDayMonth(userInput);
+                } else {
+                    printErrorsEUDateValid(userInput);
                 }
             }
 
@@ -1382,6 +1441,7 @@ public class Main {
     }
 
     // ============= Checkers
+
     public static boolean isExitSelected(int option) {
         return option == Arrays.asList(menuOptions).indexOf("Exit") + 1;
     }
@@ -1435,14 +1495,11 @@ public class Main {
         return strToCheck.matches("\\d+(\\.\\d)?");
     }
 
-    // todo - error messages removed
     /**
      * Checks if a date is valid. Valid date is a date split by 2 dots and is a real date that exists.
      * The year needs to be 4 digits long.
      * A month needs to be a number between 1-12.
      * A day will be at least 1 and might be different depending on the month and year.
-     * -
-     * An error message with the problem will be printed if the date is not valid.
      * -
      * Example of valid dates:
      * 01.01.2020
@@ -1450,29 +1507,26 @@ public class Main {
      * 1.1.2020
      * " 1. 2 .   2010  "
      *
-     * @param date - date formatted  "dd.mm.yyyy" or "d.m.yyyy". Will return false if not.
+     * @param date - date formatted  "dd.mm.yyyy" or "d.m.yyyy".
      * @return true if the date is valid, false if not.
      */
-    public static boolean isDateValid(String date) {
+    public static boolean isEUDateValid(String date) {
         date = date.replaceAll("\\s", "");
         String[] parts = date.split("\\.");
+        System.out.println(date);
 
         // Check if the formatting is correct - 2 dots -> dd.mm.yyyy
         if (parts.length != 3) {
-            printError("The date is not split by 2 dots. Needs to be dd.mm.yyyy");
             return false;
         }
 
         // Check if all parts can be converted to integers and all are bigger than 1. Day, month and year can't be 0.
-        for (int i = 0; i < 3; i++) {
+        for (String part : parts) {
             try {
-                int num = Integer.parseInt(parts[i]);
-                if (num < 1) {
-                    printError("Every calendar Day and Month start from 1.");
+                if (Integer.parseInt(part) < 1) {
                     return false;
                 }
             } catch (Exception e) {
-                printError(parts[i] + " cannot be converted to integer");
                 return false;
             }
         }
@@ -1483,25 +1537,18 @@ public class Main {
 
         // Month should be 1-12
         if (numMonth > 12) {
-            printError("The month needs to be in the range 1-12.");
             return false;
         }
 
         // Year should be 4 digits long - ex. 2021
         if (parts[2].length() != 4) {
-            printError("The year needs to be exactly 4 digits.");
             return false;
         }
 
-        int daysInCurrentMonth = getNumberOfDaysInMonth(numYear, numMonth);
+        int numDaysInCurrentMonth = getNumberOfDaysInMonth(numYear, numMonth);
 
         // Check if the month has that date.
-        if (numDay > daysInCurrentMonth) {
-            printError(getMonthNameFromNumber(numMonth) + " " + numYear + "y. has " + daysInCurrentMonth + " days. Invalid entry: " + numDay);
-            return false;
-        }
-
-        return true;
+        return numDay <= numDaysInCurrentMonth;
     }
 
     public static boolean isCurrentMonthInArray(int[] monthNumbers, int monthNumber) {
