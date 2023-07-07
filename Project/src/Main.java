@@ -1,4 +1,7 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,10 +11,6 @@ import java.util.*;
 import java.util.List;
 
 
-// todo - write tests
-
-// todo option - print units and amount that can be fit on shelf
-// todo - move units to a config file
 // todo option - allow user to modify amount units/kg + warehouse size
 
 
@@ -28,14 +27,15 @@ public class Main {
     static int NUM_SHELVES = 3;
     static int NUM_NUMBERS = 4;
 
-    static Map<String, Integer> UNIT_OPTIONS = Map.of(
-            //Unit type - number of items per shelf
+    //Unit type - number of items per shelf
+    static Map<String, Integer> UNIT_OPTIONS = new HashMap<>();
+
+    static Map<String, Integer> UNIT_OPTIONS_DEFAULTS = Map.of(
             "kg", 100,
             "liter", 100,
             "meter", 10,
             "unit", 1000
     );
-
     static String[] USER_QUESTIONS = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
             "available stock", "comment (optional)"};
 
@@ -63,12 +63,17 @@ public class Main {
             "List deliveries for time period", "Print all empty locations", "Print all full locations", "Print color-coded locations",
             "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Print Items and Availability", "Exit"};
 
+    static final String filePath = new File("").getAbsolutePath();
+    static final String UNIT_OPTIONS_FILEPATH = filePath.concat("\\unit_options.properties");
+
     public static void main(String[] args) throws IOException, ParseException {
         runApp();
     }
 
     public static void runApp() throws IOException, ParseException {
         createDBfileIfMissing();
+
+        createAndPopulateUnitOptionsFileWithDefaultValuesIfMissing();
 
         while (true) {
             printMenuOptions();
@@ -120,7 +125,7 @@ public class Main {
 
         int longestKey = getLengthOfTheLongestStringInSet(itemAvailability.keySet());
 
-        for (String key: itemAvailability.keySet()) {
+        for (String key : itemAvailability.keySet()) {
             String doubleToString = String.valueOf(itemAvailability.get(key));
 
             // Format string doesn't work because will be printed normally not pritf...
@@ -206,8 +211,8 @@ public class Main {
         String coloredSeparator = getColoredMsg(SEPARATOR_WHEN_PRINTING, ANSI_GREEN);
 
         StringBuilder rowStartingTheSame = new StringBuilder();
-        for (String location: allLocations) {
-            if (!(location.split("/")[0].strip().equalsIgnoreCase(startingLocation))){
+        for (String location : allLocations) {
+            if (!(location.split("/")[0].strip().equalsIgnoreCase(startingLocation))) {
                 resultToPrint.add(rowStartingTheSame.substring(0, rowStartingTheSame.length() - coloredSeparator.length()));
                 rowStartingTheSame = new StringBuilder();
                 startingLocation = location.split("/")[0].strip();
@@ -226,7 +231,7 @@ public class Main {
             }
         }
 
-        int numSpacesToCenterTheDescription = (getStringLengthWithoutANSI(rowStartingTheSame.toString()) - 30)/4;
+        int numSpacesToCenterTheDescription = (getStringLengthWithoutANSI(rowStartingTheSame.toString()) - 30) / 4;
         String spaces = " ".repeat(numSpacesToCenterTheDescription);
         String msg = spaces + getColoredMsg("Empty", ANSI_GREEN) + spaces + getColoredMsg("Partly full", ANSI_YELLOW) + spaces +
                 getColoredMsg("Full", ANSI_RED) + spaces;
@@ -359,13 +364,13 @@ public class Main {
                 rowsExpired.add(rowExpired);
             }
         }
-        return  rowsExpired;
+        return rowsExpired;
     }
 
     public static List<String> getFullLocations() throws IOException {
         List<String> fullLocations = new ArrayList<>();
         List<String> usedLocations = getAllLocationsThatHaveAtLeastOneItem();
-        for (String usedLocation: usedLocations) {
+        for (String usedLocation : usedLocations) {
             if (getFreeSpaceAtLocationIfAtLeastOneItem(usedLocation) == 0) {
                 fullLocations.add(usedLocation);
             }
@@ -495,7 +500,7 @@ public class Main {
     public static HashMap<String, Double> getAllItemsAndAvailability() throws IOException {
         String[][] DB = getAllDataFromDB();
         HashMap<String, Double> itemAvailability = new HashMap<>();
-        for (String[] row: DB) {
+        for (String[] row : DB) {
             String name = row[0];
             double amount = Double.parseDouble(row[5]);
 
@@ -657,22 +662,16 @@ public class Main {
         // Make sure that the unit question returns a valid answer
         if (question.contains("unit")) {
             return getValidUnit(ans.toLowerCase());
-        }
-
-        else if (question.equalsIgnoreCase("expiry date")) {
+        } else if (question.equalsIgnoreCase("expiry date")) {
             return getValidExpiryDate(convertDateFromUKtoEUType(ans));
-        }
-
-        else if (question.equalsIgnoreCase("Entry date")) {
+        } else if (question.equalsIgnoreCase("Entry date")) {
             return getValidEntryDate(convertDateFromUKtoEUType(ans));
         }
 
         // "from - to" date
         else if (question.contains("date")) {
             return getValidDate(convertDateFromUKtoEUType(ans));
-        }
-
-        else if (question.contains("stock")) {
+        } else if (question.contains("stock")) {
             return getValidStock(ans);
         }
 
@@ -795,10 +794,67 @@ public class Main {
     }
 
     public static void createDBfileIfMissing() throws IOException {
-        File f = new File(DB_FILE_NAME);
-        if (!f.exists()) {
-            printWarning("DB file \"" + DB_FILE_NAME + "\" not found and will be created.");
-            f.createNewFile();
+        createFileIfNotExists(DB_FILE_NAME);
+    }
+
+    public static void populateUnitOptionsFileWithDefaultValues() {
+        Properties props = new Properties();
+
+        // Convert every value to a String - because it fails when it's an Integer
+        for (String key : UNIT_OPTIONS_DEFAULTS.keySet()) {
+            props.setProperty(key, UNIT_OPTIONS_DEFAULTS.get(key).toString());
+        }
+
+        try (OutputStream outputStream = new FileOutputStream(UNIT_OPTIONS_FILEPATH)) {
+            props.store(outputStream, "UNIT_OPTIONS will be loaded from this file. \nYou will need to restart the app if you modify this file manually.\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createAndPopulateUnitOptionsFileWithDefaultValuesIfMissing() throws IOException {
+        if (!isFileExist(UNIT_OPTIONS_FILEPATH)) {
+
+            createFileIfNotExists(UNIT_OPTIONS_FILEPATH);
+
+            populateUnitOptionsFileWithDefaultValues();
+
+            printWarning("File \"" + UNIT_OPTIONS_FILEPATH + "\" is populated with default data: " + getUnitOptionsFromFile());
+        }
+        // load the data
+        UNIT_OPTIONS = getUnitOptionsFromFile();
+    }
+
+    public static Map<String, Integer> getUnitOptionsFromFile() {
+        Properties props = new Properties();
+
+        try (InputStream inputStream = new FileInputStream(UNIT_OPTIONS_FILEPATH)) {
+            props.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Map<String, Integer> unitOptions = new HashMap<>();
+        for (String key : props.stringPropertyNames()) {
+            unitOptions.put(key, Integer.parseInt(props.getProperty(key)));
+        }
+
+        return unitOptions;
+    }
+
+    public static void createFileIfNotExists(String filePath) throws IOException {
+        if (!isFileExist(filePath)) {
+            printWarning("File \"" + filePath + "\" not found and will be created.");
+            createNewFile(filePath);
+        }
+    }
+
+    public static void createNewFile(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        try {
+            Files.createFile(path);
+        } catch (IOException e) {
+            throw new IOException("The file wasn't created!\n" + e);
         }
     }
 
@@ -1137,7 +1193,7 @@ public class Main {
 
     public static int getLengthOfTheLongestStringInSet(Set<String> set) {
         int longest = 0;
-        for (String word: set) {
+        for (String word : set) {
             if (word.length() > longest) {
                 longest = word.length();
             }
@@ -1225,12 +1281,6 @@ public class Main {
 
     // ============= Valid Answer Loops
 
-    /**
-     * Loops until the entered value is a possible option in the menu.
-     *
-     * @param numOptions - the biggest available option number
-     * @return A valid option in the menu.
-     */
     public static int getMenuAnswer(int numOptions) {
         while (true) {
             String ans = scanner.nextLine().strip();
@@ -1448,6 +1498,10 @@ public class Main {
     }
 
     // ============= Checkers
+    public static boolean isFileExist(String filePath) {
+        File file = new File(filePath);
+        return file.exists();
+    }
 
     public static boolean isExitSelected(int option) {
         return option == Arrays.asList(menuOptions).indexOf("Exit") + 1;
