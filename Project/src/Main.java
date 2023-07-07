@@ -12,16 +12,21 @@ import java.util.List;
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
+
     static String SEPARATOR = ";";
+
     static String SEPARATOR_WHEN_PRINTING = " | ";
+
     static String DB_FILE_NAME = "app_data.csv";
 
-//    static char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+    static final String UNIT_OPTIONS_FILENAME = "unit_options.properties";
 
-    static char[] LETTER_SECTION = "ab".toCharArray();
-    static int NUM_SECTION = 3;
-    static int NUM_SHELVES = 3;
-    static int NUM_NUMBERS = 4;
+    static Map<String, ?> WAREHOUSE_SIZE = Map.of(
+            "letters", "ab",
+            "sections", 3,
+            "shelves", 3,
+            "numbers", 4
+    );
 
     //Unit type - number of items per shelf
     static Map<String, Integer> UNIT_OPTIONS = new HashMap<>();
@@ -32,11 +37,12 @@ public class Main {
             "meter", 10,
             "unit", 1000
     );
+
     static String[] USER_QUESTIONS = new String[]{"product name", "expiry date", "entry date", "manufacturer", "unit",
             "available stock", "comment (optional)"};
 
-    // Starting at the second element - "Name" not printed.
-    static String[] DESCRIPTION = new String[]{"Name", "Expiry date", "Entry date", "Manufacturer", "Unit", "Stock", "Position", "Available items at shelf", "Comment"};
+    static String[] DESCRIPTION = new String[]{"Name", "Expiry date", "Entry date", "Manufacturer", "Unit",
+            "Stock", "Position", "Available items at shelf", "Comment"};
 
     @SuppressWarnings("FieldMayBeFinal")
     private static List<String> TEMP_USED_LOCATIONS_NOT_IN_DB = new ArrayList<>();
@@ -44,9 +50,13 @@ public class Main {
     static String[] ANSWERS = new String[USER_QUESTIONS.length];
 
     public static final String ANSI_RESET = "\u001B[0m";
+
     public static final String ANSI_YELLOW = "\u001B[33m";
+
     public static final String ANSI_RED = "\u001B[31m";
+
     public static final String ANSI_GREEN = "\u001B[32m";
+
     public static final String ANSI_BOLD = "\u001B[1m";
 
     static final String[] SPECIAL_CMDS = new String[]{"reset!", "stop!"};
@@ -56,10 +66,9 @@ public class Main {
     private static final DecimalFormat df = new DecimalFormat("0.0");
 
     static final String[] menuOptions = new String[]{"List all items", "Add new delivery",
-            "List deliveries for time period", "Print all empty locations", "Print all full locations", "Print color-coded locations",
-            "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info", "Print Items and Availability", "Modify Unit Options", "Exit"};
-
-    static final String UNIT_OPTIONS_FILEPATH = "unit_options.properties";
+            "List deliveries for time period", "Print all empty locations", "Print all full locations",
+            "Print color-coded locations", "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info",
+            "Print Items and Availability", "Modify Unit Options", "Exit"};
 
     public static void main(String[] args) throws IOException, ParseException {
         runApp();
@@ -330,7 +339,7 @@ public class Main {
         }
     }
 
-    public static void modifyUnitOptions() throws IOException, ParseException {
+    public static void modifyUnitOptions() throws IOException {
         Map<String, Integer> current_setting_in_file = getUnitOptionsFromFile();
 
         printMapKeysMiddlePointSeparatedBy((HashMap<String, Integer>) current_setting_in_file, "Current Values", " = ");
@@ -895,7 +904,7 @@ public class Main {
             props.setProperty(key, newValues.get(key).toString());
         }
 
-        try (OutputStream outputStream = new FileOutputStream(UNIT_OPTIONS_FILEPATH)) {
+        try (OutputStream outputStream = new FileOutputStream(UNIT_OPTIONS_FILENAME)) {
             props.store(outputStream, "UNIT_OPTIONS will be loaded from this file. \nYou will need to restart the app if you modify this file manually.\n");
         } catch (IOException e) {
             e.printStackTrace();
@@ -903,13 +912,13 @@ public class Main {
     }
 
     public static void createAndPopulateUnitOptionsFileWithDefaultValuesIfMissing() throws IOException {
-        if (!isFileExist(UNIT_OPTIONS_FILEPATH)) {
+        if (!isFileExist(UNIT_OPTIONS_FILENAME)) {
 
-            createFileIfNotExists(UNIT_OPTIONS_FILEPATH);
+            createFileIfNotExists(UNIT_OPTIONS_FILENAME);
 
             populateUnitOptionsFileWithValues(UNIT_OPTIONS_DEFAULTS);
 
-            printWarning("File \"" + UNIT_OPTIONS_FILEPATH + "\" is populated with default data: " + getUnitOptionsFromFile());
+            printWarning("File \"" + UNIT_OPTIONS_FILENAME + "\" is populated with default data: " + getUnitOptionsFromFile());
         }
         // load the data
         UNIT_OPTIONS = getUnitOptionsFromFile();
@@ -918,7 +927,7 @@ public class Main {
     public static Map<String, Integer> getUnitOptionsFromFile() {
         Properties props = new Properties();
 
-        try (InputStream inputStream = new FileInputStream(UNIT_OPTIONS_FILEPATH)) {
+        try (InputStream inputStream = new FileInputStream(UNIT_OPTIONS_FILENAME)) {
             props.load(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
@@ -1369,10 +1378,10 @@ public class Main {
         List<String> result = new ArrayList<>();
 
         // Rows/shelves/numbers start at 1.
-        for (char c : LETTER_SECTION) {
-            for (int i = 1; i <= NUM_SECTION; i++) {
-                for (int j = 1; j <= NUM_SHELVES; j++) {
-                    for (int k = 1; k <= NUM_NUMBERS; k++) {
+        for (char c : ((String) WAREHOUSE_SIZE.get("letters")).toCharArray()) {
+            for (int i = 1; i <= Integer.parseInt(String.valueOf(WAREHOUSE_SIZE.get("sections"))); i++) {
+                for (int j = 1; j <= Integer.parseInt(String.valueOf(WAREHOUSE_SIZE.get("shelves"))); j++) {
+                    for (int k = 1; k <= Integer.parseInt(String.valueOf(WAREHOUSE_SIZE.get("numbers"))); k++) {
                         String itemPosition = String.valueOf(c) + i + " / " + j + " / " + k;
                         result.add(itemPosition);
                     }
@@ -1439,7 +1448,6 @@ public class Main {
     }
 
     public static String getValidStock(String userInput) {
-
         while (true) {
 
             if (isIntegerOrSingleDecimalPlace(userInput)) {
