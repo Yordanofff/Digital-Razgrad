@@ -1232,20 +1232,23 @@ public class Main {
      * @return A valid option in the menu.
      */
     public static int getMenuAnswer(int numOptions) {
-        String ans = scanner.nextLine().strip();
+        while (true) {
+            String ans = scanner.nextLine().strip();
 
-        try {
-            int ansInt = Integer.parseInt(ans);
-            if (ansInt < 1 || ansInt > numOptions) {
-                printError("Please choose a number between 1 and " + numOptions);
-                return getMenuAnswer(numOptions);
+            try {
+                int ansInt = Integer.parseInt(ans);
+                if (ansInt < 1 || ansInt > numOptions) {
+                    printError("Please choose a number between 1 and " + numOptions);
+                } else {
+                    return ansInt;
+                }
+            } catch (RuntimeException e) {
+                if (ans.isEmpty()) {
+                    printError("Empty input! Please enter a number: ");
+                } else {
+                    printError("\"" + ans + "\" is not a number! Please enter a number: ");
+                }
             }
-
-            return ansInt;
-
-        } catch (RuntimeException e) {
-            printError("\"" + ans + "\" is not a number! Please enter a number: ");
-            return getMenuAnswer(numOptions);
         }
     }
 
