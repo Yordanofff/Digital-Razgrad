@@ -1,25 +1,48 @@
-cocoa;02.03.1234;03.04.4231;da da da;unit;200;b1 / 1 / 3;1000;koko a;
-cocoa;02.03.1234;03.04.4231;da da da;unit;200;b2 / 1 / 3;1000;koko a;
-cocoa;02.03.1234;03.04.4231;da da da;unit;200;b3 / 1 / 3;1000;koko a;
-car | ne;20.02.2020;03.02.3020;ko | ne;unit;10;a1 / 1 / 4;1000;error;
-da;20.02.2020;20.06.2023;manuf;unit;200;a1 / 2 / 4;1000;d;
-milk;25.06.2023;20.06.2023;BG;liter;100;a1 / 3 / 1;100;cow;
-chocolate;30.06.2023;19.06.2023;Nutela;unit;1000;a1 / 1 / 3;1000;;
-chocolate;30.06.2023;19.06.2023;Nutela;unit;1000;a1 / 2 / 1;1000;;
-chocolate;30.06.2023;19.06.2023;Nutela;unit;800;a1 / 2 / 2;1000;;
-Fanta;10.10.2024;01.01.2020;The coca cola company;unit;1000;a1 / 2 / 3;1000;;
-Fanta;10.10.2024;01.01.2020;The coca cola company;unit;1000;a1 / 3 / 2;1000;;
-Fanta;10.10.2024;01.01.2020;The coca cola company;unit;1000;a1 / 3 / 3;1000;;
-Fanta;10.10.2024;01.01.2020;The coca cola company;unit;1000;a1 / 3 / 4;1000;;
-Fanta;10.10.2024;01.01.2020;The coca cola company;unit;200;a2 / 1 / 1;1000;;
-bread;18.06.2023;10.06.2023;Mlin Razgrad;unit;400;a2 / 1 / 2;1000;;
-flowers;22.06.2023;20.06.2023;BG;unit;1000;a2 / 1 / 3;1000;roses;
-flowers;22.06.2023;20.06.2023;BG;unit;300;a2 / 1 / 4;1000;roses;
-wine;01.10.2024;01.01.2020;GB;liter;100;a2 / 2 / 1;100;12% alcohol;
-wine;01.10.2024;01.01.2020;GB;liter;100;a2 / 2 / 2;100;12% alcohol;
-wine;01.10.2024;01.01.2020;GB;liter;100;a2 / 2 / 3;100;12% alcohol;
-wine;01.10.2024;01.01.2020;GB;liter;100;a2 / 2 / 4;100;12% alcohol;
-wine;01.10.2024;01.01.2020;GB;liter;20;a2 / 3 / 1;100;12% alcohol;
-dasdaa;20.10.2023;20.06.2023;Devin;liter;100;a1 / 1 / 1;100;;
-dasdaa;20.10.2023;20.06.2023;Devin;liter;100;a1 / 1 / 2;100;;
-dasdaa;20.10.2023;20.06.2023;Devin;liter;50;a2 / 3 / 2;100;;
+cocoa;02.03.1234;03.04.4231;da da da;unit;200;b1 / 1 / 3;2100;koko a
+cocoa;02.03.1234;03.04.4231;da da da;unit;200;b1 / 1 / 3;2100;koko a
+cocoa;02.03.1234;03.04.4231;da da da;unit;200;b3 / 1 / 3;2100;koko a
+car | ne;20.02.2020;03.02.3020;ko | ne;unit;10;a1 / 1 / 4;2100;error
+da;20.02.2020;20.06.2023;manuf;unit;200;a1 / 2 / 4;2100;d
+milk;25.06.2023;20.06.2023;BG;liter;100;a1 / 3 / 1;100;cow
+chocolate;30.06.2023;19.06.2023;Nutela;unit;1000;a1 / 1 / 3;2100;
+chocolate;30.06.2023;19.06.2023;Nutela;unit;1000;a1 / 2 / 1;2100;
+chocolate;30.06.2023;19.06.2023;Nutela;unit;800;a1 / 2 / 2;2100;
+Fanta;10.10.2024;01.01.2020;The coca cola company;unit;1000;a1 / 2 / 3;2100;
+Fanta;10.10.2024;01.01.2020;The coca cola company;unit;1000;a1 / 3 / 2;2100;
+Fanta;10.10.2024;01.01.2020;The coca cola company;unit;1000;a1 / 3 / 3;2100;
+Fanta;10.10.2024;01.01.2020;The coca cola company;unit;1000;a1 / 3 / 4;2100;
+Fanta;10.10.2024;01.01.2020;The coca cola company;unit;200;a2 / 1 / 1;2100;
+bread;18.06.2023;10.06.2023;Mlin Razgrad;unit;400;a2 / 1 / 2;2100;
+flowers;22.06.2023;20.06.2023;BG;unit;1000;a2 / 1 / 3;2100;roses
+flowers;22.06.2023;20.06.2023;BG;unit;300;a2 / 1 / 4;2100;roses
+wine;01.10.2024;01.01.2020;GB;liter;100;a2 / 2 / 1;100;12% alcohol
+wine;01.10.2024;01.01.2020;GB;liter;100;a2 / 2 / 2;100;12% alcohol
+wine;01.10.2024;01.01.2020;GB;liter;100;a2 / 2 / 3;100;12% alcohol
+wine;01.10.2024;01.01.2020;GB;liter;100;a2 / 2 / 4;100;12% alcohol
+wine;01.10.2024;01.01.2020;GB;liter;20;a2 / 3 / 1;100;12% alcohol
+dasdaa;20.10.2023;20.06.2023;Devin;liter;100;a1 / 1 / 1;100;
+dasdaa;20.10.2023;20.06.2023;Devin;liter;100;a1 / 1 / 2;100;
+dasdaa;20.10.2023;20.06.2023;Devin;liter;50;a2 / 3 / 2;100;
+tersts;04.04.2025;03.07.2023;dsadaw;kg;20;a2 / 3 / 3;150;dadsada
+fanta;04.07.2023;04.07.2023;coca cola;liter;99.5;a2 / 3 / 4;100.0;half a liter missing
+fanta;04.07.2023;04.07.2023;cola;liter;0.5;a2 / 3 / 4;100.0;10 moree
+fanta;04.07.2023;04.07.2023;cola;liter;9.5;b1 / 1 / 1;100.0;10 moree
+dasdaga;04.07.2023;04.07.2023;dasdja;unit;10.0;b1 / 1 / 2;2100;
+daodkas;04.07.2023;04.07.2023;dadasf;unit;10.0;b1 / 1 / 4;2100;
+dsafasdasg;02.10.2030;04.07.2023;dkafa da s;kg;50;b1 / 2 / 1;150;d
+dsafasdasg;02.10.2030;05.07.2023;sadhsadasgh;kg;25.6;b1 / 2 / 1;150;3213
+dsafasdasg;02.10.2030;04.07.2023;k=saddas;liter;24.4;b1 / 2 / 1;100;sadasg  dsa
+dsafasdasg;02.10.2030;04.07.2023;k=saddas;liter;26.2;b1 / 2 / 2;100;sadasg  dsa
+konkon;06.07.2023;05.07.2023;fsda;unit;1000;a3 / 1 / 1;2100;
+konkon;06.07.2023;05.07.2023;fsda;unit;1000;a3 / 1 / 2;2100;s
+Cucumber;20.07.2023;08.07.2023;Getsovo;kg;100;a3 / 1 / 3;150;
+Cucumber;20.07.2023;08.07.2023;Getsovo;kg;100;a3 / 1 / 4;150;
+Cucumber;20.07.2023;08.07.2023;Getsovo;kg;50;a3 / 2 / 1;150;
+Tomatoes;18.07.2023;08.07.2023;Kubrat;kg;100;a3 / 2 / 2;150;
+Tomatoes;18.07.2023;08.07.2023;Kubrat;kg;100;a3 / 2 / 3;150;
+Tomatoes;18.07.2023;08.07.2023;Kubrat;kg;100;a3 / 2 / 4;150;
+Tomatoes;18.07.2023;08.07.2023;Kubrat;kg;50;a3 / 3 / 1;150;
+Morkov;09.07.2023;09.07.2023;daskdsa;unit;2100;a3 / 3 / 2;2100;test 123
+Morkov;09.07.2023;09.07.2023;daskdsa;unit;102.2;a3 / 3 / 3;2100;test 123
+Morkov;09.07.2023;08.07.2023;kkk;unit;1997.8;a3 / 3 / 3;2100;no com
+Morkov;09.07.2023;08.07.2023;kkk;unit;1002.2;a3 / 3 / 4;2100;no com
