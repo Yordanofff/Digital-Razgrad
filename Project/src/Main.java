@@ -357,10 +357,22 @@ public class Main {
             return;
         }
 
+        double minNewValue = getTheMaximumNumberOfUnitTypeAlreadyOnShelf(validatedKeyOrSpecialCmd);
+        if (minNewValue != 0) {
+            printWarning("There are shelves with unit type [" + validatedKeyOrSpecialCmd +
+                    "] that have [" + removeDecimalIfEndsOnZero(String.valueOf(minNewValue)) +
+                    "] value set. This will be the lowest possible new value for it.");
+        }
+
         int newValue = getNewUnitOptionsValue(validatedKeyOrSpecialCmd);
 
         // Special case where the user entered a special cmd. 0 Won't be accepted as a standard input.
         if (newValue == 0) {
+            return;
+        }
+
+        if (newValue < minNewValue) {
+            printError("The new value [" + newValue + "] cannot be lower than [" + minNewValue + "]. Exiting.");
             return;
         }
 
@@ -379,7 +391,10 @@ public class Main {
 
         System.out.println("Value changed successfully.");
 
+        // write new data to unit_options.properties
         populateUnitOptionsFileWithValues(current_setting_in_file);
+
+        // set the static value
         UNIT_OPTIONS = current_setting_in_file;
 
         printMapKeysMiddlePointSeparatedBy((HashMap<String, Integer>) current_setting_in_file, "New Values", " = ");
@@ -435,6 +450,25 @@ public class Main {
         rewriteDBfileWithNewData(DB);
 
         return numItemsChanged;
+    }
+
+    public static double getTheMaximumNumberOfUnitTypeAlreadyOnShelf(String unitName) throws IOException {
+        // When changing the warehouse info we can only modify UP, or down up to the number of items on shelf that this
+        // method will return. Ex. we have 1000 out of 1000 items on a shelf - we can't go below 1000 anymore.
+
+        double maxNumberItemsAlreadyOnShelf = 0;
+        String[][] DB = getAllDataFromDB();
+
+        for (String[] row : DB) {
+            if (row[4].equalsIgnoreCase(unitName.strip())) {
+                double currentRowValue = Double.parseDouble(row[5]);
+                if (currentRowValue > maxNumberItemsAlreadyOnShelf) {
+                    maxNumberItemsAlreadyOnShelf = currentRowValue;
+                }
+            }
+        }
+
+        return maxNumberItemsAlreadyOnShelf;
     }
 
     public static ArrayList<String[]> getExpiredStock() throws IOException {
@@ -1698,7 +1732,6 @@ public class Main {
     public static boolean isEUDateValid(String date) {
         date = date.replaceAll("\\s", "");
         String[] parts = date.split("\\.");
-        System.out.println(date);
 
         // Check if the formatting is correct - 2 dots -> dd.mm.yyyy
         if (parts.length != 3) {
