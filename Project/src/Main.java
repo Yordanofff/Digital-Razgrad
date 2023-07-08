@@ -114,13 +114,13 @@ public class Main {
     }
 
     public static void printMenuOptions() {
-        // Add all questions to a List with numbers for the options
-        List<String> menuOptionsWithNumbers = new ArrayList<>();
+        // Using LinkedHashMap to keep the order as they were added.
+        HashMap<String,String> menuOptionsWithNumbers = new LinkedHashMap<>();
         for (int i = 1; i <= menuOptions.length; i++) {
-            menuOptionsWithNumbers.add(i + " - " + menuOptions[i - 1]);
+            menuOptionsWithNumbers.put(String.valueOf(i), menuOptions[i - 1]);
         }
-
-        printMenuOptionsInFrame("Please choose what to do:", menuOptionsWithNumbers, ANSI_GREEN);
+        
+        printMapKeysMiddlePointSeparatedBy(menuOptionsWithNumbers,"Please choose what to do:", " - ");
     }
 
     public static void printAllItemsAndAvailability() throws IOException {
