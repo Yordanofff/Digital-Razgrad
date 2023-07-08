@@ -68,7 +68,7 @@ public class Main {
     static final String[] menuOptions = new String[]{"List all items", "Add new delivery",
             "List deliveries for time period", "Print all empty locations", "Print all full locations",
             "Print color-coded locations", "Print stock expiring soon", "Print Expired stock", "Print Warehouse Info",
-            "Print Items and Availability", "Modify Unit Options", "Exit"};
+            "Print Items and Availability", "Modify Unit Options", "Search for an item name", "Exit"};
 
     public static void main(String[] args) throws IOException, ParseException {
         runApp();
@@ -110,17 +110,18 @@ public class Main {
             case 9 -> printWarehouseInfo();
             case 10 -> printAllItemsAndAvailability();
             case 11 -> modifyUnitOptions();
+            case 12 -> printSearchedItemInDB();
         }
     }
 
     public static void printMenuOptions() {
         // Using LinkedHashMap to keep the order as they were added.
-        HashMap<String,String> menuOptionsWithNumbers = new LinkedHashMap<>();
+        HashMap<String, String> menuOptionsWithNumbers = new LinkedHashMap<>();
         for (int i = 1; i <= menuOptions.length; i++) {
             menuOptionsWithNumbers.put(String.valueOf(i), menuOptions[i - 1]);
         }
-        
-        printMapKeysMiddlePointSeparatedBy(menuOptionsWithNumbers,"Please choose what to do:", " - ");
+
+        printMapKeysMiddlePointSeparatedBy(menuOptionsWithNumbers, "Please choose what to do:", " - ");
     }
 
     public static void printAllItemsAndAvailability() throws IOException {
@@ -339,6 +340,17 @@ public class Main {
         }
     }
 
+    public static void printSearchedItemInDB() throws IOException {
+        String ans = getValidUserAnswerForQuestion("an item to search for");
+        ArrayList<String[]> dataMatchingResult = getSearchedItemInDB(ans);
+
+        if (dataMatchingResult.size() > 0) {
+            printDBInFrameWithDescription(dataMatchingResult, ANSI_GREEN);
+        } else {
+            printWarning("No items found for [" + ans + "]");
+        }
+    }
+
     public static void modifyUnitOptions() throws IOException {
         Map<String, Integer> current_setting_in_file = getUnitOptionsFromFile();
 
@@ -469,6 +481,18 @@ public class Main {
         }
 
         return maxNumberItemsAlreadyOnShelf;
+    }
+
+    public static ArrayList<String[]> getSearchedItemInDB(String itemName) throws IOException {
+        String[][] DB = getAllDataFromDB();
+        ArrayList<String[]> results = new ArrayList<>();
+
+        for (String[] row : DB) {
+            if (row[0].equalsIgnoreCase(itemName.strip())) {
+                results.add(row);
+            }
+        }
+        return results;
     }
 
     public static ArrayList<String[]> getExpiredStock() throws IOException {
