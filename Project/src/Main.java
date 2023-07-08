@@ -99,7 +99,7 @@ public class Main {
 
     public static void TakeMenuAction(int option) throws IOException, ParseException {
         switch (option) {
-            case 1 -> printDBInFrameWithDescription(getDbDataToArrayList(), ANSI_GREEN);
+            case 1 -> printAllItems();
             case 2 -> getAllUserDataAndWriteToDB();
             case 3 -> printDataForTimePeriod();
             case 4 -> printAllEmptyLocations();
@@ -128,6 +128,15 @@ public class Main {
         HashMap<String, Double> itemAvailability = getAllItemsAndAvailability();
 
         printMapKeysMiddlePointSeparatedBy(itemAvailability, "Items Availability", ": ");
+    }
+
+    public static void printAllItems() throws IOException {
+        ArrayList<String[]> DB = getDbDataToArrayList();
+        if (DB.size() == 0) {
+            printWarning("No items found in DB.");
+            return;
+        }
+        printDBInFrameWithDescription(DB, ANSI_GREEN);
     }
 
     public static void printStockExpiringSoon() throws IOException {
@@ -226,7 +235,7 @@ public class Main {
 
         int numSpacesToCenterTheDescription = (getStringLengthWithoutANSI(rowStartingTheSame.toString()) - 30) / 4;
         String spaces = " ".repeat(numSpacesToCenterTheDescription);
-        String msg = spaces + getColoredMsg("Empty", ANSI_GREEN) + spaces + getColoredMsg("Partly full", ANSI_YELLOW) + spaces +
+        String msg = spaces + "Empty" + spaces + getColoredMsg("Partly full", ANSI_YELLOW) + spaces +
                 getColoredMsg("Full", ANSI_RED) + spaces;
 
         printMenuOptionsInFrame(msg, resultToPrint, ANSI_GREEN);
