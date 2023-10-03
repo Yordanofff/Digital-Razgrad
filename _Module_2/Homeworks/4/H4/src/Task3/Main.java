@@ -11,8 +11,9 @@ public class Main {
 
         System.out.println("\n" + "*".repeat(50) + "\n");
 
-        Human h2 = new Human("Peter", "Petrov");
+        Human h2 = new Human("Peter", "Petrov", "123123123");
         h2.printNames();
+        h2.printIsEGNValid();
 
         System.out.println("\n" + "*".repeat(50) + "\n");
 
