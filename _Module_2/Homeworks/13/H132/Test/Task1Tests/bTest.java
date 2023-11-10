@@ -1,4 +1,4 @@
-package Test;
+package Task1Tests;
 
 import Task1.b;
 import org.junit.Assert;

@@ -1,5 +1,4 @@
 package Task1;
-
 public class Main {
     //Да се напишат подходящи тестове (поне по 3 на метод) към следните
     //задачи:
@@ -8,6 +7,7 @@ public class Main {
     //Примери за огледални масиви:
     // [1, 2, 3, 3, 2, 1]; [3, 4, 4, 9, 3, 9, 4, 4, 3]; [1, 5, 5, 1]; [2, 0, 2]; [7]; [ ]
     public static void main(String[] args) {
+        // You can simply ignore this.
         int[] test_arr = {1, 2, 3, 3, 2, 1};
         if (ArrayChecker.isMirroredArray(test_arr)) {
             System.out.println("Cool beans");
