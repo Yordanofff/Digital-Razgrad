@@ -1,0 +1,54 @@
+------------
+-- TASK 1 --
+------------
+1. SELECT * FROM `employees` WHERE officeCode = 4;
+2. SELECT * FROM `employees` WHERE lastName LIKE 'B%';
+3. SELECT * FROM `payments` WHERE amount < 3000;
+
+4.1 SELECT * FROM `payments` WHERE YEAR(paymentDate) = 2004 and MONTH(paymentDate) in (5, 6);
+4.2 SELECT * FROM `payments` WHERE paymentDate LIKE '2004-05%' OR paymentDate LIKE '2004-06%';
+
+5. SELECT productName, productLine, productScale FROM `products` WHERE productLine = 'Classic Cars';
+6. SELECT * FROM `products` WHERE buyPrice > 50 AND buyPrice < 100;
+7. SELECT * FROM `products` WHERE productName LIKE '%Ford%';
+
+
+------------
+-- TASK 2 --
+------------
+
+1. SELECT * FROM `address` WHERE address LIKE '% Avenue%';
+2. SELECT first_name, last_name, email FROM `customer` WHERE last_name LIKE 'M%';
+3. SELECT * FROM `customer` WHERE first_name in ('KELLY', 'JESSIE', 'LENA');
+4. SELECT * FROM `city` WHERE city LIKE '%(%)%';
+
+5.
+SELECT 
+    actor.first_name, 
+    actor.last_name,
+    film.title, 
+    film.description 
+FROM 
+    film_actor
+JOIN 
+    actor ON film_actor.actor_id = actor.actor_id
+JOIN 
+    film ON film_actor.film_id = film.film_id
+WHERE 
+    actor.last_name IN ('DAVIS', 'BERRY');
+	
+	
+6.
+SELECT
+	film.title,
+	rental.rental_date
+FROM
+	rental
+JOIN
+	customer ON rental.customer_id = customer.customer_id
+JOIN
+	inventory ON rental.inventory_id = inventory.inventory_id
+JOIN
+	film ON inventory.film_id = film.film_id
+WHERE
+	customer.first_name LIKE 'K%';
