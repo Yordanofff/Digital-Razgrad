@@ -1,0 +1,111 @@
+1. В таблицата film да се намери по колко филма има, като са 
+групирани по rental_duration и колко е средната цена за наем 
+на всяка група
+
+SELECT rental_duration, COUNT(*), AVG(f.rental_rate) 
+FROM `film` f
+GROUP BY rental_duration;
+
+
+
+2. В таблицата film да се намери по колко филма има от всеки 
+различен вид тарифа за наем - renal_rate
+
+SELECT rental_rate, COUNT(*) 
+FROM `film`
+GROUP BY rental_rate;
+
+
+
+3. Да се намерят вземанията под наем на месечна база направени през 2005г от 
+служител с първо име Jon (4 реда за месеци от 5 до 8 включително)
+
+SELECT YEAR(rental_date), MONTH(rental_date), COUNT(*) FROM `rental`r
+JOIN staff s ON r.staff_id = s.staff_id
+WHERE YEAR(rental_date) = 2005 
+AND s.first_name = 'Jon'
+GROUP BY MONTH(rental_date);
+
+б) Към горната заявка да се добави и информация за средно аритметично и обща сума пари, 
+които са платени за наеми през тези месеци - film.rental_rate
+
+SELECT YEAR(rental_date) as Year, MONTH(rental_date) Month, COUNT(*) Number_of_rentals, AVG(f.rental_rate) Average_rent, SUM(f.rental_rate) Total_rent 
+FROM `rental` r
+JOIN staff s ON r.staff_id = s.staff_id
+JOIN inventory i ON i.inventory_id = r.inventory_id
+JOIN film f ON f.film_id = i.film_id
+WHERE YEAR(rental_date) = 2005 
+AND s.first_name = 'Jon'
+GROUP BY MONTH(rental_date);
+
+
+
+4. Да се намери от кои държави има по над 10 клиента в магазин с мениджър Mike. 
+Да покажат държавите и броя клиенти за всяка от тях сортирани по брой. (8 броя)
+- тази не успях да я направя
+
+SELECT country.country, COUNT(*) as total_customers 
+FROM `customer`
+JOIN address ON address.address_id = customer.address_id
+JOIN city ON city.city_id = address.city_id
+JOIN country ON country.country_id = city.country_id
+JOIN store ON store.address_id = address.address_id
+JOIN staff ON staff.staff_id = store.manager_staff_id
+WHERE staff.first_name = 'Mike'
+GROUP BY country.country_id
+HAVING total_customers > 10
+ORDER BY total_customers DESC;
+
+
+
+5. Да се намери кои актьори са играли в по над 30 филма
+
+SELECT a.first_name, a.last_name, COUNT(*) num_movies 
+FROM `actor` a
+JOIN film_actor ON a.actor_id = film_actor.actor_id
+JOIN film ON film_actor.film_id = film.film_id
+GROUP BY a.actor_id
+HAVING num_movies > 30;
+
+
+
+б) Да се добави информация за средната наемна цена на 
+филмите на всеки актьор
+
+SELECT a.first_name, a.last_name, COUNT(*) num_movies, AVG(film.rental_rate) as average_price 
+FROM `actor` a
+JOIN film_actor ON a.actor_id = film_actor.actor_id
+JOIN film ON film_actor.film_id = film.film_id
+GROUP BY a.actor_id 
+HAVING num_movies > 30
+ORDER BY average_price;
+
+
+
+6. Да се намери от кои категории има по-малко от 60 филма (5 броя)
+
+SELECT c.category_id category_id, c.name category_name, COUNT(*) num_movies 
+FROM `category` c
+JOIN film_category fc on c.category_id = fc.category_id
+JOIN film ON fc.film_id = film.film_id
+GROUP BY c.category_id
+HAVING num_movies < 60;
+
+
+
+7. Да се намери кои са петте актьора участвали в най-много 
+филми от категория Action и в по колко екшън филма е 
+участвал всеки от тях
+
+SELECT first_name, last_name, COUNT(*) num_movies FROM `actor` a
+JOIN film_actor fa ON fa.actor_id = a.actor_id
+JOIN film f ON fa.film_id = f.film_id
+JOIN film_category fc ON fc.film_id = f.film_id
+JOIN category c ON c.category_id = fc.category_id
+WHERE c.name = 'Action'
+GROUP BY a.actor_id
+ORDER BY num_movies DESC
+LIMIT 5;
+
+
+

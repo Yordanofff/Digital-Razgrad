@@ -1,0 +1,64 @@
+Брокери на недвижими имоти: имоти, клиенти,
+квартали, огледи, реализирани продажби. Целта е да се
+прави справка за ТОП 3 на най-успешни брокери в 2
+категории: направили най-много огледи и реализирали
+най-много продажби на имоти. Както и отчет за
+реализираната печалба (от отдаване под наем и
+продажби на имоти) по месеци от всички брокери.
+Добавете заявките за най-успешни брокери в 2-те
+категории.
+
+
+-- a) ТОП 3 на най-успешни брокери - направили най-много огледи:
+
+SELECT 
+	YEAR(pv.date) AS year, 
+	MONTH(pv.date) AS month, 
+	b.first_name, 
+	b.last_name,
+	COUNT(*) AS num_views
+FROM broker b
+JOIN property_view pv ON pv.broker_id = b.broker_id
+WHERE (
+	SELECT COUNT(*) AS num_views2
+	FROM property_view pv2
+	JOIN broker b2 ON b2.broker_id = pv2.broker_id
+	WHERE YEAR(pv2.date) = YEAR(pv.date)
+		AND MONTH(pv2.date) = MONTH(pv.date)
+		AND num_views2 >= COUNT(*)
+) <= 3
+GROUP BY YEAR(pv.date), MONTH(pv.date), b.broker_id;
+
+
+
+
+
+-- b) ТОП 3 на най-успешни брокери - направили най-много продажби:
+
+SELECT 
+	YEAR(s.date_of_sale) AS year, 
+	MONTH(s.date_of_sale) AS month, 
+	b.first_name, 
+	b.last_name,
+	COUNT(*) AS num_views
+FROM broker b
+JOIN sales s ON s.broker_id = b.broker_id
+WHERE (
+	SELECT COUNT(*) AS num_views2
+	FROM sales s2
+	JOIN broker b2 ON b2.broker_id = s2.broker_id
+	WHERE YEAR(s2.date_of_sale) = YEAR(s.date_of_sale)
+		AND MONTH(s2.date_of_sale) = MONTH(s.date_of_sale)
+		AND num_views2 >= COUNT(*)
+) <= 3
+GROUP BY YEAR(s.date_of_sale), MONTH(s.date_of_sale), b.broker_id;
+
+
+-- c) Отчет за реализираната печалба (от отдаване под наем и продажби на имоти) 
+по месеци от всички брокери.
+
+Не знам как да го напиша използвайки SQL. 
+Това което трябва да се направи е да се обединят датите на продажби (предполагам, че трябва да е outer join, за да се покажат всички дати) и да се извадят месеците в които rental статуса е бил зает за всяко едно property. От там да се направи query, от което да се взимат year/month и да се направи SUM() на всички редове и да се групират по YEAR(), MONTH()
+
+
+ 
