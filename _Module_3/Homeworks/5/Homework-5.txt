@@ -1,0 +1,102 @@
+1. В таблицата customers да се намери кои имена
+(първо име) се срещат повече от веднъж (15 броя)
+
+SELECT c.contactFirstName first_name, COUNT(*) name_count 
+FROM `customers` c
+GROUP BY first_name
+HAVING name_count > 1;
+
+
+
+2. Да се намери през 2003г от клиенти от кои държави
+е имало най-голям брой поръчки - ТОП 3
+
+SELECT c.country, COUNT(*) num_orders 
+FROM `customers` c
+JOIN orders o on o.customerNumber = c.customerNumber
+WHERE YEAR(o.orderDate) = 2003
+GROUP BY c.country
+ORDER BY num_orders DESC
+LIMIT 3;
+
+
+
+3. Да се намери кои продукти са поръчвани най-често
+през 2005г - ТОП 7
+
+SELECT p.productCode, p.productName, COUNT(*) c FROM `products` p
+JOIN orderdetails od ON od.productCode = p.productCode
+JOIN orders o ON o.orderNumber = od.orderNumber
+WHERE YEAR(o.orderDate) = 2005
+GROUP BY p.productCode
+ORDER BY c DESC
+LIMIT 7;
+
+
+
+4.Да се проектира БД в phpmyadmin на тема социална мрежа. Има
+потребители, като всеки потребител може да добавя приятели, да
+пише постове, да коментира и да харесва постове. Трябва да
+може към всеки пост да казваме колко харесвания има и какви
+коментари има към него. Също така за всеки потребител трябва
+да може да изкарваме списък с приятелите му. Добавете поне по 3
+записа във всяка таблица
+
+---- Всички приятели на user с user_id = 2:
+-- Вариант 1)
+SELECT user.first_name, user.last_name, user.email 
+FROM `user`
+WHERE user.user_id IN (SELECT uf.friend_user_id FROM `user` u
+JOIN user_friends uf ON uf.user_id = u.user_id
+WHERE uf.user_id = 2) 
+OR 
+user.user_id IN (SELECT u.user_id FROM `user` u
+JOIN user_friends uf ON uf.user_id = u.user_id
+WHERE uf.friend_user_id = 2);
+
+-- Вариант 2)
+SELECT user.first_name, user.last_name, user.email 
+FROM `user`
+WHERE user.user_id IN (SELECT user_id as friends_id
+FROM `user_friends`
+WHERE friend_user_id = 2
+
+UNION
+
+SELECT friend_user_id as friends_id
+FROM `user_friends`
+WHERE user_id = 2)
+
+
+---- Всички коментари към пост с post_id=3
+-- Всеки коментар е отделен пост и може да му се отговори и да бъде харесан.
+SELECT post_id, post_text 
+FROM `post`
+WHERE post_id IN (SELECT post_id FROM `post`WHERE post_id_reply = 3);
+
+
+
+5.
+Направете база данни, която може да съхранява
+записите от следната форма за регистрация:
+https://active-varna.org/registration - Spring Boot проек
+реализиран от курсисти от Търговище, 2023 г
+
+- Тест 1 - да се взимат всички категории за Кауфланд
+SELECT c.category_name, u.organisation_name FROM `categories` c 
+JOIN account_category ac ON ac.category_id = c.category_id
+JOIN `user` u ON u.user_id = ac.user_id
+WHERE u.organisation_name = "Kaufland";
+
+- Тест 2 - да се покажат всички категории сумарно и колко пъти е ползвана всяка една от тях.
+SELECT c.category_name, COUNT(*) FROM `user` u
+JOIN `account_category` ac ON ac.user_id = u.user_id
+JOIN `categories` c ON c.category_id = ac.category_id
+GROUP BY c.category_id;
+
+- Тест 3 - Да се покаже всичката информация за акаунтите (без админ информацията)
+SELECT u.*, unm.*, c.category_name FROM `user` u
+JOIN `account_category` ac on u.user_id = ac.user_id
+JOIN `categories` c ON c.category_id = ac.category_id
+LEFT JOIN `user_non_mandatory` unm on u.user_id = unm.user_id;
+
