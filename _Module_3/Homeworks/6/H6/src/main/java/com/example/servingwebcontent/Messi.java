@@ -38,13 +38,12 @@ public class Messi {
 
     private TeamInfo getTeamInfo(String countryCode) {
         // Get data from DB emulator
-//        System.out.printf(countryCode);
         if (countryCode.equalsIgnoreCase("bg")) {
             return new TeamInfo("Bulgaria", "Todor Zhivkov", "Vasil Levski National Stadium", "15th");
         } else if (countryCode.equalsIgnoreCase("fr")) {
-            return new TeamInfo("United Kingdom", "Gareth Southgate", "Wembley Stadium", "4th");
-        } else if (countryCode.equalsIgnoreCase("uk")) {
             return new TeamInfo("France", "Didier Deschamps", "Stade de France", "7th");
+        } else if (countryCode.equalsIgnoreCase("uk")) {
+            return new TeamInfo("United Kingdom", "Gareth Southgate", "Wembley Stadium", "4th");
         }
         return new TeamInfo(countryCode, "Dummy Coach", "Dummy Stadium", "Dummy Ranking");
     }
