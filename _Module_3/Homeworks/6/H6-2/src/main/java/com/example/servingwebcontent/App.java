@@ -24,7 +24,15 @@ public class App {
         return "evenNumbersNToM";
     }
 
+    @GetMapping("/")
+    private String home(){
+        return "home";
+    }
+
     private String getNumbersFrom1ToN(int n) {
+        if (n < 1) {
+            return "N: [" + n + "] needs to be bigger than 1.";
+        }
         StringBuilder num1ToN = new StringBuilder();
         for (int i = 1; i < n + 1; i++) {
             num1ToN.append(i);
