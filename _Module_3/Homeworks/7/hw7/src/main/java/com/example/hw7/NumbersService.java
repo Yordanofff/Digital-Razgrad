@@ -20,4 +20,19 @@ public class NumbersService {
         }
         return result;
     }
+
+    public List<Integer> getDividersOfNumbersThatDivideBy3(List<Integer> dividers){
+        List<Integer> result = new ArrayList<>();
+        for (int num: dividers){
+            result.add(num/3);
+        }
+        return result;
+    }
+
+    public int getDividerOfNumberThatDividesBy3(int num_divided_by_3){
+        if (num_divided_by_3 % 3 != 0) {
+            return -1;
+        }
+        return num_divided_by_3/3;
+    }
 }

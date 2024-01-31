@@ -8,9 +8,14 @@
 <body>
 <section>
     <h1>Numbers divided by 3</h1>
-    <table>
+    <table border="1">
+        <tr>
+            <th>Number that divides by 3</th>
+            <th>Result after division</th>
+        </tr>
         <tr th:each="number: ${all_numbers}">
             <td th:text="${number}"></td>
+            <td th:text="${numberService.getDividerOfNumberThatDividesBy3(number)}"></td>
         </tr>
     </table>
 </section>

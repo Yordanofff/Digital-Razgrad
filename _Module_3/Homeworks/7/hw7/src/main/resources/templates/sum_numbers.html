@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>1 to N</title>
+</head>
+<body>
+<h1 th:text="|Numbers from 1 to ${n}|"></h1>
+
+
+<tr th:each="num: ${sumNumbersService.getNumbersFromOneToN(n)}">
+    <td th:text="${num}"></td>
+</tr>
+
+
+<br>
+<td th:text="|Sum: ${sumNumbersService.getSumOfNumbersFromOneToN(n)}|"></td>
+</body>
+</html>
