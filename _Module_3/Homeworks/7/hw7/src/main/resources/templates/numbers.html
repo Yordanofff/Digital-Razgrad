@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Numbers</title>
+</head>
+<body>
+<section>
+    <h1>Numbers divided by 3</h1>
+    <table>
+        <tr th:each="number: ${all_numbers}">
+            <td th:text="${number}"></td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>
