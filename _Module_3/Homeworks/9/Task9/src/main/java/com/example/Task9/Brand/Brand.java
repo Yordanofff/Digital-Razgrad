@@ -58,4 +58,13 @@ public class Brand {
         return yearReleased;
     }
 
+    @Override
+    public String toString() {
+        return "Brand{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", yearReleased=" + yearReleased +
+                ", country=" + country +
+                '}';
+    }
 }

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Brands</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+<h1>Brands:</h1>
+<!--<table border="1">-->
+<!--    <tr th:each="brand: ${brands}">-->
+<!--    <td th:text="${brand.getId}"></td>-->
+<!--    <td th:text="${brand.getName}"></td>-->
+<!--    <td th:text="${brand.getYearReleased}"></td>-->
+<!--    <td th:text="${brand.getCountry.getName}"></td>-->
+
+<!--</table>-->
+<div class=".col-sm-6">
+    <div class="col-4">
+
+        <table class="table table-sm">
+            <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Year</th>
+                <th scope="col">Country</th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            <tr th:each="brand: ${brands}">
+                <td th:text="${brand.getId}"></td>
+                <td th:text="${brand.getName}"></td>
+                <td th:text="${brand.getYearReleased}"></td>
+                <td th:text="${brand.getCountry.getName}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+</html>
