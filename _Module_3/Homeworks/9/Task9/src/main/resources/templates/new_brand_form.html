@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>Add new brand:</h1>
-<form action="#" th:action="@{/brand}" th:object="${brand}" method="post">
+<form action="#" th:action="@{/brands/submit}" th:object="${brand}" method="post">
     <p>Name: <input type="text" th:field="*{name}" /></p>
     <p>Year Released: <input type="text" th:field="*{yearReleased}" /></p>
 

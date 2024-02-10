@@ -40,7 +40,7 @@ public class BrandController {
 //
 //    }
 
-    @GetMapping("/brands")
+    @GetMapping("/brands/get")
     String getBrands(Model model){
         Iterable<Brand> brandsIterable = brandRepository.findAll();
         List<Brand> brands = (List<Brand>) brandsIterable;
@@ -48,17 +48,17 @@ public class BrandController {
         return "brands";
     }
 
-    @GetMapping("/brand")
+    @GetMapping("/brands/add")
     public String greetingSubmit(Model model) {
         model.addAttribute("brand", new Brand());
         model.addAttribute("countries", countryRepository.findAll());
         return "new_brand_form";
     }
 
-    @PostMapping("/brand")
+    @PostMapping("/brands/submit")
     public String greetingSubmit(@ModelAttribute Brand brand) {
         brandRepository.save(brand);
-        return "redirect:/brands";
+        return "redirect:/brands/get";
     }
 
 
