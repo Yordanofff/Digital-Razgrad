@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Handling Form Submission</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Add new brand:</h1>
+<form action="#" th:action="@{/clothes/submit}" th:object="${cloth}" method="post">
+    <p>Name: <input type="text" th:field="*{name}" /></p>
+
+    <div>
+    <label for="brand">Select Brand:</label>
+    <select id="brand" name="brand">
+        <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.name}"></option>
+    </select>
+    </div>
+
+    <div>
+    <label for="size">Select Size:</label>
+    <select id="size" name="size">
+        <option th:each="size : ${sizes}" th:value="${size.id}" th:text="${size.name}"></option>
+    </select>
+    </div>
+
+    <div>
+    <label for="type">Select Type:</label>
+    <select id="type" name="type">
+        <option th:each="type : ${types}" th:value="${type.id}" th:text="${type.name}"></option>
+    </select>
+    </div>
+
+    <p>Quantity: <input type="number" th:field="*{quantity}" /></p>
+    <p>Item Price: <input type="number" th:field="*{price}" /></p>
+
+    <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
+</form>
+</body>
+</html>

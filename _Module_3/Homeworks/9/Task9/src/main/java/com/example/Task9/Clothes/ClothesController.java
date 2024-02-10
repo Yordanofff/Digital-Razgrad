@@ -1,14 +1,17 @@
 package com.example.Task9.Clothes;
 
 import com.example.Task9.Brand.BrandRepository;
+import com.example.Task9.Clothes.Size.ClothesSizeRepository;
+import com.example.Task9.Clothes.Type.ClothTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
-@RestController
+@Controller
 public class ClothesController {
     @Autowired
     private ClothesRepository clothesRepository;
@@ -17,13 +20,18 @@ public class ClothesController {
 
     @Autowired
     private ClothesService clothesService;
+    @Autowired
+    private ClothesSizeRepository clothesSizeRepository;
+    @Autowired
+    private ClothTypeRepository clothTypeRepository;
 
-    @GetMapping("/clothes")
-    Iterable<Clothes> getClothes() {
+    @GetMapping("/clothes/get/json")
+    @ResponseBody
+    Iterable<Clothes> getClothesJson() {
         return clothesRepository.findAll();
     }
 
-    @PostMapping("/clothes")
+    @PostMapping("/clothes/add/manual")
     Clothes addCloth(@RequestParam String name,
                      @RequestParam String brandName,
                      @RequestParam Long sizeId,
@@ -31,5 +39,27 @@ public class ClothesController {
                      @RequestParam Double price,
                      @RequestParam(required = false) int quantity) {
         return clothesService.addCloth(name, brandName, sizeId, typeName, price, quantity);
+    }
+
+    @GetMapping("/clothes/get")
+    public String getClothes(Model model){
+        List<Clothes> clothesList = (List<Clothes>) clothesRepository.findAll();
+        model.addAttribute("clothes", clothesList);
+        return "clothes";
+    }
+
+    @GetMapping("/clothes/add")
+    public String addCloth(Model model) {
+        model.addAttribute("cloth", new Clothes());
+        model.addAttribute("brands", brandRepository.findAll());
+        model.addAttribute("sizes", clothesSizeRepository.findAll());
+        model.addAttribute("types", clothTypeRepository.findAll());
+        return "new_cloth_form";
+    }
+
+    @PostMapping("/clothes/submit")
+    public String submitCloth(@ModelAttribute Clothes clothes){
+        clothesRepository.save(clothes);
+        return "redirect:/clothes/get";
     }
 }

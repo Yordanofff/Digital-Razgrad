@@ -2,8 +2,6 @@ package com.example.Task9.Brand;
 
 import com.example.Task9.Brand.Country.CountryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,21 +22,20 @@ public class BrandController {
         this.brandService = brandService;
     }
 
-    @GetMapping("/brands/json")
+    @GetMapping("/brands/get/json")
     @ResponseBody
     Iterable<Brand> getBrands() {
         return brandRepository.findAll();
     }
 
-//    @PostMapping("/brands")
-//    @ResponseBody
-//    Brand addBrand(@RequestParam String name,
-//                   @RequestParam int year,
-//                   @RequestParam(required = false) String countryName) {
-//
-//        return brandService.addBrand(name, year, countryName);
-//
-//    }
+    @PostMapping("/brands/add/manual")
+    @ResponseBody
+    Brand addBrand(@RequestParam String name,
+                   @RequestParam int year,
+                   @RequestParam(required = false) String countryName) {
+
+        return brandService.addBrand(name, year, countryName);
+    }
 
     @GetMapping("/brands/get")
     String getBrands(Model model){
@@ -49,14 +46,14 @@ public class BrandController {
     }
 
     @GetMapping("/brands/add")
-    public String greetingSubmit(Model model) {
+    public String addBrand(Model model) {
         model.addAttribute("brand", new Brand());
         model.addAttribute("countries", countryRepository.findAll());
         return "new_brand_form";
     }
 
     @PostMapping("/brands/submit")
-    public String greetingSubmit(@ModelAttribute Brand brand) {
+    public String submitBrand(@ModelAttribute Brand brand) {
         brandRepository.save(brand);
         return "redirect:/brands/get";
     }
