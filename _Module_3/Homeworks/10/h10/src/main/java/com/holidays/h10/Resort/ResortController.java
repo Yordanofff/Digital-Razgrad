@@ -12,6 +12,12 @@ public class ResortController {
     @Autowired
     private ResortRepository resortRepository;
 
+    @Autowired
+    private CountryRepository countryRepository;
+
+    @Autowired
+    private ResortTypeRepository resortTypeRepository;
+
     @GetMapping("/resorts")
     public String getResorts(Model model) {
         model.addAttribute("resorts", resortRepository.findAll());
@@ -19,12 +25,14 @@ public class ResortController {
     }
 
     @GetMapping("/resorts/add")
-    public String addResort(Model model) {
+    public String showAddResortForm(Model model) {
         model.addAttribute("resort", new Resort());
+        model.addAttribute("countries", countryRepository.findAll());
+        model.addAttribute("resort_types", resortTypeRepository.findAll());
         return "resort_add";
     }
 
-    @PostMapping("/resorts/add")
+    @PostMapping("/resorts/save")
     public String addResort(@ModelAttribute Resort resort) {
         resortRepository.save(resort);
         return "redirect:/resorts";
