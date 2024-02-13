@@ -41,9 +41,12 @@ public class DataInitializer implements CommandLineRunner {
         List<String> resortNamesIT = Arrays.asList("Cortina d'Ampezzo", "Portofino", "Capri");
         populateResorts(resortNamesIT, "Италия");
 
+        Optional<Hotel> optionalHotel = hotelRepository.findByName("Хотел Банско");
+        if (optionalHotel.isEmpty()){
         Resort resort1 = resortRepository.findByName("Банско").orElse(null);
         Hotel hotel1 = new Hotel(resort1, "Хотел Банско", 30, 3, true);
         hotelRepository.save(hotel1);
+        }
 
     }
 

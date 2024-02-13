@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{templates/navbar.html :: head(title='Hotels')}">
+
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:insert="templates/navbar.html :: navigation"></nav>
+
+
+<div class="col-4 container flex-grow-1">
+    <h2 class="text-center p-5 mb-5 mt-5">Курорти:</h2>
+    <table class="table table-striped">
+
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Курорт</th>
+            <th scope="col">Хотел</th>
+            <th scope="col">Брой стаи</th>
+            <th scope="col">Брой звезди</th>
+            <th scope="col">Спа</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <th:block th:each="h : ${hotels}">
+            <tr>
+                <td th:text="${h.id}">...</td>
+                <td th:text="${h.resort.name}">...</td>
+                <td th:text="${h.name}">...</td>
+                <td th:text="${h.roomCount}">...</td>
+                <td th:text="${h.numberOfStars}">...</td>
+                <td th:text="${h.hasSpa}">...</td>
+
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+
+    <a class="btn btn-primary mb-5 mt-3" href="/hotels/add" role="button">Add hotel</a>
+</div>
+
+
+
+<!--<div class="col-4 container flex-grow-1">-->
+<!--    <h2 class="text-center p-5 mb-5 mt-5">Хотели:</h2>-->
+<!--    <table class="table table-striped">-->
+
+<!--        <thead>-->
+<!--        <tr>-->
+<!--            <th scope="col">#</th>-->
+<!--            <th scope="col">Хотели</th>-->
+<!--        </tr>-->
+<!--        </thead>-->
+<!--        <tbody>-->
+<!--        <th:block th:each="h : ${hotels}">-->
+<!--            <tr>-->
+<!--                <td th:text="${h.id}">...</td>-->
+<!--                <td th:text="${h.name}">...</td>-->
+<!--            </tr>-->
+<!--        </th:block>-->
+<!--        </tbody>-->
+<!--    </table>-->
+<!--    <a class="btn btn-primary" href="/countries/add" role="button">Add country</a>-->
+<!--</div>-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+<div th:replace="templates/footer.html"></div>
+</html>
