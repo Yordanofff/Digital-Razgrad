@@ -21,9 +21,12 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private HotelRepository hotelRepository;
 
+    @Autowired
+    private ResortService resortService;
+
     @Override
     public void run(String... args) throws Exception {
-        List<String> resortTypes = Arrays.asList("Зимен", "Летен", "Пролетен");
+        List<String> resortTypes = Arrays.asList("Зимен", "Летен", "Пролетен", "Няма данни");
         populateTypes(resortTypes);
 
         List<String> countryNames = Arrays.asList("България", "Италия", "Франция");
@@ -56,8 +59,7 @@ public class DataInitializer implements CommandLineRunner {
         for (String resortName : resortNames) {
             Optional<Resort> optionalResort = resortRepository.findByName(resortName);
             if (optionalResort.isEmpty()) {  // TODO: country check?
-                Resort resort = new Resort(resortName, country);
-                resortRepository.save(resort);
+                resortService.addResort(resortName, country, null);
             }
         }
     }

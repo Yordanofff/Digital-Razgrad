@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class ResortController {
@@ -13,7 +15,19 @@ public class ResortController {
     @GetMapping("/resorts")
     public String getResorts(Model model) {
         model.addAttribute("resorts", resortRepository.findAll());
-        return "get_resorts";
+        return "resorts";
+    }
+
+    @GetMapping("/resorts/add")
+    public String addResort(Model model) {
+        model.addAttribute("resort", new Resort());
+        return "resort_add";
+    }
+
+    @PostMapping("/resorts/add")
+    public String addResort(@ModelAttribute Resort resort) {
+        resortRepository.save(resort);
+        return "redirect:/resorts";
     }
 
 }

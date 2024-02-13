@@ -26,8 +26,9 @@ public class Resort {
     @ManyToMany
     private List<ResortType> resortTypes;
 
-    public Resort(String name, Country country) {
+    public Resort(String name, Country country, List<ResortType> resortTypeList) {
         this.name = name;
         this.country = country;
+        this.resortTypes = resortTypeList;
     }
 }

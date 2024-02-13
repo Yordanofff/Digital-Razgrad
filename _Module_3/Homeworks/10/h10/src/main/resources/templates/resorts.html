@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{templates/navbar.html :: head(title='Resorts')}">
+
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:insert="templates/navbar.html :: navigation"></nav>
+
+<div class="col-4 container flex-grow-1">
+    <h2 class="text-center p-5 mb-5 mt-5">Курорти:</h2>
+    <table class="table table-striped">
+
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Държава</th>
+            <th scope="col">Курорт</th>
+            <th scope="col">Тип</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <th:block th:each="r : ${resorts}">
+            <tr>
+                <td th:text="${r.id}">...</td>
+                <td th:text="${r.country?.name}">...</td>
+                <td th:text="${r.name}">...</td>
+
+                <td>
+    <span th:each="type, iterStat : ${r.resortTypes}">
+        <span th:text="${type.name}"></span>
+        <span th:unless="${iterStat.last}">, </span>
+    </span>
+                </td>
+
+                <!--                <th:block th:each="rt : ${r.resortTypes?}">-->
+                <!--                <td th:text="${rt?.name}">...</td>-->
+                <!--                <td th:text="${r.resortTypes?.name}">...</td>-->
+                <!--                <td th:text="${r.resortTypes != null ? r.resortTypes.name : 'N/A'}">...</td>-->
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+
+    <a class="btn btn-primary mb-5 mt-3" href="/resorts/add" role="button">Add resort</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+<div th:replace="templates/footer.html"></div>
+</html>
