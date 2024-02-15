@@ -43,7 +43,8 @@ public class ClothesController {
 
     @GetMapping("/clothes/get")
     public String getClothes(Model model){
-        List<Clothes> clothesList = (List<Clothes>) clothesRepository.findAll();
+//        List<Clothes> clothesList = (List<Clothes>) clothesRepository.findAll();
+        Iterable<Clothes> clothesList = clothesRepository.findAll();
         model.addAttribute("clothes", clothesList);
         return "clothes";
     }
