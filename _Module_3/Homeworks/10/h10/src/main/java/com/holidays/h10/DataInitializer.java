@@ -20,7 +20,6 @@ public class DataInitializer implements CommandLineRunner {
     private ResortRepository resortRepository;
     @Autowired
     private HotelRepository hotelRepository;
-
     @Autowired
     private ResortService resortService;
 
@@ -42,10 +41,10 @@ public class DataInitializer implements CommandLineRunner {
         populateResorts(resortNamesIT, "Италия");
 
         Optional<Hotel> optionalHotel = hotelRepository.findByName("Хотел Банско");
-        if (optionalHotel.isEmpty()){
-        Resort resort1 = resortRepository.findByName("Банско").orElse(null);
-        Hotel hotel1 = new Hotel(resort1, "Хотел Банско", 30, 3, true);
-        hotelRepository.save(hotel1);
+        if (optionalHotel.isEmpty()) {
+            Resort resort1 = resortRepository.findByName("Банско").orElse(null);
+            Hotel hotel1 = new Hotel(resort1, "Хотел Банско", 30, 3, true);
+            hotelRepository.save(hotel1);
         }
 
     }
