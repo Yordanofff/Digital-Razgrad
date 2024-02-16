@@ -1,0 +1,29 @@
+version: '3'
+services:
+  db:
+    image: mariadb:latest
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: "123"
+    ports:
+      - 3306:3306
+    volumes: 
+      - ./data:/var/lib/mysql
+    networks:
+      - app_network
+
+  springbootapp:
+    image: bc82dfbd3491  # Replace with your image name and tag
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/holiday_application?createDatabaseIfNotExist=true
+      #SPRING_DATASOURCE_USERNAME: root
+      #SPRING_DATASOURCE_PASSWORD: "123"
+    depends_on:
+      - db
+    networks:
+      - app_network
+
+networks:
+  app_network:
