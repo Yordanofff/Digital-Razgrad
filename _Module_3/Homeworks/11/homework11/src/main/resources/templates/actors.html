@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head.html(title='Actors')}"></head>
+<nav th:insert="fragments/navbar.html"></nav>
+
+
+<body class="d-flex flex-column min-vh-100">
+
+<div class="text-center col-6 container flex-grow-1">
+
+    <h1>Actors</h1>
+
+    <table class="table table-striped table-hover caption-top table-bordered border-dark">
+        <thead>
+        <tr>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Gender</th>
+            <th scope="col">Age</th>
+            <th scope="col">Country</th>
+            <th scope="col">Movies</th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="a : ${actors}">
+            <tr>
+                <th scope="row" th:text="${a.firstName}"></th>
+                <th scope="row" th:text="${a.familyName}"></th>
+                <th scope="row" th:text="${a.gender.name}"></th>
+                <th scope="row" th:text="${a.age}"></th>
+                <th scope="row" th:text="${a.country.name}"></th>
+                <td>
+                <span th:each="movie, iterable : ${a.movieList}">
+                    <span th:text="${movie.name}"></span>
+                    <span th:unless="${iterable.last}">, </span>
+                </span>
+                </td>
+            </tr>
+        </th:block>
+    </table>
+</div>
+
+<br><br>
+<h1 class="text-center mt-5 mb-5">Add new Actor:</h1>
+<div class="col-5 container flex-grow-1">
+    <form action="#" th:action="@{/actors/add}" th:object="${actor}" method="post">
+        <div class="mb-3">
+            <label for="fname" class="form-label">First name:</label>
+            <input type="text" th:field="*{firstName}" class="form-control" id="fname"
+                   placeholder="John">
+        </div>
+        <div>
+            <label for="lname" class="form-label">Last name:</label>
+            <input type="text" th:field="*{familyName}" class="form-control" id="lname"
+                   placeholder="Doe">
+        </div>
+        <div>
+
+            <label for="age" class="form-label">Age:</label>
+            <input type="number" step="1" th:field="*{age}" class="form-control" id="age"
+                   placeholder="25">
+        </div>
+        <br>
+        <div>
+            <label for="country" class="form-label">Country:</label>
+            <select id="country" name="country">
+                <option th:each="c : ${countries}" th:value="${c.id}" th:text="${c.name}"></option>
+            </select>
+        </div>
+        <br>
+        <div>
+            <label for="gender" class="form-label">Country:</label>
+            <select id="gender" name="gender">
+                <option th:each="g : ${genders}" th:value="${g.id}" th:text="${g.name}"></option>
+            </select>
+        </div>
+        <br>
+        <div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</div>
+
+<br><br>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+
+<div th:replace="fragments/footer.html"></div>
+</html>
