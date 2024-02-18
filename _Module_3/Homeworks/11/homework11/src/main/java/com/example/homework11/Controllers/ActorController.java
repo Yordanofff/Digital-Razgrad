@@ -1,5 +1,9 @@
-package com.example.homework11;
+package com.example.homework11.Controllers;
 
+import com.example.homework11.Entities.Actor;
+import com.example.homework11.Repositories.ActorRepository;
+import com.example.homework11.Repositories.CountryRepository;
+import com.example.homework11.Repositories.GenderRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

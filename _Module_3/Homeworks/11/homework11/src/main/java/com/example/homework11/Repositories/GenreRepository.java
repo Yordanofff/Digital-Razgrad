@@ -1,5 +1,6 @@
-package com.example.homework11;
+package com.example.homework11.Repositories;
 
+import com.example.homework11.Entities.Genre;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

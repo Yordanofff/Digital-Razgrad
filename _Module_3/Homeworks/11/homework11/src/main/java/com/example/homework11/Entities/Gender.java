@@ -1,33 +1,25 @@
-package com.example.homework11;
+package com.example.homework11.Entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
-public class Genre {
+public class Gender {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Size(min = 2, max = 50)
     @Column(nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(mappedBy = "genreList")
-    List<Movie> movieList = new ArrayList<>();
-
-    public Genre(String name) {
+    public Gender(String name) {
         this.name = name;
     }
 }

@@ -1,13 +1,13 @@
 package com.example.homework11;
 
-import jakarta.persistence.Column;
+import com.example.homework11.Repositories.*;
+import com.example.homework11.Entities.*;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class DataInitializator implements ApplicationRunner {

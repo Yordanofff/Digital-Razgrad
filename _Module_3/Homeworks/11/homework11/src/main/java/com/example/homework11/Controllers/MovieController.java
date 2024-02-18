@@ -1,12 +1,16 @@
-package com.example.homework11;
+package com.example.homework11.Controllers;
 
+import com.example.homework11.Entities.Actor;
+import com.example.homework11.Entities.Genre;
+import com.example.homework11.Entities.Movie;
+import com.example.homework11.Repositories.ActorRepository;
+import com.example.homework11.Repositories.GenreRepository;
+import com.example.homework11.Repositories.MovieRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.thymeleaf.util.StringUtils;
 
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/movies")

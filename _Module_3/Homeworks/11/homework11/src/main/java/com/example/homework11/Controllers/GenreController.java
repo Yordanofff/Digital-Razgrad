@@ -1,5 +1,7 @@
-package com.example.homework11;
+package com.example.homework11.Controllers;
 
+import com.example.homework11.Entities.Genre;
+import com.example.homework11.Repositories.GenreRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

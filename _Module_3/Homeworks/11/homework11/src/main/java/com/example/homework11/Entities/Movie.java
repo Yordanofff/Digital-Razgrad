@@ -1,4 +1,4 @@
-package com.example.homework11;
+package com.example.homework11.Entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
