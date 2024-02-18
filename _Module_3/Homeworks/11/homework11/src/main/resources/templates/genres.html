@@ -33,8 +33,15 @@
         <div class="mb-3">
             <label for="name" class="form-label">Genre name:</label>
             <input type="text" th:field="*{name}" class="form-control" id="name"
-                   placeholder="Drama">
+                   placeholder="Drama" minlength="2" maxlength="50" required="required">
+            <!-- Display error messages if validation fails -->
+            <div th:if="${#fields.hasErrors('name')}" class="alert alert-danger">
+                <ul>
+                    <li th:each="error : ${#fields.errors('name')}" th:text="${error}"></li>
+                </ul>
+            </div>
         </div>
+
         <div>
             <button type="submit" class="btn btn-primary mb-5">Submit</button>
         </div>

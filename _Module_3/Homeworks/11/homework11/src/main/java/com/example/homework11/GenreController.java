@@ -1,11 +1,14 @@
 package com.example.homework11;
 
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/genres")
@@ -24,9 +27,25 @@ public class GenreController {
         return "genres";
     }
 
+//    @PostMapping("/add")
+//    public String addGenre(@ModelAttribute Genre genre) {
+//        genreRepository.save(genre);
+//        return "redirect:/movies";
+//    }
+
     @PostMapping("/add")
-    public String addGenre(@ModelAttribute Genre genre) {
-        genreRepository.save(genre);
-        return "redirect:/movies";
+    public ResponseEntity<String> addGenre(@Valid @ModelAttribute Genre genre, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+
+            List<String> errorMessages = bindingResult.getAllErrors()
+                    .stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .toList();
+
+            return ResponseEntity.badRequest().body(errorMessages.toString());
+        } else {
+            genreRepository.save(genre);
+            return ResponseEntity.ok("Genre added successfully");
+        }
     }
 }
