@@ -1,6 +1,5 @@
 package com.example.homework11;
 
-import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,7 @@ public class CountryController {
     }
 
     @GetMapping
-    public String getCountries(Model model){
+    public String getCountries(Model model) {
         model.addAttribute("countries", countryRepository.findAll());
         model.addAttribute("country", new Country());
         return "countries";
@@ -33,9 +32,8 @@ public class CountryController {
 
     @PostMapping("/del")
     public String deleteCountry(@RequestParam String countryName) {
-        System.out.println(countryName);
         Optional<Country> optionalCountry = countryRepository.findByName(countryName);
-        if(optionalCountry.isPresent()) {
+        if (optionalCountry.isPresent()) {
             countryRepository.delete(optionalCountry.get());
             return "redirect:/countries";
         } else {
