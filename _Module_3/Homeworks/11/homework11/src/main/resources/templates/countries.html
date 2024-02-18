@@ -35,10 +35,11 @@
         <div class="mb-3">
             <label for="name" class="form-label">Country name:</label>
             <input type="text" th:field="*{name}" class="form-control" id="name"
-                   placeholder="Albania">
+                   placeholder="Albania" required minlength="2" maxlength="20">
+
             <label for="populationInMillions" class="form-label">Population (in millions):</label>
             <input type="number" step="0.1" th:field="*{populationInMillions}" class="form-control" id="populationInMillions"
-                   placeholder="6.5">
+                   placeholder="6.5" min="0" max="1999" required>
         </div>
         <div>
             <button type="submit" class="btn btn-primary">Submit</button>
@@ -52,7 +53,7 @@
     <form action="#" th:action="@{/countries/del}" method="post">
         <div class="mb-3">
             <label for="nameToDelete" class="form-label">Country name:</label>
-            <input type="text" name="countryName" class="form-control" id="nameToDelete" placeholder="Albania">
+            <input type="text" name="countryName" class="form-control" id="nameToDelete" placeholder="Albania" required minlength="2" maxlength="20">
         </div>
         <div>
             <button type="submit" class="btn btn-primary">Submit</button>
