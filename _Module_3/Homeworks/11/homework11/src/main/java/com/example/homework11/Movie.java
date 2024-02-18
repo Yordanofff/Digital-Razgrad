@@ -27,7 +27,7 @@ public class Movie {
     private Genre genre;
 
     @Column(nullable = false)
-    private int year;
+    private int year = 1900;
 
     @ManyToMany
     @JoinTable(
