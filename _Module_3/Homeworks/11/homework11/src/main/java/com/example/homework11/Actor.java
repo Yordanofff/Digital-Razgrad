@@ -1,6 +1,9 @@
 package com.example.homework11;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,12 +22,16 @@ public class Actor {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Size(min = 2, max = 20)
     @Column(nullable = false)
     private String firstName;
 
+    @Size(min = 2, max = 20)
     @Column(nullable = false)
     private String familyName;
 
+    @Min(1)
+    @Max(120)
     @Column(nullable = false)
     private int age;
 
@@ -36,6 +43,7 @@ public class Actor {
     @JoinColumn(name = "gender_id", nullable = false)
     private Gender gender;
 
+    // Can be null when actor is added.
     @ManyToMany(mappedBy = "actorList")
     List<Movie> movieList = new ArrayList<>();
 

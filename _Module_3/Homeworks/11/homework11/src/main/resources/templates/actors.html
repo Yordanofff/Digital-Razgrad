@@ -45,37 +45,40 @@
 <h1 class="text-center mt-5 mb-5">Add new Actor:</h1>
 <div class="col-5 container flex-grow-1">
     <form action="#" th:action="@{/actors/add}" th:object="${actor}" method="post">
-        <div class="mb-3">
+        <div>
             <label for="fname" class="form-label">First name:</label>
             <input type="text" th:field="*{firstName}" class="form-control" id="fname"
-                   placeholder="John">
+                   placeholder="John" required="required" minlength="2" maxlength="20">
         </div>
+
         <div>
             <label for="lname" class="form-label">Last name:</label>
             <input type="text" th:field="*{familyName}" class="form-control" id="lname"
-                   placeholder="Doe">
+                   placeholder="Doe" required="required" minlength="2" maxlength="20">
         </div>
-        <div>
 
+        <div>
             <label for="age" class="form-label">Age:</label>
             <input type="number" step="1" th:field="*{age}" class="form-control" id="age"
-                   placeholder="25">
+                   placeholder="25" min="1" max="120" required>
         </div>
-        <br>
-        <div>
-            <label for="country" class="form-label">Country:</label>
-            <select id="country" name="country">
+
+        <div class="form-group mt-2">
+            <label for="country">Country:</label>
+            <select class="form-select" id="country" name="country" required>
+                <option value="" disabled selected>Select a country</option>
                 <option th:each="c : ${countries}" th:value="${c.id}" th:text="${c.name}"></option>
             </select>
         </div>
-        <br>
-        <div>
-            <label for="gender" class="form-label">Country:</label>
-            <select id="gender" name="gender">
+
+        <div class="form-group mt-2 mb-4">
+            <label for="gender">Gender:</label>
+            <select class="form-select" id="gender" name="gender" required>
+                <option value="" disabled selected>Select gender</option>
                 <option th:each="g : ${genders}" th:value="${g.id}" th:text="${g.name}"></option>
             </select>
         </div>
-        <br>
+
         <div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
