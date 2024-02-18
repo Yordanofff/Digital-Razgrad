@@ -49,6 +49,8 @@ public class DataInitializator implements ApplicationRunner {
             genreRepository.save(new Genre("Drama"));
             genreRepository.save(new Genre("Horror"));
             genreRepository.save(new Genre("Comedy"));
+            genreRepository.save(new Genre("Action"));
+            genreRepository.save(new Genre("Romance"));
         }
 
         Country bg = countryRepository.findByName("Bulgaria").orElse(null);
@@ -64,6 +66,15 @@ public class DataInitializator implements ApplicationRunner {
         }
 
         Genre drama = genreRepository.findByName("Drama").orElse(null);
+        Genre action = genreRepository.findByName("Action").orElse(null);
+        Genre romance = genreRepository.findByName("Romance").orElse(null);
+        List<Genre> titanicGenres = new ArrayList<>();
+        titanicGenres.add(drama);
+        titanicGenres.add(romance);
+
+        List<Genre> dieHardGenres = new ArrayList<>();
+        dieHardGenres.add(action);
+
         List<Actor> titanicActors = new ArrayList<>();
         Actor a1 = actorRepository.findById(1L).orElse(null);
         Actor a2 = actorRepository.findById(2L).orElse(null);
@@ -77,8 +88,8 @@ public class DataInitializator implements ApplicationRunner {
         dieHardActors.add(a3);
         dieHardActors.add(a4);
         if (movieRepository.count() == 0) {
-            movieRepository.save(new Movie("Titanik", drama, 1995, titanicActors));
-            movieRepository.save(new Movie("Die hard", drama, 1992, dieHardActors));
+            movieRepository.save(new Movie("Titanik", titanicGenres, 1995, titanicActors));
+            movieRepository.save(new Movie("Die hard", dieHardGenres, 1992, dieHardActors));
         }
 
 

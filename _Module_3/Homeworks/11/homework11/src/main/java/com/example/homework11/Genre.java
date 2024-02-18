@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table
 @Getter
@@ -20,6 +23,9 @@ public class Genre {
     @Size(min = 2, max = 50)
     @Column(nullable = false, unique = true)
     private String name;
+
+    @ManyToMany(mappedBy = "genreList")
+    List<Movie> movieList = new ArrayList<>();
 
     public Genre(String name) {
         this.name = name;

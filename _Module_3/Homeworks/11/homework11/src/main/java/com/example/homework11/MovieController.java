@@ -34,9 +34,13 @@ public class MovieController {
     }
 
     @PostMapping("/add")
-    public String addMovie(@ModelAttribute Movie movie, @RequestParam("actorIds") List<Long> actorIds){
+    public String addMovie(@ModelAttribute Movie movie,
+                           @RequestParam("actorIds") List<Long> actorIds,
+                            @RequestParam("genresIds") List<Long> genresIds){
         List<Actor> selectedActors = actorRepository.findAllById(actorIds);
+        List<Genre> selectedGenres = genreRepository.findAllById(genresIds);
         movie.setActorList(selectedActors);
+        movie.setGenreList(selectedGenres);
         movieRepository.save(movie);
         return "redirect:/movies";
     }

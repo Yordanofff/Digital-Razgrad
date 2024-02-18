@@ -1,6 +1,9 @@
 package com.example.homework11;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,17 +22,26 @@ public class Movie {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Size(min=1, max=30)
     @Column(nullable = false)  // no need to be unique
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "genre_id", nullable = false)
-    private Genre genre;
-
+    @ManyToMany
     @Column(nullable = false)
-    private int year = 1900;
+    @JoinTable(
+            name = "movie_genre",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private List<Genre> genreList;
+
+    @Min(1900)
+    @Max(2100)
+    @Column(nullable = false)
+    private int year;
 
     @ManyToMany
+    @Column(nullable = false)
     @JoinTable(
             name = "movie_actor",
             joinColumns = @JoinColumn(name = "movie_id"),
@@ -37,9 +49,9 @@ public class Movie {
     )
     private List<Actor> actorList;
 
-    public Movie(String name, Genre genre, int year, List<Actor> actorList) {
+    public Movie(String name, List<Genre> genreList, int year, List<Actor> actorList) {
         this.name = name;
-        this.genre = genre;
+        this.genreList = genreList;
         this.year = year;
         this.actorList = actorList;
     }

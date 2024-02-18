@@ -1,9 +1,8 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head.html(title='Movies')}"> </head>
+<head th:replace="~{fragments/head.html(title='Movies')}"></head>
 <nav th:insert="fragments/navbar.html"></nav>
-
 
 
 <body class="d-flex flex-column min-vh-100">
@@ -25,7 +24,12 @@
         <th:block th:each="m : ${movies}">
             <tr>
                 <th scope="row" th:text="${m.name}"></th>
-                <th scope="row" th:text="${m.genre.name}"></th>
+                <td>
+                <span th:each="genre, iterable : ${m.genreList}">
+                    <span th:text="${genre.name}"></span>
+                    <span th:unless="${iterable.last}">, </span>
+                </span>
+                </td>
                 <th scope="row" th:text="${m.year}"></th>
                 <td>
                 <span th:each="actor, iterable : ${m.actorList}">
@@ -46,31 +50,28 @@
         <div class="mb-3">
             <label for="name" class="form-label">Movie name:</label>
             <input type="text" th:field="*{name}" class="form-control" id="name"
-                   placeholder="The Matrix">
+                   placeholder="The Matrix" required minlength="1" maxlength="30">
         </div>
 
-        <br>
-        <div>
-            <label for="genre" class="form-label">Genre:</label>
-            <select id="genre" name="genre">
+        <div class="input-group mb-3">
+            <label for="genres" class="input-group-text">Genres:</label>
+            <select id="genres" name="genresIds" class="form-select" required multiple>
                 <option th:each="g : ${genres}" th:value="${g.id}" th:text="${g.name}"></option>
             </select>
-
             <a href="/genres" class="btn btn-primary">Add New Genre</a>
         </div>
-        <br>
 
         <div>
             <label for="year" class="form-label">Year:</label>
             <input type="number" step="1" th:field="*{year}" class="form-control" id="year"
-                   placeholder="1994">
+                   required min="1901" max="2100">
         </div>
-        <br>
 
-        <div>
-            <label for="actors">Movie actors:</label>
-            <select id="actors" name="actorIds" multiple size="4">
-                <option th:each="a : ${actors}" th:value="${a.id}" th:text="${a.firstName + ' ' + a.familyName}"></option>
+        <div class="input-group mb-3 mt-3">
+            <label for="actors" class="input-group-text">Movie actors:</label>
+            <select id="actors" name="actorIds" class="form-select" size="6" multiple required>
+                <option th:each="a : ${actors}" th:value="${a.id}"
+                        th:text="${a.firstName + ' ' + a.familyName}"></option>
             </select>
         </div>
 
