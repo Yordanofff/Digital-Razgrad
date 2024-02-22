@@ -23,25 +23,26 @@
             </tr>
         </th:block>
     </table>
+    <a class="btn btn-primary mb-5 mt-3" href="/product_categories/add" role="button">Add resort</a>
 
-    <h1 class="text-center mt-5 mb-5">Add new product category:</h1>
-    <div class="col-8 container flex-grow-1">
-        <form action="#" th:action="@{/products/categories}" th:object="${productCategory}" method="post">
-            <div class="mb-3">
-                <label for="name" class="form-label">New category name:</label>
-                <input type="text" th:field="*{name}" class="form-control" id="name"
-                       placeholder="vegetable, fruit, seasoning">
+<!--    <h1 class="text-center mt-5 mb-5">Add new product category:</h1>-->
+<!--    <div class="col-8 container flex-grow-1">-->
+<!--        <form action="#" th:action="@{/products/categories}" th:object="${productCategory}" method="post">-->
+<!--            <div class="mb-3">-->
+<!--                <label for="name" class="form-label">New category name:</label>-->
+<!--                <input type="text" th:field="*{name}" class="form-control" id="name"-->
+<!--                       placeholder="vegetable, fruit, seasoning">-->
 
-                <!--  Todo - the row below doesn't work.  -->
-                <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+<!--                &lt;!&ndash;  Todo - the row below doesn't work.  &ndash;&gt;-->
+<!--                <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>-->
 
-                <span th:text="${not_unique_category != null} ? ${not_unique_category}"></span>
-            </div>
-            <div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-        </form>
-    </div>
+<!--                <span th:text="${not_unique_category != null} ? ${not_unique_category}"></span>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--                <button type="submit" class="btn btn-primary">Submit</button>-->
+<!--            </div>-->
+<!--        </form>-->
+<!--    </div>-->
 
 
 </div>
