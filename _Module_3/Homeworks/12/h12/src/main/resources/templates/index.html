@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head.html(title='Task')}"> </head>
+<nav th:insert="fragments/navbar.html"></nav>
+
+
+<body class="d-flex flex-column min-vh-100">
+
+<div class="text-center col-4 container flex-grow-1">
+
+    <h1>Homework 12</h1>
+    <p>
+        Да се направи нов проект, който реализира управление на продукти и рецепти.
+        За продуктите пазим следната информация: име, категория (плод / зеленчук /
+        подправка). Добавете възможност за обновяване (update) и изтриване на
+        съществуващите продукти.
+        За ястията пазим следната информация: име, категория (салата / супа /
+        основно / десерт), описание, продукти (в едно ястие очевидно има много
+        продукти).
+        Ползвайте валидации само в бекенда чрез Spring Boot.
+        Използвайте компоненти и респонсив подреждане (Grid) от <a href="https://getbootstrap.com/">Bootstrap</a>.
+    </p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+
+<div th:replace="fragments/footer.html"></div>
+</html>
