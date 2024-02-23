@@ -23,20 +23,20 @@ public class Dish {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotBlank
-    @Size(min = 3, max = 30)
+    @NotBlank(message = "Dish name cannot be empty!")
+    @Size(min = 3, max = 30, message = "Size must be between 3 and 30 symbols")
     @Column(nullable = false) // No need to be unique.
     private String name;
 
     // Can be null
     private String description;
 
-    @NotNull
+    @NotNull(message = "No category selected!")
     @ManyToOne
     @JoinColumn(name = "dish_category_id")
     private DishCategory dishCategory;
 
-    @NotEmpty
+    @NotEmpty(message = "Enter at least one product from the list below!")
     @ManyToMany(mappedBy = "dishes")
     private Set<Product> products = new HashSet<>();
 

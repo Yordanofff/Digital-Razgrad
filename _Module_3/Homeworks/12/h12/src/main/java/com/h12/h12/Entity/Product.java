@@ -22,8 +22,8 @@ public class Product {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Size(min=3, max=30)
-    @NotBlank(message = "Product name cannot be empty.")
+    @Size(min=3, max=30, message = "Size must be between 3 and 30")
+    @NotBlank(message = "Product name cannot be empty!")
     @Column(nullable = false, unique = true)
     private String name;
 
