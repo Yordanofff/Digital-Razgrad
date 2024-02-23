@@ -33,9 +33,9 @@
                 </select>
                 <p class="text-danger" th:if="${#fields.hasErrors('dishCategory')}" th:errors="*{dishCategory}"></p>
                 <a class="btn btn-primary mb-5 mt-3" href="/dish_categories" role="button">Add new category</a>
-                <!--                // TODO: redirect-->
+                <!-- Hidden input field for redirect -->
+<!--                <input type="hidden" name="redirect" value="/dishes/add">-->
             </div>
-
             <div class="form-group mt-2 mb-4">
                 <label for="products">Products *:</label>
                 <select class="form-select" id="products" name="Products" multiple>

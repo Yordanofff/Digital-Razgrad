@@ -12,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
 
@@ -45,7 +46,9 @@ public class ProductController {
     }
 
     @PostMapping("/products/save")
-    String saveProduct(@Valid @ModelAttribute Product product, BindingResult bindingResult, Model model) {
+    String saveProduct(@Valid @ModelAttribute Product product, BindingResult bindingResult, Model model
+//                       ,@RequestParam(value = "redirect", required = false) String redirect
+    ) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", productCategoryRepository.findAll());
             model.addAttribute("all_dishes", dishRepository.findAll());
@@ -61,6 +64,10 @@ public class ProductController {
         }
 
         productRepository.save(product);
+
+//        if (redirect != null && !redirect.isEmpty()) {
+//            return "redirect:" + redirect;
+//        }
         return "redirect:/products";
     }
 
