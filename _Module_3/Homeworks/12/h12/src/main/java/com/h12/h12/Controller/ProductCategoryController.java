@@ -22,6 +22,7 @@ public class ProductCategoryController {
         this.productCategoryRepository = productCategoryRepository;
     }
 
+    // Това работи
     @GetMapping("/product_categories")
     String getCategories(Model model) {
         model.addAttribute("product_categories", productCategoryRepository.findAll());
@@ -29,56 +30,26 @@ public class ProductCategoryController {
     }
 
     @GetMapping("/product_categories/add")
-    public String showAddProductCategoryForm(Model model){
+    public String showAddProductCategoryForm(Model model) {
         model.addAttribute("productCategory", new ProductCategory());
         return "product_categories_add";
     }
 
     @PostMapping("/product_categories/save")
     String addCategory(@Valid @ModelAttribute ProductCategory productCategory,
-                       BindingResult bindingResult,
-                       Model model) {
+                       BindingResult bindingResult, Model model) {
+
         if (bindingResult.hasErrors()) {
-            System.out.println("huston" + bindingResult);
-//            model.addAttribute("product_categories", productCategoryRepository.findAll());
-//            model.addAttribute("productCategory", new ProductCategory());
             return "product_categories_add";
         }
 
         Optional<ProductCategory> optionalProductCategory = productCategoryRepository.findByName(productCategory.getName());
         if (optionalProductCategory.isPresent()) {
             model.addAttribute("product_categories", productCategoryRepository.findAll());
-//            model.addAttribute("productCategory", new ProductCategory());
             model.addAttribute("not_unique_category", "The category already exist.");
             return "product_categories_add";
         }
         productCategoryRepository.save(productCategory);
         return "redirect:/product_categories";
     }
-
-//    @PostMapping()
-//    String addCategory(@Valid @ModelAttribute ProductCategory productCategory, BindingResult bindingResult, Model model) {
-//        if (bindingResult.hasErrors()) {
-//            System.out.println("huston " + bindingResult);
-//
-//            System.out.println("Model attributes before returning view:");
-//            model.asMap().forEach((key, value) -> System.out.println(key + ": " + value));
-//
-//            model.addAttribute("product_categories", productCategoryRepository.findAll());
-//            model.addAttribute("productCategory", new ProductCategory());
-//            return "product_categories";
-//        }
-//
-//        Optional<ProductCategory> optionalProductCategory = productCategoryRepository.findByName(productCategory.getName());
-//        if (optionalProductCategory.isPresent()) {
-//            model.addAttribute("product_categories", productCategoryRepository.findAll());
-//            model.addAttribute("productCategory", new ProductCategory());
-//            model.addAttribute("not_unique_category", "The category already exists.");
-//            return "product_categories";
-//        }
-//        productCategoryRepository.save(productCategory);
-//        return "redirect:/products/categories";
-//    }
-
-
 }

@@ -19,7 +19,7 @@ public class ProductCategory {
     private Long id;
 
     @NotEmpty()
-    @Size(min = 10, max=20)
+    @Size(min = 3, max=20)
     @Column(unique = true, nullable = false)
     private String name;
 }

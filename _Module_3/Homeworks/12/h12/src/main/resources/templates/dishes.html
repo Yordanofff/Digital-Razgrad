@@ -8,23 +8,34 @@
 <body class="d-flex flex-column min-vh-100">
 
 <div class="text-center col-4 container flex-grow-1">
-    <h1>All Product Categories</h1>
+    <h1>All Dishes</h1>
 
     <table class="table table-striped table-hover caption-top table-bordered border-dark">
         <thead>
         <tr>
             <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Category</th>
+            <th scope="col">products</th>
         </tr>
         </thead>
         <tbody>
-        <th:block th:each="pc : ${product_categories}">
+        <th:block th:each="d : ${all_dishes}">
             <tr>
-                <th scope="row" th:text="${pc.name}"></th>
+                <th scope="row" th:text="${d.name}"></th>
+                <th scope="row" th:text="${d.description}"></th>
+                <th scope="row" th:text="${d.dishCategory.name}"></th>
+                <td>
+    <span th:each="product, iterStat : ${d.products}">
+        <span th:text="${product.name}"></span>
+        <span th:unless="${iterStat.last}">, </span>
+    </span>
+                </td>
             </tr>
         </th:block>
     </table>
 
-    <a class="btn btn-primary mb-5 mt-3" href="/product_categories/add" role="button">Add new category</a>
+    <a class="btn btn-primary mb-5 mt-3" href="/dishes/add" role="button">Add new dish</a>
 
 </div>
 

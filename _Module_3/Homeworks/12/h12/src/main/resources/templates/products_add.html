@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head.html(title='Product Categories')}"></head>
+<nav th:insert="fragments/navbar.html"></nav>
+
+
+<body class="d-flex flex-column min-vh-100">
+
+<div class="text-center col-4 container flex-grow-1">
+
+    <h1 class="text-center mt-5 mb-5">Add new product:</h1>
+    <div class="col-8 container flex-grow-1">
+        <form action="#" th:action="@{/products/save}" th:object="${product}" method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">Product name *:</label>
+                <input type="text" th:field="*{name}" class="form-control" id="name"
+                       placeholder="tomato, chicken brest, salt, etc.">
+
+                <p class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                <p class="text-danger" th:text="${product_exist != null} ? ${product_exist}"></p>
+
+            </div>
+
+            <div class="form-group mt-2 mb-4">
+                <label for="productCategory">Category *:</label>
+                <select class="form-select" id="productCategory" name="productCategory">
+                    <option value="" disabled selected>Select category</option>
+                    <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                </select>
+
+                <p class="text-danger" th:if="${#fields.hasErrors('productCategory')}" th:errors="*{productCategory}"></p>
+
+                <a class="btn btn-primary mb-5 mt-3" href="/product_categories/add" role="button">Add new category</a>
+
+            </div>
+
+            <!-- Dishes are not required, so they won't throw an error. -->
+            <div class="form-group mt-2 mb-4">
+                <label for="dishes">Dishes (optional):</label>
+                <select class="form-select" id="dishes" name="dishes" multiple>
+                    <option value="" disabled selected>Select dishes</option>
+                    <option th:each="d : ${all_dishes}" th:value="${d.id}" th:text="${d.name}"></option>
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous">
+</script>
+</body>
+
+<div th:replace="fragments/footer.html"></div>
+</html>

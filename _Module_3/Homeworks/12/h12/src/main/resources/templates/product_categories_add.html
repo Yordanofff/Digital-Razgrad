@@ -8,21 +8,6 @@
 <body class="d-flex flex-column min-vh-100">
 
 <div class="text-center col-4 container flex-grow-1">
-<!--    <h1>All Product Categories</h1>-->
-
-<!--    <table class="table table-striped table-hover caption-top table-bordered border-dark">-->
-<!--        <thead>-->
-<!--        <tr>-->
-<!--            <th scope="col">Name</th>-->
-<!--        </tr>-->
-<!--        </thead>-->
-<!--        <tbody>-->
-<!--        <th:block th:each="pc : ${product_categories}">-->
-<!--            <tr>-->
-<!--                <th scope="row" th:text="${pc.name}"></th>-->
-<!--            </tr>-->
-<!--        </th:block>-->
-<!--    </table>-->
 
     <h1 class="text-center mt-5 mb-5">Add new product category:</h1>
     <div class="col-8 container flex-grow-1">
@@ -32,9 +17,9 @@
                 <input type="text" th:field="*{name}" class="form-control" id="name"
                        placeholder="vegetable, fruit, seasoning">
 
-                <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                <p class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
 
-                <span th:text="${not_unique_category != null} ? ${not_unique_category}"></span>
+                <p class="text-danger" th:text="${not_unique_category != null} ? ${not_unique_category}"></p>
             </div>
             <div>
                 <button type="submit" class="btn btn-primary">Submit</button>
