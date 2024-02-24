@@ -17,6 +17,8 @@
             <th scope="col">Description</th>
             <th scope="col">Category</th>
             <th scope="col">products</th>
+            <th scope="col">Delete</th>
+
         </tr>
         </thead>
         <tbody>
@@ -25,12 +27,22 @@
                 <th scope="row" th:text="${d.name}"></th>
                 <th scope="row" th:text="${d.description}"></th>
                 <th scope="row" th:text="${d.dishCategory.name}"></th>
+
                 <td>
     <span th:each="product, iterStat : ${d.products}">
         <span th:text="${product.name}"></span>
         <span th:unless="${iterStat.last}">, </span>
     </span>
                 </td>
+
+                <td>
+                    <form th:action="@{/dishes/del}" method="post">
+                        <input type="hidden" name="dishId" th:value="${d.id}"/>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+                <p class="text-danger" th:text="${dish_not_found != null} ? ${dish_not_found}"></p>
+
             </tr>
         </th:block>
     </table>

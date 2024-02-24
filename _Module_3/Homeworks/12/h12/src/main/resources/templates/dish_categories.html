@@ -14,12 +14,22 @@
         <thead>
         <tr>
             <th scope="col">Name</th>
+            <th scope="col">Actions</th> <!-- New column for actions -->
         </tr>
         </thead>
         <tbody>
         <th:block th:each="dc : ${dishCategories}">
             <tr>
-                <th scope="row" th:text="${dc.name}"></th>
+                <td th:text="${dc.name}"></td>
+
+                <td>
+                    <form class="d-inline" th:action="@{/dish_categories/del}" method="post">
+                        <input type="hidden" name="id" th:value="${dc.id}"/>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    <a class="btn btn-primary" th:href="@{/dish_categories/edit/{id}(id=${dc.id})}">Edit</a>
+                    <!-- Edit button -->
+                </td>
             </tr>
         </th:block>
     </table>
@@ -29,7 +39,8 @@
         <form action="#" th:action="@{/dish_categories/save}" th:object="${category}" method="post">
             <div class="mb-3">
                 <label for="name" class="form-label">Category name *:</label>
-                <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="starter, salad, soup, desert, main">
+                <input type="text" th:field="*{name}" class="form-control" id="name"
+                       placeholder="starter, salad, soup, desert, main">
                 <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
             </div>
             <div>

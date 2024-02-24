@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class DishCategoryController {
@@ -39,9 +36,13 @@ public class DishCategoryController {
             return "dish_categories";
         }
 
-
-
         dishCategoryRepository.save(dishCategory);
+        return "redirect:/dish_categories";
+    }
+
+    @PostMapping("/dish_categories/del")
+    public String deleteDishCategory(@RequestParam Long id) {
+        dishCategoryRepository.deleteById(id);
         return "redirect:/dish_categories";
     }
 }
