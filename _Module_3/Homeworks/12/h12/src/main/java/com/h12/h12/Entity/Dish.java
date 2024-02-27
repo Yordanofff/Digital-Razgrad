@@ -37,7 +37,13 @@ public class Dish {
     private DishCategory dishCategory;
 
     @NotEmpty(message = "Enter at least one product from the list below!")
-    @ManyToMany(mappedBy = "dishes")
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(
+            name = "product_dish",
+            joinColumns = @JoinColumn(name = "dish_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
     private Set<Product> products = new HashSet<>();
 
+    private int rating;
 }

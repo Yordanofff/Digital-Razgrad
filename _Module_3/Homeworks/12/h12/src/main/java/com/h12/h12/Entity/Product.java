@@ -32,12 +32,8 @@ public class Product {
     @JoinColumn(name = "product_category_id")
     private ProductCategory productCategory;
 
-    // Can be null when adding the product.
-    @ManyToMany
-    @JoinTable(
-            name = "product_dish",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "dish_id")
-    )
+//    // Can be null when adding the product.
+    @ManyToMany(mappedBy = "products")
     private Set<Dish> dishes = new HashSet<>();
+
 }

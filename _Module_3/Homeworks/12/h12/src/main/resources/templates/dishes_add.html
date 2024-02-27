@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head.html(title='Product Categories')}"></head>
+<head th:replace="~{fragments/head.html(title='Add new dish')}"></head>
 <nav th:insert="fragments/navbar.html"></nav>
 
 
@@ -26,23 +26,23 @@
             </div>
 
             <div class="form-group mt-2 mb-4">
-                <label for="dishCategory">Category*:</label>
+                <label for="dishCategory">Category *:</label>
                 <select class="form-select" id="dishCategory" name="dishCategory">
                     <option value="" disabled selected>Select category</option>
                     <option th:each="c : ${all_categories}" th:value="${c.id}" th:text="${c.name}"></option>
                 </select>
                 <p class="text-danger" th:if="${#fields.hasErrors('dishCategory')}" th:errors="*{dishCategory}"></p>
                 <a class="btn btn-primary mb-5 mt-3" href="/dish_categories" role="button">Add new category</a>
-                <!-- Hidden input field for redirect -->
-<!--                <input type="hidden" name="redirect" value="/dishes/add">-->
             </div>
             <div class="form-group mt-2 mb-4">
-                <label for="products">Products *:</label>
-                <select class="form-select" id="products" name="Products" multiple>
+                <label class="mb-2" for="products">Products *:</label>
+
+                <select class="form-select" id="products" name="products" multiple size="8">
                     <option value="" disabled selected>Select products</option>
                     <option th:each="p : ${all_products}" th:value="${p.id}" th:text="${p.name}"></option>
                 </select>
                 <p class="text-danger" th:if="${#fields.hasErrors('products')}" th:errors="*{products}"></p>
+                <a class="btn btn-primary mb-5 mt-3" href="/products/add" role="button">Add new product</a>
             </div>
 
             <div>

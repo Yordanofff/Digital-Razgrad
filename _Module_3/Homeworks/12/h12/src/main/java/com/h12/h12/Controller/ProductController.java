@@ -5,14 +5,12 @@ import com.h12.h12.Repository.DishRepository;
 import com.h12.h12.Repository.ProductCategoryRepository;
 import com.h12.h12.Repository.ProductRepository;
 import jakarta.validation.Valid;
-import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
 
@@ -47,7 +45,6 @@ public class ProductController {
 
     @PostMapping("/products/save")
     String saveProduct(@Valid @ModelAttribute Product product, BindingResult bindingResult, Model model
-//                       ,@RequestParam(value = "redirect", required = false) String redirect
     ) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", productCategoryRepository.findAll());
@@ -65,9 +62,6 @@ public class ProductController {
 
         productRepository.save(product);
 
-//        if (redirect != null && !redirect.isEmpty()) {
-//            return "redirect:" + redirect;
-//        }
         return "redirect:/products";
     }
 

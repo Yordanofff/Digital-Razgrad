@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head.html(title='Product Categories')}"></head>
+<head th:replace="~{fragments/head.html(title='Add new product')}"></head>
 <nav th:insert="fragments/navbar.html"></nav>
 
 
@@ -36,13 +36,13 @@
             </div>
 
             <!-- Dishes are not required, so they won't throw an error. -->
-            <div class="form-group mt-2 mb-4">
-                <label for="dishes">Dishes (optional):</label>
-                <select class="form-select" id="dishes" name="dishes" multiple>
-                    <option value="" disabled selected>Select dishes</option>
-                    <option th:each="d : ${all_dishes}" th:value="${d.id}" th:text="${d.name}"></option>
-                </select>
-            </div>
+<!--            <div class="form-group mt-2 mb-4">-->
+<!--                <label for="dishes">Dishes (optional):</label>-->
+<!--                <select class="form-select" id="dishes" name="dishes" multiple>-->
+<!--                    <option value="" disabled selected>Select dishes</option>-->
+<!--                    <option th:each="d : ${all_dishes}" th:value="${d.id}" th:text="${d.name}"></option>-->
+<!--                </select>-->
+<!--            </div>-->
 
             <div>
                 <button type="submit" class="btn btn-primary">Submit</button>

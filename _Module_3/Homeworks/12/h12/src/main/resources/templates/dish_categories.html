@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head.html(title='Product Categories')}"></head>
+<head th:replace="~{fragments/head.html(title='Dish categories')}"></head>
 <nav th:insert="fragments/navbar.html"></nav>
 
 
@@ -14,7 +14,7 @@
         <thead>
         <tr>
             <th scope="col">Name</th>
-            <th scope="col">Actions</th> <!-- New column for actions -->
+            <th scope="col">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -28,7 +28,6 @@
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                     <a class="btn btn-primary" th:href="@{/dish_categories/edit/{id}(id=${dc.id})}">Edit</a>
-                    <!-- Edit button -->
                 </td>
             </tr>
         </th:block>
