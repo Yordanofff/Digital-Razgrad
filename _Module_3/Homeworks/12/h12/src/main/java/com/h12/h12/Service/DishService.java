@@ -5,10 +5,12 @@ import com.h12.h12.Entity.Product;
 import com.h12.h12.Repository.DishCategoryRepository;
 import com.h12.h12.Repository.DishRepository;
 import com.h12.h12.Repository.ProductRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+
+import java.util.List;
+
 
 @Service
 public class DishService {
@@ -38,14 +40,28 @@ public class DishService {
         return "redirect:/dishes";
     }
 
-    @Transactional
-    public Dish saveDishWithRating(Dish dish) {
-        int rating = getDishRating(dish);
-        dish.setRating(rating);
-        return dishRepository.save(dish);
+    public String deleteDish(Long id) {
+        dishRepository.deleteById(id);
+        return "redirect:/dishes";
     }
 
-    public int getDishRating(Dish dish) {
+    public String addDish(Model model) {
+        model.addAttribute("dish", new Dish());
+        model.addAttribute("all_categories", dishCategoryRepository.findAll());
+        model.addAttribute("all_products", productRepository.findAll());
+        return "dishes_add";
+    }
+
+    public String getAllDishes(Model model) {
+        List<Dish> allDishes = dishRepository.findAll();
+        for (Dish dish : allDishes) {
+            dish.setRating(calculateDishRating(dish));
+        }
+        model.addAttribute("all_dishes", allDishes);
+        return "dishes";
+    }
+
+    public int calculateDishRating(Dish dish) {
         int score = 3;
         for (Product product : dish.getProducts()) {
             if (dish.getDishCategory().getName().equalsIgnoreCase("soup")) {

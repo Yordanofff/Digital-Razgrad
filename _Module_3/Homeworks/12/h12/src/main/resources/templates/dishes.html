@@ -16,7 +16,8 @@
             <th scope="col">Name</th>
             <th scope="col">Description</th>
             <th scope="col">Category</th>
-            <th scope="col">products</th>
+            <th scope="col">Rating</th>
+            <th scope="col">Products</th>
             <th scope="col">Delete</th>
 
         </tr>
@@ -27,6 +28,7 @@
                 <th scope="row" th:text="${d.name}"></th>
                 <th scope="row" th:text="${d.description}"></th>
                 <th scope="row" th:text="${d.dishCategory.name}"></th>
+                <th scope="row" th:text="${d.rating}"></th>
 
                 <td>
     <span th:each="product, iterStat : ${d.products}">

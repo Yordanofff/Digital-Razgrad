@@ -1,11 +1,13 @@
 package com.h12.h12.Entity;
 
+import com.h12.h12.Service.DishService;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -17,7 +19,12 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
+@RequiredArgsConstructor
 public class Dish {
+
+//    @Transient
+//    private DishService dishService;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -45,5 +52,10 @@ public class Dish {
     )
     private Set<Product> products = new HashSet<>();
 
+    @Transient
     private int rating;
+
+//    public int getRating() {
+//        return dishService.calculateDishRating(this);
+//    }
 }
