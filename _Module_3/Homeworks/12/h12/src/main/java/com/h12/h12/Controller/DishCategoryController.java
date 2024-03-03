@@ -1,9 +1,7 @@
 package com.h12.h12.Controller;
 
 import com.h12.h12.Entity.DishCategory;
-import com.h12.h12.Repository.DishCategoryRepository;
 import com.h12.h12.Service.DishCategoryService;
-import com.h12.h12.Service.DishService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,36 +13,24 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DishCategoryController {
 
-    private final DishCategoryRepository dishCategoryRepository;
-    private final DishService dishService;
     private final DishCategoryService dishCategoryService;
 
     // Това не работи
     @GetMapping("/dish_categories")
     public String getDishCategories(Model model) {
-        model.addAttribute("dishCategories", dishCategoryRepository.findAll());
-        model.addAttribute("category", new DishCategory());
-        return "dish_categories";
+        return dishCategoryService.getDishCategories(model);
     }
 
     @PostMapping("/dish_categories/save")
     public String saveDishCategories(@Valid @ModelAttribute DishCategory dishCategory,
                                      BindingResult bindingResult, Model model) {
 
-        if (bindingResult.hasErrors()) {
-        model.addAttribute("dishCategories", dishCategoryRepository.findAll());
-            model.addAttribute("category", dishCategory);
-            return "dish_categories";
-        }
-
-        dishCategoryRepository.save(dishCategory);
-        return "redirect:/dish_categories";
+        return dishCategoryService.saveDishCategories(dishCategory, bindingResult, model);
     }
 
     @PostMapping("/dish_categories/del")
     public String deleteDishCategory(@RequestParam Long id) {
-        dishCategoryRepository.deleteById(id);
-        return "redirect:/dish_categories";
+        return dishCategoryService.deleteDishCategory(id);
     }
 
     @GetMapping("/dish_categories/edit/{id}")

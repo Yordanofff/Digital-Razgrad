@@ -5,6 +5,7 @@ import com.h12.h12.Entity.Product;
 import com.h12.h12.Repository.DishCategoryRepository;
 import com.h12.h12.Repository.DishRepository;
 import com.h12.h12.Repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,19 +14,12 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class DishService {
 
     private final DishCategoryRepository dishCategoryRepository;
     private final ProductRepository productRepository;
     private final DishRepository dishRepository;
-
-    public DishService(DishCategoryRepository dishCategoryRepository,
-                       ProductRepository productRepository,
-                       DishRepository dishRepository) {
-        this.dishCategoryRepository = dishCategoryRepository;
-        this.productRepository = productRepository;
-        this.dishRepository = dishRepository;
-    }
 
     public String saveDish(Dish dish, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {

@@ -32,4 +32,27 @@ public class DishCategoryService {
         dishCategoryRepository.save(dishCategory);
         return "redirect:/dish_categories";
     }
+
+    public String deleteDishCategory(Long id) {
+        dishCategoryRepository.deleteById(id);
+        return "redirect:/dish_categories";
+    }
+
+    public String saveDishCategories(DishCategory dishCategory, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("dishCategories", dishCategoryRepository.findAll());
+            model.addAttribute("category", dishCategory);
+            return "dish_categories";
+        }
+
+        dishCategoryRepository.save(dishCategory);
+        return "redirect:/dish_categories";
+    }
+
+    public String getDishCategories(Model model) {
+        model.addAttribute("dishCategories", dishCategoryRepository.findAll());
+        model.addAttribute("category", new DishCategory());
+        return "dish_categories";
+    }
 }
