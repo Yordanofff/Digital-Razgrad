@@ -22,4 +22,8 @@ public class ProductCategory {
     @Size(min = 3, max=20)
     @Column(unique = true, nullable = false)
     private String name;
+
+    public ProductCategory(String name) {
+        this.name = name;
+    }
 }

@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Table
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class DishCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,4 +22,8 @@ public class DishCategory {
     @Column(nullable = false, unique = true)
     @Size(min = 3, max = 20)
     private String name;
+
+    public DishCategory(String name) {
+        this.name = name;
+    }
 }
