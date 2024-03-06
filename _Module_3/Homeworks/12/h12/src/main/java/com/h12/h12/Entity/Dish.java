@@ -6,10 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,6 +17,8 @@ import java.util.Set;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Dish {
 
 //    @Transient
@@ -55,7 +54,8 @@ public class Dish {
     @Transient
     private int rating;
 
-//    public int getRating() {
-//        return dishService.calculateDishRating(this);
+//    public Dish setDishCategory(DishCategory dishCategory) {
+//        this.dishCategory = dishCategory;
+//        return this;
 //    }
 }

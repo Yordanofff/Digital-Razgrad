@@ -57,17 +57,21 @@ public class DishService {
 
     public int calculateDishRating(Dish dish) {
         int score = 3;
-        for (Product product : dish.getProducts()) {
-            if (dish.getDishCategory().getName().equalsIgnoreCase("soup")) {
-                score += getSoupScore(product);
-            } else if (dish.getDishCategory().getName().equalsIgnoreCase("salad")) {
-                score += getSaladScore(product);
-            } else if (dish.getDishCategory().getName().equalsIgnoreCase("desert")) {
-                score += getDesertScore(product);
-            } else if (dish.getDishCategory().getName().equalsIgnoreCase("main")) {
-                score += getMainScore(product);
+        if (dish.getProducts() != null) {
+
+            for (Product product : dish.getProducts()) {
+                if (dish.getDishCategory().getName().equalsIgnoreCase("soup")) {
+                    score += getSoupScore(product);
+                } else if (dish.getDishCategory().getName().equalsIgnoreCase("salad")) {
+                    score += getSaladScore(product);
+                } else if (dish.getDishCategory().getName().equalsIgnoreCase("dessert")) {
+                    score += getDesertScore(product);
+                } else if (dish.getDishCategory().getName().equalsIgnoreCase("main")) {
+                    score += getMainScore(product);
+                }
             }
         }
+
         return score;
     }
 
@@ -97,7 +101,7 @@ public class DishService {
         } else if (product.getProductCategory().getName().equalsIgnoreCase("vegetable")) {
             score -= 2;
         }
-        if (product.getName().equalsIgnoreCase("cholocate")) {
+        if (product.getName() != null && product.getName().equalsIgnoreCase("chocolate")) {
             score += 3;
         }
         return score;
