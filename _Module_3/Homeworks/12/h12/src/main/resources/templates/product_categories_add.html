@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/head.html(title='Add new product category')}"></head>
-<nav th:insert="fragments/navbar.html"></nav>
+<nav th:insert="~{fragments/navbar.html}"></nav>
 
 
 <body class="d-flex flex-column min-vh-100">
@@ -35,5 +35,5 @@
 </script>
 </body>
 
-<div th:replace="fragments/footer.html"></div>
+<div th:replace="~{fragments/footer.html}"></div>
 </html>
