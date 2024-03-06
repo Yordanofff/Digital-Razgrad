@@ -1,6 +1,5 @@
 package com.h12.h12.Entity;
 
-import com.h12.h12.Service.DishService;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -15,14 +14,10 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
 public class Dish {
-
-//    @Transient
-//    private DishService dishService;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

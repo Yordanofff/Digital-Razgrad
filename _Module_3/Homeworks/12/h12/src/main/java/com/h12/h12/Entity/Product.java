@@ -36,6 +36,7 @@ public class Product {
     private ProductCategory productCategory;
 
 //    // Can be null when adding the product.
+    @Builder.Default
     @JsonIgnore // fix recursion in API call.
     @ManyToMany(mappedBy = "products")
     private Set<Dish> dishes = new HashSet<>();
