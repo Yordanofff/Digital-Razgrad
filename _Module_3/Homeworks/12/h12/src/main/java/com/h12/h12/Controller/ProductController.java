@@ -10,24 +10,26 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/products")
 public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/products")
+    @GetMapping()
     String getAllProducts(Model model) {
         return productService.getAllProducts(model);
     }
 
-    @GetMapping("/products/add")
+    @GetMapping("/add")
     String addProduct(Model model) {
         return productService.addProduct(model);
     }
 
-    @PostMapping("/products/save")
+    @PostMapping("/save")
     String saveProduct(@Valid @ModelAttribute Product product, BindingResult bindingResult, Model model) {
         return productService.saveProduct(product, bindingResult, model);
     }
