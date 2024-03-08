@@ -18,10 +18,15 @@ public class IndexController {
         return "login";
     }
 
-    @PostMapping("/login")
-    String loginPost(@RequestParam String username, @RequestParam String password) {
-        System.out.println(username);
-        System.out.println(password);
-        return "login";
+    @GetMapping("/user_info")
+    String getUserInfo(){
+        return "user_info";
     }
+
+//    @PostMapping("/login")
+//    String loginPost(@RequestParam("username") String username, @RequestParam("password") String password) {
+//        System.out.println(username);
+//        System.out.println(password);
+//        return "redirect:/";
+//    }
 }
