@@ -11,34 +11,35 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/dish_categories")
 public class DishCategoryController {
 
     private final DishCategoryService dishCategoryService;
 
     // Това не работи
-    @GetMapping("/dish_categories")
+    @GetMapping()
     public String getDishCategories(Model model) {
         return dishCategoryService.getDishCategories(model);
     }
 
-    @PostMapping("/dish_categories/save")
+    @PostMapping("/save")
     public String saveDishCategories(@Valid @ModelAttribute DishCategory dishCategory,
                                      BindingResult bindingResult, Model model) {
 
         return dishCategoryService.saveDishCategories(dishCategory, bindingResult, model);
     }
 
-    @PostMapping("/dish_categories/del")
+    @PostMapping("/del")
     public String deleteDishCategory(@RequestParam Long id) {
         return dishCategoryService.deleteDishCategory(id);
     }
 
-    @GetMapping("/dish_categories/edit/{id}")
+    @GetMapping("/edit/{id}")
     public String editDishCategory(@PathVariable Long id, Model model) {
         return dishCategoryService.editDishCategory(id, model);
     }
 
-    @PostMapping("/dish_categories/update")
+    @PostMapping("/update")
     public String updateDishCategory(@Valid @ModelAttribute DishCategory dishCategory, BindingResult bindingResult) {
         return dishCategoryService.updateDishCategory(dishCategory, bindingResult);
     }
