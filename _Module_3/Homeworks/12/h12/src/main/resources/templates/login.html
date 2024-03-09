@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 
 <head th:replace="~{fragments/head.html(title='Task')}"></head>
 <nav th:insert="~{fragments/navbar.html}"></nav>
@@ -16,7 +17,9 @@
         You have been logged out.
     </div>
     <form th:action="@{/login}" method="post">
-        <div><label> User Name : <input type="text" name="username"/> </label></div>
+        <!--   Username/Email     -->
+        <!--        <div><label> User Name : <input type="text" name="username"/> </label></div>-->
+        <div><label> User Name : <input type="text" name="email"/> </label></div>
         <div><label> Password: <input type="password" name="password"/> </label></div>
         <div><input type="submit" value="Sign In"/></div>
     </form>

@@ -36,6 +36,7 @@ public class WebSecurityConfig {
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
+                        .usernameParameter("email")  // this is needed in the html form.
                         .permitAll()
                 )
                 .logout((logout) -> logout.permitAll());

@@ -13,8 +13,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username)  // or email
-            throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return loadUserByEmail(username);
+    }
+
+
+    private UserDetails loadUserByName(String username) throws UsernameNotFoundException{
         User user = userRepository.getUserByUsername(username);
 
         if (user == null) {
@@ -24,4 +28,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new MyUserDetails(user);
     }
 
+
+    private UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
+        User user = userRepository.getUserByEmail(email);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("Could not find user");
+        }
+
+        return new MyUserDetails(user);
+    }
 }
