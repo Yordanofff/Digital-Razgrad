@@ -28,6 +28,10 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/about", "/dish_categories", "/products", "/dishes", "/icon.png", "/user_info").permitAll()
 //                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
+//                        .requestMatchers("/user").hasRole("USER")
+                        .requestMatchers("/user").hasAuthority("ROLE_USER")
+                        .requestMatchers("/user_and_admin").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
