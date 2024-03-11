@@ -1,26 +1,45 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head.html(title='Countries')}"> </head>
+<head th:replace="~{fragments/head.html(title='Countries')}"></head>
 <nav th:insert="~{fragments/navbar.html}"></nav>
 
 
 <body class="d-flex flex-column min-vh-100">
 
-<div class="text-center col-4 container flex-grow-1">
+<div class="col-5 container flex-grow-1">
 
-    <h1>Homework 11</h1>
+    <h1 class="text-center">Homework 11</h1>
     <p>
         Да се направи нов проект, който реализира управление на актьори, държави и
         филми. За филмите пазим следната информация: име, фамилия, националност,
-        възраст и пол.
+        възраст и пол.<br>
         За националностите (държави) пазим име и население (в милиони души).
         Също така да има и форма за добавяне на филми, като за всеки филм
         съхраняваме: заглавие, жанр, година на издаване и актьори (до 4 актьора за
-        филм).
-        Ползвайте БД, HTML forms и валидации в HTML и в Spring Boot.
+        филм).<br>
+        Ползвайте БД, HTML forms и валидации в HTML и в Spring Boot.<br>
         При успешно записване може да насочвате към статична страница със
-        съобщение за успешен запис, например чрез <a href="https://www.baeldung.com/spring-mvc-model-model-map-model-view">ModelAndView</a>.
+        съобщение за успешен запис, например чрез <a
+            href="https://www.baeldung.com/spring-mvc-model-model-map-model-view">ModelAndView</a>.
+    </p>
+    <h1 class="text-center">Homework 16</h1>
+    <p>
+        Към проекта за управление на актьори, държави и фирми добавете Spring Security, което
+        работи с база данни и да има 2 роли: admin и user. За всяка страница има бекенд ниво на
+        достъп - да връща 403, ако потребителя няма достъп. Както и фронтенд - потребителя
+        изобщо да не вижда линк/бутон за неща, до които няма достъп.<br>
+        ▪ Списъкът с филми да се достъп без нужда от вход в системата.<br>
+        ▪ Обикновените потребители (с роля user) да имат достъп да добавят само филми.<br>
+        ▪ Потребителите с роля admin да имат пълен достъп.<br>
+        2. Потребителите трябва да имат възможност да влязат в системата с email или username по свой избор. <br>
+        3. Прочетете и се запознайте със следните ресурси:<br>
+        ▪ <a href="https://docs.spring.io/spring-security/reference/features/authentication/index.html">Spring Security
+        Authentication</a> <br>
+        ▪ <a href="https://docs.spring.io/spring-security/reference/features/authorization/index.html">Spring Security
+        Authorization</a> <br>
+        Трябва да може да правите разлика между Authentication и Authorization
+
     </p>
 
 </div>
