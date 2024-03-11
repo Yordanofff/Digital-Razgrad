@@ -17,21 +17,30 @@ public class DataInitializator implements ApplicationRunner {
     private final MovieRepository movieRepository;
     private final ActorRepository actorRepository;
     private final GenreRepository genreRepository;
+    private final UserRepository userRepository;
 
     public DataInitializator(GenderRepository genderRepository,
                              CountryRepository countryRepository,
                              MovieRepository movieRepository,
                              ActorRepository actorRepository,
-                             GenreRepository genreRepository) {
+                             GenreRepository genreRepository,
+                             UserRepository userRepository) {
         this.genderRepository = genderRepository;
         this.countryRepository = countryRepository;
         this.movieRepository = movieRepository;
         this.actorRepository = actorRepository;
         this.genreRepository = genreRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        if (userRepository.count() == 0){
+            // password is 123 for both.
+            userRepository.save(new User("user123", "user123@abv.bg", "$2a$12$xYNgGUK2KWb9RbL3I2/h5.kPqw/KPo3SG7oqS8.MRUbhjIgpXtxTG", "ROLE_USER"));
+            userRepository.save(new User("admin123", "admin123@abv.bg", "$2a$12$xYNgGUK2KWb9RbL3I2/h5.kPqw/KPo3SG7oqS8.MRUbhjIgpXtxTG", "ROLE_ADMIN"));
+        }
+
         if (genderRepository.count() == 0) {
             genderRepository.save(new Gender("Male"));
             genderRepository.save(new Gender("Female"));
