@@ -47,7 +47,7 @@ public class MovieService {
         if (movieDTO.getName().isEmpty() || movieDTO.getName().length() > 30) {
             model.addAttribute("actors", actorRepository.findAll());
             model.addAttribute("genres", genreRepository.findAll());
-            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll().stream().map(this::convertMovieToMovieDTO).collect(Collectors.toList()));
             model.addAttribute("movie", movieDTO);
             model.addAttribute("nameEmpty", "The movie name should be between 1 and 30 symbols!");
             return "movies";
@@ -56,7 +56,7 @@ public class MovieService {
         if (movieDTO.getConfirmedName().isEmpty() || movieDTO.getConfirmedName().length() > 30) {
             model.addAttribute("actors", actorRepository.findAll());
             model.addAttribute("genres", genreRepository.findAll());
-            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll().stream().map(this::convertMovieToMovieDTO).collect(Collectors.toList()));
             model.addAttribute("movie", movieDTO);
             model.addAttribute("confirmedNameEmpty", "The movie name should be between 1 and 30 symbols!");
             return "movies";
@@ -65,7 +65,7 @@ public class MovieService {
         if (!areMovieNamesSame(movieDTO.getName(), movieDTO.getConfirmedName())) {
             model.addAttribute("actors", actorRepository.findAll());
             model.addAttribute("genres", genreRepository.findAll());
-            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll().stream().map(this::convertMovieToMovieDTO).collect(Collectors.toList()));
             model.addAttribute("movie", movieDTO);
             model.addAttribute("moviesNotMatch", "Movie names don't match!");
             return "movies";
@@ -74,7 +74,7 @@ public class MovieService {
         if (genresIds == null || genresIds.isEmpty()) {
             model.addAttribute("actors", actorRepository.findAll());
             model.addAttribute("genres", genreRepository.findAll());
-            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll().stream().map(this::convertMovieToMovieDTO).collect(Collectors.toList()));
             model.addAttribute("movie", movieDTO);
             model.addAttribute("noGenres", "Please select at least one genre!");
             return "movies";
@@ -83,7 +83,7 @@ public class MovieService {
         if (movieDTO.getYear() < 1900 || movieDTO.getYear() > 2100) {
             model.addAttribute("actors", actorRepository.findAll());
             model.addAttribute("genres", genreRepository.findAll());
-            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll().stream().map(this::convertMovieToMovieDTO).collect(Collectors.toList()));
             model.addAttribute("movie", movieDTO);
             model.addAttribute("yearNoMatch", "Please enter year between 1900 and 2100!");
             return "movies";
@@ -92,7 +92,7 @@ public class MovieService {
         if (actorIds == null || actorIds.isEmpty()) {
             model.addAttribute("actors", actorRepository.findAll());
             model.addAttribute("genres", genreRepository.findAll());
-            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll().stream().map(this::convertMovieToMovieDTO).collect(Collectors.toList()));
             model.addAttribute("movie", movieDTO);
             model.addAttribute("noActors", "Please select at least one actor!");
             return "movies";
