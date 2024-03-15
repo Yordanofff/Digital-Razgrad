@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
+<!--it works without adding the thymeleaf security -->
+<!--<!doctype html>-->
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"-->
+<!--&gt;-->
+
 <head th:replace="~{fragments/head.html(title='Countries')}"></head>
 <nav th:insert="~{fragments/navbar.html}"></nav>
 
@@ -39,7 +45,6 @@
         ▪ <a href="https://docs.spring.io/spring-security/reference/features/authorization/index.html">Spring Security
         Authorization</a> <br>
         Трябва да може да правите разлика между Authentication и Authorization
-
     </p>
 
 </div>

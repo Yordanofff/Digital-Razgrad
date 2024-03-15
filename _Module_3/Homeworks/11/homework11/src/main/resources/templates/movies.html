@@ -44,8 +44,9 @@
 </div>
 
 <br><br>
-<h1 class="text-center mt-5 mb-5">Add new Movie:</h1>
-<div class="col-5 container flex-grow-1">
+
+<h1 class="text-center mt-5 mb-5" th:if="${#authorization.expression('isAuthenticated()')}">Add new Movie:</h1>
+<div class="col-5 container flex-grow-1" th:if="${#authorization.expression('isAuthenticated()')}">
     <form action="#" th:action="@{/movies/add}" th:object="${movie}" method="post">
         <div class="mb-3">
             <label for="name" class="form-label">Movie name:</label>
@@ -58,7 +59,7 @@
             <select id="genres" name="genresIds" class="form-select" required multiple>
                 <option th:each="g : ${genres}" th:value="${g.id}" th:text="${g.name}"></option>
             </select>
-            <a href="/genres" class="btn btn-primary">Add New Genre</a>
+            <a href="/genres" class="btn btn-primary" sec:authorize="hasRole('ROLE_ADMIN')">Add New Genre</a>
         </div>
 
         <div>
@@ -75,7 +76,7 @@
             </select>
         </div>
 
-        <div>
+        <div th:if="${#authorization.expression('isAuthenticated()')}">
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
     </form>
