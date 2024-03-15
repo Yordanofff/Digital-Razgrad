@@ -38,12 +38,18 @@ public class ActorDTO {
     // Can be null when actor is added.
     List<Movie> movieList = new ArrayList<>();
 
-    public ActorDTO(String firstName, String familyName, int age, Country country, Gender gender, List<Movie> movieList) {
+    private int approxYearBorn;
+
+    private boolean isBornInLeapYear;
+
+    public ActorDTO(String firstName, String familyName, int age, Country country, Gender gender, List<Movie> movieList, boolean isBornInLeapYear, int approxYearBorn) {
         this.firstName = firstName;
         this.familyName = familyName;
         this.age = age;
         this.country = country;
         this.gender = gender;
         this.movieList = movieList;
+        this.isBornInLeapYear = isBornInLeapYear;
+        this.approxYearBorn = approxYearBorn;
     }
 }

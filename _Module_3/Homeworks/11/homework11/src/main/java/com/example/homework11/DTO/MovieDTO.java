@@ -30,4 +30,6 @@ public class MovieDTO {
 
     @Column(nullable = false)
     private List<Actor> actorList;
+
+    private boolean isLeapYear;
 }

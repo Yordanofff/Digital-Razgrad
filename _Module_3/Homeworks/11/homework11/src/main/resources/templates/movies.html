@@ -17,6 +17,7 @@
             <th scope="col">Movie Name</th>
             <th scope="col">Genre</th>
             <th scope="col">Year</th>
+            <th scope="col">IsLeapYear</th>
             <th scope="col">Actors</th>
         </tr>
         </thead>
@@ -24,13 +25,18 @@
         <th:block th:each="m : ${movies}">
             <tr>
                 <th scope="row" th:text="${m.name}"></th>
+
                 <td>
                 <span th:each="genre, iterable : ${m.genreList}">
                     <span th:text="${genre.name}"></span>
                     <span th:unless="${iterable.last}">, </span>
                 </span>
                 </td>
+
                 <th scope="row" th:text="${m.year}"></th>
+
+                <td th:text="${m.isLeapYear ? 'Leap Year' : 'Not Leap Year'}"></td>
+
                 <td>
                 <span th:each="actor, iterable : ${m.actorList}">
                     <span th:text="${actor.firstName}"></span>

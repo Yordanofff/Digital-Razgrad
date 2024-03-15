@@ -1,5 +1,6 @@
 package com.example.homework11.service;
 
+import Utils.DateTimeUtils;
 import com.example.homework11.DTO.MovieDTO;
 import com.example.homework11.Entities.Actor;
 import com.example.homework11.Entities.Genre;
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class MovieService {
     public String getMovies(Model model) {
         model.addAttribute("actors", actorRepository.findAll());
         model.addAttribute("genres", genreRepository.findAll());
-        model.addAttribute("movies", movieRepository.findAll());
+        model.addAttribute("movies", movieRepository.findAll().stream().map(this::convertMovieToMovieDTO).collect(Collectors.toList()));
         model.addAttribute("movie", new MovieDTO());
         return "movies";
     }
@@ -126,5 +128,16 @@ public class MovieService {
                 movieDTO.getYear(),
                 actorList
         );
+    }
+
+    private MovieDTO convertMovieToMovieDTO(Movie movie){
+        MovieDTO movieDTO = new MovieDTO();
+        movieDTO.setName(movie.getName());
+        movieDTO.setConfirmedName(movie.getName()); // Not sure if needed.
+        movieDTO.setYear(movie.getYear());
+        movieDTO.setLeapYear(DateTimeUtils.isLeapYear(movie.getYear()));
+        movieDTO.setGenreList(movie.getGenreList());
+        movieDTO.setActorList(movie.getActorList());
+        return movieDTO;
     }
 }

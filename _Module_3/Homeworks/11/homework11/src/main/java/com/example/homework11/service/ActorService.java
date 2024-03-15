@@ -1,5 +1,6 @@
 package com.example.homework11.service;
 
+import Utils.DateTimeUtils;
 import com.example.homework11.DTO.ActorDTO;
 import com.example.homework11.Entities.Actor;
 import com.example.homework11.Repositories.ActorRepository;
@@ -42,7 +43,9 @@ public class ActorService {
                 actor.getAge(),
                 actor.getCountry(),
                 actor.getGender(),
-                actor.getMovieList()
+                actor.getMovieList(),
+                DateTimeUtils.isBornInLeapYear(actor.getAge()),
+                DateTimeUtils.calculateYearBorn(actor.getAge())
         );
     }
 
