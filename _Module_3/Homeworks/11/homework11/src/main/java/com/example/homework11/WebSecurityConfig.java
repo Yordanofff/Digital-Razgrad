@@ -21,38 +21,41 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .authorizeHttpRequests((requests) -> requests
-//                                .requestMatchers("/", "/movies").permitAll()
-//                                .requestMatchers("/movies/**").hasAuthority("ROLE_USER")
-//                                .anyRequest().hasAuthority("ROLE_ADMIN")
-//                )
-//                .formLogin((form) -> form
-//                        .loginPage("/login")
-//                        .usernameParameter("username_or_email")  // this is needed in the html form.
-//                        .permitAll()
-//                )
-//                .logout((logout) -> logout.permitAll());
+
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests((requests) -> requests
+                                .requestMatchers("/", "/movies").permitAll()
+                                .requestMatchers("/movies/**").hasAuthority("ROLE_USER")
+//                                .requestMatchers("/movies/**").authenticated()
+                                .anyRequest().hasAuthority("ROLE_ADMIN")
+                )
+                .formLogin((form) -> form
+                        .loginPage("/login")
+                        .usernameParameter("username_or_email")  // this is needed in the html form.
+                        .permitAll()
+                )
+                .logout((logout) -> logout.permitAll());
+
+        return http.build();
+    }
+
+//@Bean
+//public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//    http
+//            .authorizeHttpRequests((requests) -> requests
+//                    .anyRequest().permitAll()
+//            )
+//            .formLogin((form) -> form
+//                    .loginPage("/login")
+//                    .usernameParameter("username_or_email")  // this is needed in the html form.
+//                    .permitAll()
+//            )
+//            .logout((logout) -> logout.permitAll());
 //
-//        return http.build();
-//    }
-
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-            .authorizeHttpRequests((requests) -> requests
-                    .anyRequest().permitAll()
-            )
-            .formLogin((form) -> form
-                    .loginPage("/login")
-                    .usernameParameter("username_or_email")  // this is needed in the html form.
-                    .permitAll()
-            )
-            .logout((logout) -> logout.permitAll());
-
-    return http.build();
-}
+//    return http.build();
+//}
 
 }
