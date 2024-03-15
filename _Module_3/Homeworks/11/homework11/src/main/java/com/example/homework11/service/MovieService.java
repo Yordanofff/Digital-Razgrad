@@ -29,31 +29,73 @@ public class MovieService {
         return "movies";
     }
 
-    public String addMovie(MovieDTO movieDTO, BindingResult bindingResult, List<Long> actorIds, List<Long> genresIds, Model model){
-        if (bindingResult.hasErrors()){
-            model.addAttribute("actors", actorRepository.findAll());
-            model.addAttribute("genres", genreRepository.findAll());
-            model.addAttribute("movies", movieRepository.findAll());
-            model.addAttribute("movie", movieDTO); // Add the existing MovieDTO object with validation errors back to the model
-            return "movies";
-        }
-        if (actorIds == null || actorIds.isEmpty()) {
+    public String addMovie(MovieDTO movieDTO, BindingResult bindingResult, List<Long> actorIds, List<Long> genresIds, Model model) {
+
+//        // bindingResult is not returning any validation errors from the DTO/Entity annotations
+//        if (bindingResult.hasErrors()){
 //            model.addAttribute("actors", actorRepository.findAll());
-            model.addAttribute("noActors", "Please select at least one actor.");
-            return "movies";
-        }
-        if (genresIds == null|| genresIds.isEmpty()) {
 //            model.addAttribute("genres", genreRepository.findAll());
-            model.addAttribute("noGenres", "Please select at least one genre.");
-            return "movies";
-        }
-        if(!areMovieNamesSame(movieDTO.getName(), movieDTO.getConfirmedName())){
+//            model.addAttribute("movies", movieRepository.findAll());
+//            model.addAttribute("movie", movieDTO);
+//            return "movies";
+//        }
+
+
+        // Adding a check for the year and name because bindingResult errors are not being displayed..
+        if (movieDTO.getName().isEmpty() || movieDTO.getName().length() > 30) {
             model.addAttribute("actors", actorRepository.findAll());
             model.addAttribute("genres", genreRepository.findAll());
             model.addAttribute("movies", movieRepository.findAll());
-            model.addAttribute("moviesNotMatch","Movie names don't match");
+            model.addAttribute("movie", movieDTO);
+            model.addAttribute("nameEmpty", "The movie name should be between 1 and 30 symbols!");
             return "movies";
         }
+
+        if (movieDTO.getConfirmedName().isEmpty() || movieDTO.getConfirmedName().length() > 30) {
+            model.addAttribute("actors", actorRepository.findAll());
+            model.addAttribute("genres", genreRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movie", movieDTO);
+            model.addAttribute("confirmedNameEmpty", "The movie name should be between 1 and 30 symbols!");
+            return "movies";
+        }
+
+        if (!areMovieNamesSame(movieDTO.getName(), movieDTO.getConfirmedName())) {
+            model.addAttribute("actors", actorRepository.findAll());
+            model.addAttribute("genres", genreRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movie", movieDTO);
+            model.addAttribute("moviesNotMatch", "Movie names don't match!");
+            return "movies";
+        }
+
+        if (genresIds == null || genresIds.isEmpty()) {
+            model.addAttribute("actors", actorRepository.findAll());
+            model.addAttribute("genres", genreRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movie", movieDTO);
+            model.addAttribute("noGenres", "Please select at least one genre!");
+            return "movies";
+        }
+
+        if (movieDTO.getYear() < 1900 || movieDTO.getYear() > 2100) {
+            model.addAttribute("actors", actorRepository.findAll());
+            model.addAttribute("genres", genreRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movie", movieDTO);
+            model.addAttribute("yearNoMatch", "Please enter year between 1900 and 2100!");
+            return "movies";
+        }
+
+        if (actorIds == null || actorIds.isEmpty()) {
+            model.addAttribute("actors", actorRepository.findAll());
+            model.addAttribute("genres", genreRepository.findAll());
+            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("movie", movieDTO);
+            model.addAttribute("noActors", "Please select at least one actor!");
+            return "movies";
+        }
+
         List<Actor> selectedActors = actorRepository.findAllById(actorIds);
         List<Genre> selectedGenres = genreRepository.findAllById(genresIds);
         movieDTO.setActorList(selectedActors);

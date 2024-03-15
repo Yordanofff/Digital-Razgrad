@@ -12,11 +12,11 @@ import java.util.List;
 
 @Data
 public class MovieDTO {
-    @Size(min=1, max=30)
+    @Size(min=1, max=30, message = "Name should be between 1 and 30 characters")
     @Column(nullable = false)  // no need to be unique
     private String name;
 
-    @Size(min=1, max=30)
+    @Size(min=1, max=30, message = "Name should be between 1 and 30 characters")
     @Column(nullable = false)  // no need to be unique
     private String confirmedName;
 
@@ -24,7 +24,7 @@ public class MovieDTO {
     private List<Genre> genreList;
 
     @Min(1900)
-    @Max(2100)
+    @Max(value = 2100)
     @Column(nullable = false)
     private int year;
 

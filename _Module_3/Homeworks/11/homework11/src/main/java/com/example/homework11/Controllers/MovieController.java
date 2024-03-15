@@ -26,8 +26,8 @@ public class MovieController {
     @PostMapping("/add")
     public String addMovie(@Valid @ModelAttribute MovieDTO movieDTO,
                            BindingResult bindingResult,
-                           @RequestParam("actorIds") List<Long> actorIds,
-                            @RequestParam("genresIds") List<Long> genresIds,
+                           @RequestParam(name = "actorIds", required = false) List<Long> actorIds,
+                            @RequestParam(name = "genresIds", required = false) List<Long> genresIds,
                            Model model){
         return movieService.addMovie(movieDTO, bindingResult, actorIds, genresIds, model);
     }
