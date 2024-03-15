@@ -47,6 +47,9 @@ public class Actor {
     @ManyToMany(mappedBy = "actorList")
     List<Movie> movieList = new ArrayList<>();
 
+    private String email;
+    private String phoneNumber;
+
     public Actor(String firstName, String familyName, int age, Country country, Gender gender) {
         this.firstName = firstName;
         this.familyName = familyName;
