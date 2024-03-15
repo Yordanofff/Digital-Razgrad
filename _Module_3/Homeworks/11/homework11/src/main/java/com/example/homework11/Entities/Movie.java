@@ -40,7 +40,7 @@ public class Movie {
     @Column(nullable = false)
     private int year;
 
-    @ManyToMany
+    @ManyToMany() // fetch = FetchType.EAGER
     @Column(nullable = false)
     @JoinTable(
             name = "movie_actor",

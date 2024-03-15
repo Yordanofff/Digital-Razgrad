@@ -1,52 +1,35 @@
 package com.example.homework11.Controllers;
 
-import com.example.homework11.Entities.Actor;
-import com.example.homework11.Entities.Genre;
-import com.example.homework11.Entities.Movie;
-import com.example.homework11.Repositories.ActorRepository;
-import com.example.homework11.Repositories.GenreRepository;
-import com.example.homework11.Repositories.MovieRepository;
+import com.example.homework11.DTO.MovieDTO;
+import com.example.homework11.service.MovieService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Controller
 @RequestMapping("/movies")
+@RequiredArgsConstructor
 public class MovieController {
 
-    private final MovieRepository movieRepository;
-    private final ActorRepository actorRepository;
-    private final GenreRepository genreRepository;
-
-    public MovieController(MovieRepository movieRepository,
-                           ActorRepository actorRepository,
-                           GenreRepository genreRepository) {
-        this.movieRepository = movieRepository;
-        this.actorRepository = actorRepository;
-        this.genreRepository = genreRepository;
-    }
+    private final MovieService movieService;
 
     @GetMapping
     public String getMovies(Model model) {
-        model.addAttribute("movies", movieRepository.findAll());
-        model.addAttribute("actors", actorRepository.findAll());
-        model.addAttribute("genres", genreRepository.findAll());
-        model.addAttribute("movie", new Movie());
-        return "movies";
+        return movieService.getMovies(model);
     }
 
     @PostMapping("/add")
-    public String addMovie(@ModelAttribute Movie movie,
+    public String addMovie(@Valid @ModelAttribute MovieDTO movieDTO,
+                           BindingResult bindingResult,
                            @RequestParam("actorIds") List<Long> actorIds,
-                            @RequestParam("genresIds") List<Long> genresIds){
-        List<Actor> selectedActors = actorRepository.findAllById(actorIds);
-        List<Genre> selectedGenres = genreRepository.findAllById(genresIds);
-        movie.setActorList(selectedActors);
-        movie.setGenreList(selectedGenres);
-        movieRepository.save(movie);
-        return "redirect:/movies";
+                            @RequestParam("genresIds") List<Long> genresIds,
+                           Model model){
+        return movieService.addMovie(movieDTO, bindingResult, actorIds, genresIds, model);
     }
 
 }
