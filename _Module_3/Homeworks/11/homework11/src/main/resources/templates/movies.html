@@ -45,38 +45,57 @@
 
 <br><br>
 
-<h1 class="text-center mt-5 mb-5" th:if="${#authorization.expression('isAuthenticated()')}">Add new Movie:</h1>
 <div class="col-5 container flex-grow-1" th:if="${#authorization.expression('isAuthenticated()')}">
+<h1 class="text-center mt-5 mb-5">Add new Movie:</h1>
     <form action="#" th:action="@{/movies/add}" th:object="${movie}" method="post">
+        <div th:if="${moviesNotMatch}" style="color: red;">
+            <p th:text="${moviesNotMatch}"></p>
+        </div>
         <div class="mb-3">
             <label for="name" class="form-label">Movie name:</label>
+            <div class="message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
             <input type="text" th:field="*{name}" class="form-control" id="name"
-                   placeholder="The Matrix" required minlength="1" maxlength="30">
+                   placeholder="The Matrix" >
         </div>
+        <div class="mb-3">
+            <label for="confirmedName" class="form-label">Movie name(confirm):</label>
+            <p class="text-danger" th:if="${#fields.hasErrors('confirmedName')}" th:errors="*{confirmedName}"></p>
+            <input type="text" th:field="*{confirmedName}" class="form-control" id="confirmedName"
+                   placeholder="The Matrix" >
+        </div>
+
 
         <div class="input-group mb-3">
             <label for="genres" class="input-group-text">Genres:</label>
-            <select id="genres" name="genresIds" class="form-select" required multiple>
+            <select id="genres" name="genresIds" class="form-select" multiple>
                 <option th:each="g : ${genres}" th:value="${g.id}" th:text="${g.name}"></option>
             </select>
+<!--            <p class="text-danger" th:if="${#fields.hasErrors('genresIds')}" th:errors="*{genres}"></p>-->
+            <div th:if="${noGenres}" style="color: red;">
+                <p th:text="${noGenres}"></p>
+            </div>
             <a href="/genres" class="btn btn-primary" sec:authorize="hasRole('ROLE_ADMIN')">Add New Genre</a>
         </div>
 
         <div>
             <label for="year" class="form-label">Year:</label>
             <input type="number" step="1" th:field="*{year}" class="form-control" id="year"
-                   required min="1901" max="2100">
+                    >
+            <p class="text-danger" th:if="${#fields.hasErrors('year')}" th:errors="*{year}"></p>
         </div>
 
         <div class="input-group mb-3 mt-3">
             <label for="actors" class="input-group-text">Movie actors:</label>
-            <select id="actors" name="actorIds" class="form-select" size="6" multiple required>
+            <select id="actors" name="actorIds" class="form-select" size="6" multiple >
                 <option th:each="a : ${actors}" th:value="${a.id}"
                         th:text="${a.firstName + ' ' + a.familyName}"></option>
             </select>
+            <div th:if="${noActors}" style="color: red;">
+                <p th:text="${noActors}"></p>
+            </div>
         </div>
 
-        <div th:if="${#authorization.expression('isAuthenticated()')}">
+        <div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
     </form>
