@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -26,7 +27,7 @@ public class Genre {
 
 //    @ManyToMany(mappedBy = "genres")
     @ManyToMany(mappedBy = "genres", fetch = FetchType.EAGER)
-    private Set<Game> games;
+    private Set<Game> games = new HashSet<>();
 
     public Genre(String name) {
         this.name = name;

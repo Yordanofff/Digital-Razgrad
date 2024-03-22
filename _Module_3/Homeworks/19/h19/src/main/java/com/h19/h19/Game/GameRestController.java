@@ -1,5 +1,6 @@
 package com.h19.h19.Game;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,27 +20,27 @@ public class GameRestController {
     private final GameRepository gameRepository;
 
     public GameRestController(GameService gameService,
-                              GameRepository gameRepository){
+                              GameRepository gameRepository) {
         super();
         this.gameService = gameService;
         this.gameRepository = gameRepository;
     }
 
-//    @GetMapping()
+    //    @GetMapping()
 //    public List<GameDTO> getAllGames() {
 //        return gameService.getAllGames()
 //                .stream()
 //                .map(game -> modelMapper.map(game, GameDTO.class))
 //                .collect(Collectors.toList());
 //    }
-
+    @Transactional
     @GetMapping()
     public List<Game> getAllGames() {
         return gameRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getGameById(@PathVariable(name = "id") Long id){
+    public ResponseEntity<?> getGameById(@PathVariable(name = "id") Long id) {
         try {
             Game game = gameService.getGameByID(id);
             GameDTO gameDTO = modelMapper.map(game, GameDTO.class);
@@ -52,7 +53,7 @@ public class GameRestController {
     }
 
     @PostMapping()
-    public ResponseEntity<GameDTO> addNewGame(@RequestBody GameDTO gameDTO){
+    public ResponseEntity<GameDTO> addNewGame(@RequestBody GameDTO gameDTO) {
         Game gameRequest = modelMapper.map(gameDTO, Game.class);
         Game game = gameService.addGame(gameRequest);
         GameDTO response = modelMapper.map(game, GameDTO.class);
@@ -74,7 +75,7 @@ public class GameRestController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body("Game with ID " + id + " deleted successfully!");
-        }catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body("Game with ID " + id + " not found");
