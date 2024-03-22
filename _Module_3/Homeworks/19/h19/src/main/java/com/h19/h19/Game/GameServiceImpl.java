@@ -30,7 +30,7 @@ public class GameServiceImpl implements GameService {
         game.setId(null); // ignore the ID if ID has been entered.
 
         if (game.getName() == null) {
-            throw new RuntimeException("Please enter name!")
+            throw new RuntimeException("Please enter name!");
         }
         checkIfGameNameAlreadyInDB(game);
 
@@ -89,6 +89,34 @@ public class GameServiceImpl implements GameService {
         return gameRepository.save(game);
     }
 
+
+    @Override
+    public void deleteGame(long id) {
+        Game game = gameRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Game with ID " + id + " not found"));
+        gameRepository.delete(game);
+    }
+
+    @Override
+    public Game getGameByID(long id) {
+        Optional<Game> optionalGame = gameRepository.findById(id);
+        if (optionalGame.isPresent()) {
+            return optionalGame.get();
+        }
+        throw new RuntimeException("Game with ID " + id + " not found");
+    }
+
+//    private GameDTO convertGameToGameDto(Game game) {
+//        GameDTO gameDTO = new GameDTO();
+//        gameDTO.setId(game.getId());
+//        gameDTO.setName(game.getName());
+//        gameDTO.setCompany(game.getCompany());
+//        gameDTO.setGenres(game.getGenres());
+//        gameDTO.setYearReleased(game.getYearReleased());
+//        return gameDTO;
+//    }
+
+
     // When adding or updating a game we want to set the company name and genre no matter if just the ID or just the Name has been entered.
     // Throw error if id + name don't match an entry in the DB for both.
 
@@ -135,32 +163,6 @@ public class GameServiceImpl implements GameService {
         }
         throw new RuntimeException("Company with id: " + id + " not found");
     }
-
-    @Override
-    public void deleteGame(long id) {
-        Game game = gameRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Game with ID " + id + " not found"));
-        gameRepository.delete(game);
-    }
-
-    @Override
-    public Game getGameByID(long id) {
-        Optional<Game> optionalGame = gameRepository.findById(id);
-        if (optionalGame.isPresent()) {
-            return optionalGame.get();
-        }
-        throw new RuntimeException("Game with ID " + id + " not found");
-    }
-
-//    private GameDTO convertGameToGameDto(Game game) {
-//        GameDTO gameDTO = new GameDTO();
-//        gameDTO.setId(game.getId());
-//        gameDTO.setName(game.getName());
-//        gameDTO.setCompany(game.getCompany());
-//        gameDTO.setGenres(game.getGenres());
-//        gameDTO.setYearReleased(game.getYearReleased());
-//        return gameDTO;
-//    }
 
     private void checkIfGameNameAlreadyInDB(Game game) throws RuntimeException {
         if (game.getName() == null) {
