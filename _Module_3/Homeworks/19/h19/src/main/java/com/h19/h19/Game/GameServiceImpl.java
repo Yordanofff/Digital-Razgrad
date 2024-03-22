@@ -29,7 +29,7 @@ public class GameServiceImpl implements GameService {
     public Game addGame(Game game) {
         game.setId(null); // ignore the ID if ID has been entered.
 
-        if (game.getName() == null){
+        if (game.getName() == null) {
             throw new RuntimeException("Please enter name!")
         }
         checkIfGameNameAlreadyInDB(game);
@@ -104,22 +104,22 @@ public class GameServiceImpl implements GameService {
             if (Objects.equals(c1.getName(), companyRequest.getName())) {
                 return c1;
             } else {
-                throw new RuntimeException("Company with id " + companyRequest.getId() + " and name: "+ companyRequest.getName() + " do not exist in the DB.");
+                throw new RuntimeException("Company with id " + companyRequest.getId() + " and name: " + companyRequest.getName() + " do not exist in the DB.");
             }
         }
-        if (companyRequest.getName() == null){
+        if (companyRequest.getName() == null) {
             return getCompanyIfCompanyIdExist(companyRequest.getId());  // will throw an error if id doesn't exist.
         }
 
         return getOrCreateCompanyIfCompanyNameDoesNotExist(companyRequest.getName()); // will return null if company doesn't exist
     }
 
-    private Company getOrCreateCompanyIfCompanyNameDoesNotExist(String companyName){
+    private Company getOrCreateCompanyIfCompanyNameDoesNotExist(String companyName) {
         if (companyName == null) {
             return null;
         }
         Optional<Company> optionalCompany = companyRepository.findByName(companyName);
-        if (optionalCompany.isPresent()){
+        if (optionalCompany.isPresent()) {
             return optionalCompany.get();
         }
         return companyRepository.save(new Company(companyName));
@@ -130,7 +130,7 @@ public class GameServiceImpl implements GameService {
             return null;
         }
         Optional<Company> optionalCompany = companyRepository.findById(id);
-        if (optionalCompany.isPresent()){
+        if (optionalCompany.isPresent()) {
             return optionalCompany.get();
         }
         throw new RuntimeException("Company with id: " + id + " not found");
@@ -163,7 +163,7 @@ public class GameServiceImpl implements GameService {
 //    }
 
     private void checkIfGameNameAlreadyInDB(Game game) throws RuntimeException {
-        if (game.getName() == null){
+        if (game.getName() == null) {
             throw new RuntimeException("Please enter name!");
         }
         Optional<Game> optionalGame = gameRepository.findByName(game.getName());
@@ -191,16 +191,16 @@ public class GameServiceImpl implements GameService {
 
         // need to check if genre ID + genre name are added - if they match in the DB.
         // If genre Id is in the body, check if there is a genre with that id.
-        if (genre.getId() != null){
+        if (genre.getId() != null) {
             Optional<Genre> optionalGenre = genreRepository.findById(genre.getId());
-            if (optionalGenre.isPresent()){
+            if (optionalGenre.isPresent()) {
                 // Also check if the name has been added and if it matches the genre id.
                 if (genre.getName() != null) {
                     Optional<Genre> optionalGenre1 = genreRepository.findByName(genre.getName());
                     // If the genre name is not found in the DB but ID is OR
                     // the ID of the found name doesn't match the ID of the genre - throw an error.
-                    if (optionalGenre1.isEmpty() || !Objects.equals(optionalGenre1.get().getId(), genre.getId())){
-                        throw new RuntimeException("Genre with ID " + genre.getId() + " does not match name " + genre.getName()+ "! \n" + optionalGenre.get());
+                    if (optionalGenre1.isEmpty() || !Objects.equals(optionalGenre1.get().getId(), genre.getId())) {
+                        throw new RuntimeException("Genre with ID " + genre.getId() + " does not match name " + genre.getName() + "! \n" + optionalGenre.get());
                     }
                 }
                 return optionalGenre.get();
@@ -212,7 +212,7 @@ public class GameServiceImpl implements GameService {
         return getOrCreateGenreIfNameNotExist(genre.getName());
     }
 
-    private Genre getOrCreateGenreIfNameNotExist(String genreName){
+    private Genre getOrCreateGenreIfNameNotExist(String genreName) {
         if (genreName == null) {
             return null;
         }
