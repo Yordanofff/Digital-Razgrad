@@ -1,6 +1,5 @@
 package com.h19.h19.Game;
 
-import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,26 +16,18 @@ public class GameRestController {
     private ModelMapper modelMapper;
 
     private final GameService gameService;
-    private final GameRepository gameRepository;
 
-    public GameRestController(GameService gameService,
-                              GameRepository gameRepository) {
+    public GameRestController(GameService gameService) {
         super();
         this.gameService = gameService;
-        this.gameRepository = gameRepository;
     }
 
-    //    @GetMapping()
-//    public List<GameDTO> getAllGames() {
-//        return gameService.getAllGames()
-//                .stream()
-//                .map(game -> modelMapper.map(game, GameDTO.class))
-//                .collect(Collectors.toList());
-//    }
-    @Transactional
     @GetMapping()
-    public List<Game> getAllGames() {
-        return gameRepository.findAll();
+    public List<GameDTO> getAllGames() {
+        return gameService.getAllGames()
+                .stream()
+                .map(game -> modelMapper.map(game, GameDTO.class))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -53,19 +44,25 @@ public class GameRestController {
     }
 
     @PostMapping()
-    public ResponseEntity<GameDTO> addNewGame(@RequestBody GameDTO gameDTO) {
-        Game gameRequest = modelMapper.map(gameDTO, Game.class);
-        Game game = gameService.addGame(gameRequest);
-        GameDTO response = modelMapper.map(game, GameDTO.class);
-        return new ResponseEntity<GameDTO>(response, HttpStatus.CREATED);
+    public ResponseEntity<?> addNewGame(@RequestBody Game gameRequest) {
+        try {
+            Game game = gameService.addGame(gameRequest);
+            GameDTO response = modelMapper.map(game, GameDTO.class);
+            return new ResponseEntity<GameDTO>(response, HttpStatus.CREATED);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.FOUND).body(ex.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GameDTO> updateGame(@PathVariable long id, @RequestBody GameDTO gameDTO) {
-        Game gameRequest = modelMapper.map(gameDTO, Game.class);
-        Game game = gameService.updateGame(id, gameRequest);
-        GameDTO gameDtoResponse = modelMapper.map(game, GameDTO.class);
-        return ResponseEntity.ok().body(gameDtoResponse);
+    public ResponseEntity<?> updateGame(@PathVariable long id, @RequestBody Game gameRequest) {
+        try {
+            Game game = gameService.updateGame(id, gameRequest);
+            GameDTO gameDtoResponse = modelMapper.map(game, GameDTO.class);
+            return ResponseEntity.ok().body(gameDtoResponse);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

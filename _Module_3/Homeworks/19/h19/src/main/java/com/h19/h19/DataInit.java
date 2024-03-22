@@ -39,26 +39,15 @@ public class DataInit implements ApplicationRunner {
         }
 
         genreRepository.flush();
+        companyRepository.flush();
 
         if (gameRepository.count() == 0) {
-
-            Set<Genre> genresSet = new HashSet<>();
-            Genre actionGenre = genreRepository.findByName("Action").orElse(null);
-            if (actionGenre != null) {
-                genresSet.add(actionGenre);
-            }
-
-            Genre shooterGenre = genreRepository.findByName("Shooter").orElse(null);
-            if (shooterGenre != null) {
-                genresSet.add(shooterGenre);
-            }
-
             gameRepository.save(Game.builder()
                     .name("Counter-Strike")
                     .yearReleased(2000)
                     .company(companyRepository.findByName("Valve").orElse(null))
-                    .price(20)
-                    .genres(genresSet)
+                    .price((double) 20)
+                    .genre(genreRepository.findByName("Shooter").orElse(null))
                     .build());
         }
     }

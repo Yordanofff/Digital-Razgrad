@@ -8,36 +8,30 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name="games", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
+@Table(name="games")
 public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String name;
 
-    private int yearReleased;
+    private Integer yearReleased;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "games_genres",
-            joinColumns = @JoinColumn(name = "game_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
-    )
-    private Set<Genre> genres = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "genre_id")
+    private Genre genre;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
 
-    private double price;
+    private Double price;
 }
