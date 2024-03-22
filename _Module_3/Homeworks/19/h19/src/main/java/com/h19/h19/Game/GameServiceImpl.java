@@ -27,15 +27,27 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Game addGame(Game game) {
+        game.setId(null); // ignore the ID if ID has been entered.
 
+        if (game.getName() == null){
+            throw new RuntimeException("Please enter name!")
+        }
         checkIfGameNameAlreadyInDB(game);
 
-        Company company = getOrCreateCompanyIfNotExist(game.getCompany());
-        Genre genre = getOrCreateGenreIfNotExist(game.getGenre());
-
+        Company company = getCompanyOrThrowAnError(game.getCompany());
         game.setCompany(company);
+
+        Genre genre = getOrCreateGenreIfNotExist(game.getGenre());
         game.setGenre(genre);
+
+        if (game.getPrice() == null) {
+            throw new RuntimeException("Please enter price!");
+        }
         game.setPrice(game.getPrice());
+
+        if (game.getYearReleased() == null) {
+            throw new RuntimeException("Please enter yearReleased!");
+        }
 
         return gameRepository.save(game);
     }
@@ -57,7 +69,7 @@ public class GameServiceImpl implements GameService {
         }
 
         if (gameRequest.getCompany() != null) {
-            Company company = getOrCreateCompanyIfNotExist(gameRequest.getCompany());
+            Company company = getCompanyOrThrowAnError(gameRequest.getCompany());
             game.setCompany(company);
         }
 
@@ -75,6 +87,53 @@ public class GameServiceImpl implements GameService {
         }
 
         return gameRepository.save(game);
+    }
+
+    // When adding or updating a game we want to set the company name and genre no matter if just the ID or just the Name has been entered.
+    // Throw error if id + name don't match an entry in the DB for both.
+
+
+    private Company getCompanyOrThrowAnError(Company companyRequest) {
+        if (companyRequest == null) {
+            throw new RuntimeException("Please enter company id and/or name!");
+        }
+        if (companyRequest.getId() != null && companyRequest.getName() != null) {
+            // if Id + company name are provided - don't attempt to get the ID of the company as this will also create one
+            // if the company doesn't exist. Instead check if the company id that is provided matches the name.
+            Company c1 = getCompanyIfCompanyIdExist(companyRequest.getId()); // will throw an error
+            if (Objects.equals(c1.getName(), companyRequest.getName())) {
+                return c1;
+            } else {
+                throw new RuntimeException("Company with id " + companyRequest.getId() + " and name: "+ companyRequest.getName() + " do not exist in the DB.");
+            }
+        }
+        if (companyRequest.getName() == null){
+            return getCompanyIfCompanyIdExist(companyRequest.getId());  // will throw an error if id doesn't exist.
+        }
+
+        return getOrCreateCompanyIfCompanyNameDoesNotExist(companyRequest.getName()); // will return null if company doesn't exist
+    }
+
+    private Company getOrCreateCompanyIfCompanyNameDoesNotExist(String companyName){
+        if (companyName == null) {
+            return null;
+        }
+        Optional<Company> optionalCompany = companyRepository.findByName(companyName);
+        if (optionalCompany.isPresent()){
+            return optionalCompany.get();
+        }
+        return companyRepository.save(new Company(companyName));
+    }
+
+    private Company getCompanyIfCompanyIdExist(Long id) {
+        if (id == null) {
+            return null;
+        }
+        Optional<Company> optionalCompany = companyRepository.findById(id);
+        if (optionalCompany.isPresent()){
+            return optionalCompany.get();
+        }
+        throw new RuntimeException("Company with id: " + id + " not found");
     }
 
     @Override
@@ -104,27 +163,30 @@ public class GameServiceImpl implements GameService {
 //    }
 
     private void checkIfGameNameAlreadyInDB(Game game) throws RuntimeException {
+        if (game.getName() == null){
+            throw new RuntimeException("Please enter name!");
+        }
         Optional<Game> optionalGame = gameRepository.findByName(game.getName());
         if (optionalGame.isPresent()) {
             throw new RuntimeException("Game: " + game.getName() + " already exists in the DB." + optionalGame.get());
         }
     }
 
-    private Company getOrCreateCompanyIfNotExist(Company company) {
-        if (company != null && company.getId() == null) {
-            Optional<Company> optionalCompany = companyRepository.findByName(company.getName());
-            if (optionalCompany.isEmpty()) {
-                company = companyRepository.save(company);
-            } else {
-                company = optionalCompany.get();
-            }
-        }
-        return company;
-    }
+//    private Company getOrCreateCompanyIfNotExist(Company company) {
+//        if (company != null && company.getId() == null) {
+//            Optional<Company> optionalCompany = companyRepository.findByName(company.getName());
+//            if (optionalCompany.isEmpty()) {
+//                company = companyRepository.save(company);
+//            } else {
+//                company = optionalCompany.get();
+//            }
+//        }
+//        return company;
+//    }
 
     private Genre getOrCreateGenreIfNotExist(Genre genre) {
         if (genre == null) {
-            return null;
+            throw new RuntimeException("Please enter genre id and/or name!");
         }
 
         // need to check if genre ID + genre name are added - if they match in the DB.
